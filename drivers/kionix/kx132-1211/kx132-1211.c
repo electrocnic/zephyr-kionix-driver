@@ -16,17 +16,35 @@
 LOG_MODULE_REGISTER(kx132, CONFIG_SENSOR_LOG_LEVEL);
 
 
+#define SIZE_MANUFACT_ID_STRING (4)
+#define SIZE_PART_ID_STRING (2)
 
+union string_union_type__manufacturer_id
+{
+    char as_string[SIZE_MANUFACT_ID_STRING];
+    uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
+} manufacturer_id;
+
+union string_union_type__part_id
+{
+    char as_string[SIZE_MANUFACT_ID_STRING];
+    uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
+} manufacturer_id;
+
+
+//----------------------------------------------------------------------
 // Note:  struct sensor_value is defined in Zephyr's sensor.h header
 // file.  In Nordic ncs v1.6.1 SDK this file found in
 // nsc/v1.6.1/zephyr/include/drivers
+//
+// Kionix KX132-1211 register definitions found in KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf.
 //----------------------------------------------------------------------
 
 struct kx132_data
 {
     const struct device *i2c_dev;
-    union device_string string_id_manufacturer;
-    union device_string string_id_part;
+    union string_union_type__manufacturer_id manufacturer_id;
+    union string_union_type__part_id part_id;
     struct sensor_value accel_axis_x;
     struct sensor_value accel_axis_y;
     struct sensor_value accel_axis_z;
@@ -44,7 +62,7 @@ static int kx132_device_id_fetch(const struct device *dev, enum sensor_channel c
 
 
     // request manufacturer ID string from Kionix KX132-1211 sensor
-    err = i2c_write_read(dat->i2c_dev, DT_INST_REG_ADDR(0),
+    error = i2c_write_read(dat->i2c_dev, DT_INST_REG_ADDR(0),
                          cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
     if (error)
     {
