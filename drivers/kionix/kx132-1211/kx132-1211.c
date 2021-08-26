@@ -125,7 +125,7 @@ static const struct sensor_driver_api kx132_api = {
 static struct kx132_data kx132_data;
 
 
-DEVICE_DEFINE(kx132-1211,
+DEVICE_DEFINE(kx132_1211,
               DT_INST_LABEL(0),
               kx132_init,
               NULL,
