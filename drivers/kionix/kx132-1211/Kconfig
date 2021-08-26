@@ -2,7 +2,7 @@
 # Copyright (c) 2021 Neela Nurseries
 #
 
-menuconfig KX132-1211
+menuconfig KX132_1211
 	bool "Kionix 3-axis acceleromter"
 	depends on I2C
 	help
