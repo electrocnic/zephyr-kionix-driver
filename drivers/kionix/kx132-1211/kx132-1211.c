@@ -72,24 +72,28 @@ static int kx132_device_id_fetch(const struct device *dev, enum sensor_channel c
 
     printk("sensor manufacturer id: %s\n", rx_buf);
 
+    return 0;
 }
 
 
 static int kx132_device_id_get(const struct device *dev, enum sensor_channel channel)
 {
-
+// stub function
+    return 0;
 }
 
 
 static int kx132_sample_fetch(const struct device *dev, enum sensor_channel channel)
 {
-
+// stub function
+    return 0;
 }
 
 
 static int kx132_sample_get(const struct device *dev, enum sensor_channel channel)
 {
-
+// stub function   
+    return 0;
 }
 
 
