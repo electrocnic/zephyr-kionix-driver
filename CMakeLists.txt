@@ -12,3 +12,4 @@ add_subdirectory(drivers)
 # Include headers
 # zephyr_include_directories(include)            . . . also not yet created - TMH
 zephyr_include_directories(drivers)
+zephyr_include_directories(drivers/kionix/kx132-1211)
