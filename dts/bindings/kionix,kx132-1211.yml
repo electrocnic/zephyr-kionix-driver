@@ -4,6 +4,6 @@
 
 description:  Kionix 3-axis accelerometer
 
-compatible: "kionix,kx132-1211"
+compatible: "kionix,kx132_1211"
 
 include: i2c-device.yaml
