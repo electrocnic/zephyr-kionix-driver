@@ -12,7 +12,7 @@ if KX132_1211
 
 config KX132_1211_DRV_NAME
 	string "Kionix KX132-1211 Driver's name"
-	default "KX132-1211"
+	default "KX132_1211"
 	help
 	  This option sets the driver name
 
