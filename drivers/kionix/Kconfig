@@ -2,4 +2,6 @@
 # Copyright (c) 2021 Neela Nurseries
 #
 
+menu "KX132-1211 driver"
 rsource "kx132-1211/Kconfig"
+endmenu
