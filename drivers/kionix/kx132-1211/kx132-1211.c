@@ -23,13 +23,13 @@ union string_union_type__manufacturer_id
 {
     char as_string[SIZE_MANUFACT_ID_STRING];
     uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
-} manufacturer_id;
+};
 
 union string_union_type__part_id
 {
     char as_string[SIZE_MANUFACT_ID_STRING];
     uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
-} manufacturer_id;
+};
 
 
 //----------------------------------------------------------------------
