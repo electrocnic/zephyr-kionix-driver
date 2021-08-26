@@ -19,5 +19,10 @@
 #define CMD_KX132_REQUEST_PART_ID { KX132_I2C_SENSOR_ADDRESS, PART_ID }
 
 
+//
+// - SECTION - function prototypes
+//
+static int kx132_device_id_fetch(const struct device *dev, enum sensor_channel channel);
+
 
 #endif
