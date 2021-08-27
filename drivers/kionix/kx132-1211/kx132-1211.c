@@ -64,7 +64,7 @@ static int kx132_device_id_fetch(const struct device *dev)
     // request manufacturer ID string from Kionix KX132-1211 sensor
     status_de_comms = i2c_write_read(data_str_ptr->i2c_dev, DT_INST_REG_ADDR(0),
                          cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
-    if (error)
+    if (status_de_comms != 0)
     {
         LOG_WRN("Unable to read manufacturer ID string. Err: %i", error);
         return error;
@@ -75,7 +75,7 @@ static int kx132_device_id_fetch(const struct device *dev)
     int i = 0;
     for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
     {
-        data_str_ptr->manufacturer_id[i] = rx_buf[i];
+        data_str_ptr->manufacturer_id.as_bytes[i] = rx_buf[i];
     }	      
 
     return 0;
@@ -124,7 +124,8 @@ static int kx132_1211_channel_get(const struct device *dev,
 
 // FEATURE - initializating function in KX132-1211 driver:
 
-static int kx132_init(const struct device *dev)
+//static int kx132_init(const struct device *dev)
+static int kx132_1211_init(const struct device *dev)
 {
     struct kx132_1211_data *data = dev->data;
 
@@ -149,10 +150,10 @@ static int kx132_init(const struct device *dev)
 // https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html
 
 static const struct sensor_driver_api kx132_api = {
-    .attr_get = &kx1232_1211_attr_get,
-    .attr_set = &kx1232_1211_attr_set,
-    .sample_fetch = &kx1232_1211_sample_fetch,
-    .channel_get = &kx1232_1211_sample_fetch,
+    .attr_get = &kx132_1211_attr_get,
+    .attr_set = &kx132_1211_attr_set,
+    .sample_fetch = &kx132_1211_sample_fetch,
+    .channel_get = &kx132_1211_channel_get
 };
 
 
@@ -161,7 +162,8 @@ static struct kx132_1211_data kx132_1211_data;
 
 DEVICE_DEFINE(kx132_1211,
               DT_INST_LABEL(0),
-              kx132_init,
+//              kx132_init,
+              kx132_1211_init,
               NULL,
               &kx132_1211_data,
               NULL,
