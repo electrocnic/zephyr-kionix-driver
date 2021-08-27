@@ -22,7 +22,6 @@
 //
 // - SECTION - function prototypes
 //
-static int kx132_device_id_fetch(const struct device *dev, enum sensor_channel channel);
 
 
 #endif

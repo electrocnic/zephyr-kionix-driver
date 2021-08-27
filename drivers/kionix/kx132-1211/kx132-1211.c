@@ -40,7 +40,7 @@ union string_union_type__part_id
 // Kionix KX132-1211 register definitions found in KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf.
 //----------------------------------------------------------------------
 
-struct kx132_data
+struct kx132_1211_data
 {
     const struct device *i2c_dev;
     union string_union_type__manufacturer_id manufacturer_id;
@@ -52,17 +52,17 @@ struct kx132_data
 
 
 
-static int kx132_device_id_fetch(const struct device *dev, enum sensor_channel channel)
+static int kx132_device_id_fetch(const struct device *dev)
 {
-    int error = 0;
-    struct kx132_data *dat = (struct kx132_data *)dev->data;
+    int status_de_comms = 0;
+    struct kx132_1211_data *data_str_ptr = (struct kx132_1211_data *)dev->data;
 
     uint8_t cmd[] = CMD_KX132_REQUEST_MANUFACTURER_ID;
     uint8_t rx_buf[] = {0, 0, 0, 0};
 
 
     // request manufacturer ID string from Kionix KX132-1211 sensor
-    error = i2c_write_read(dat->i2c_dev, DT_INST_REG_ADDR(0),
+    status_de_comms = i2c_write_read(data_str_ptr->i2c_dev, DT_INST_REG_ADDR(0),
                          cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
     if (error)
     {
@@ -72,8 +72,15 @@ static int kx132_device_id_fetch(const struct device *dev, enum sensor_channel c
 
     printk("sensor manufacturer id: %s\n", rx_buf);
 
+    int i = 0;
+    for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
+    {
+        data_str_ptr[i] = rx_buf[i];
+    }	      
+
     return 0;
 }
+
 
 
 static int kx132_device_id_get(const struct device *dev, enum sensor_channel channel)
@@ -83,11 +90,13 @@ static int kx132_device_id_get(const struct device *dev, enum sensor_channel cha
 }
 
 
+
 static int kx132_sample_fetch(const struct device *dev, enum sensor_channel channel)
 {
 // stub function
     return 0;
 }
+
 
 
 static int kx132_sample_get(const struct device *dev, enum sensor_channel channel)
@@ -102,7 +111,7 @@ static int kx132_sample_get(const struct device *dev, enum sensor_channel channe
 
 static int kx132_init(const struct device *dev)
 {
-    struct kx132_data *data = dev->data;
+    struct kx132_1211_data *data = dev->data;
 
     data->i2c_dev = device_get_binding(DT_INST_BUS_LABEL(0));
 
@@ -120,20 +129,20 @@ static int kx132_init(const struct device *dev)
 
 static const struct sensor_driver_api kx132_api = {
     .device_id_fetch = &kx132_device_id_fetch,
-    .device_id_get = &kx132_device_id_get,
-    .device_sample_fetch = &kx132_device_sample_fetch,
-    .device_sample_get = &kx132_device_sample_get,
+//    .device_id_get = &kx132_device_id_get,
+//    .device_sample_fetch = &kx132_device_sample_fetch,
+//    .device_sample_get = &kx132_device_sample_get,
 };
 
 
-static struct kx132_data kx132_data;
+static struct kx132_1211_data kx132_1211_data;
 
 
 DEVICE_DEFINE(kx132_1211,
               DT_INST_LABEL(0),
               kx132_init,
               NULL,
-              &kx132_data,
+              &kx132_1211_data,
               NULL,
               POST_KERNEL,
               CONFIG_SENSOR_INIT_PRIORITY,
