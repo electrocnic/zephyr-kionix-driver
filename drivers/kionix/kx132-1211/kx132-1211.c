@@ -75,7 +75,7 @@ static int kx132_device_id_fetch(const struct device *dev)
     int i = 0;
     for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
     {
-        data_str_ptr[i] = rx_buf[i];
+        data_str_ptr->manufacturer_id[i] = rx_buf[i];
     }	      
 
     return 0;
@@ -83,7 +83,10 @@ static int kx132_device_id_fetch(const struct device *dev)
 
 
 
-static int kx132_device_id_get(const struct device *dev, enum sensor_channel channel)
+static int kx132_1211_attr_get(const struct device *dev,
+                          enum sensor_channel chan,
+                          enum sensor_attribute attr,
+                          struct sensor_value *val)
 {
 // stub function
     return 0;
@@ -91,7 +94,10 @@ static int kx132_device_id_get(const struct device *dev, enum sensor_channel cha
 
 
 
-static int kx132_sample_fetch(const struct device *dev, enum sensor_channel channel)
+static int kx132_1211_attr_set(const struct device *dev,
+                          enum sensor_channel chan,
+                          enum sensor_attribute attr,
+                          const struct sensor_value *val)
 {
 // stub function
     return 0;
@@ -99,7 +105,16 @@ static int kx132_sample_fetch(const struct device *dev, enum sensor_channel chan
 
 
 
-static int kx132_sample_get(const struct device *dev, enum sensor_channel channel)
+static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel channel)
+{
+// stub function   
+    return 0;
+}
+
+
+static int kx132_1211_channel_get(const struct device *dev,
+                             enum sensor_channel chan,
+                             struct sensor_value *val)
 {
 // stub function   
     return 0;
@@ -125,13 +140,19 @@ static int kx132_init(const struct device *dev)
 }
 
 
-// FEATURE - structure to capture pointers to KX132 driver functions:
+// FEATURE - structure defined in Zephyr Project sensor.h header,
+//  each member here assigned to point to functions which read and
+//  write given sensor attributes, and which fetch and get (copy)
+//  sensor readings most recently fetched.  
+//  Zephyr's notions of 'fetch', 'get', sensor channels and related
+//  terms detailed here:
+// https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html
 
 static const struct sensor_driver_api kx132_api = {
-    .device_id_fetch = &kx132_device_id_fetch,
-//    .device_id_get = &kx132_device_id_get,
-//    .device_sample_fetch = &kx132_device_sample_fetch,
-//    .device_sample_get = &kx132_device_sample_get,
+    .attr_get = &kx1232_1211_attr_get,
+    .attr_set = &kx1232_1211_attr_set,
+    .sample_fetch = &kx1232_1211_sample_fetch,
+    .channel_get = &kx1232_1211_sample_fetch,
 };
 
 
