@@ -4,7 +4,7 @@
  * @copyright Copyright Cornell Pump 2021
  */
 
-#define DT_DRV_COMPAT kionix_kx132
+#define DT_DRV_COMPAT kionix_kx132_1211
 
 #include <math.h>
 #include <device.h>
