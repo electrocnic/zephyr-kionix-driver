@@ -54,7 +54,7 @@ struct kx132_1211_data
 
 static int kx132_device_id_fetch(const struct device *dev)
 {
-    int status_de_comms = 0;
+    int bus_comms_status = 0;
     struct kx132_1211_data *data_str_ptr = (struct kx132_1211_data *)dev->data;
 
     uint8_t cmd[] = CMD_KX132_REQUEST_MANUFACTURER_ID;
@@ -62,12 +62,12 @@ static int kx132_device_id_fetch(const struct device *dev)
 
 
     // request manufacturer ID string from Kionix KX132-1211 sensor
-    status_de_comms = i2c_write_read(data_str_ptr->i2c_dev, DT_INST_REG_ADDR(0),
+    bus_comms_status = i2c_write_read(data_str_ptr->i2c_dev, DT_INST_REG_ADDR(0),
                          cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
-    if (status_de_comms != 0)
+    if (bus_comms_status != 0)
     {
-        LOG_WRN("Unable to read manufacturer ID string. Err: %i", error);
-        return error;
+        LOG_WRN("Unable to read manufacturer ID string. Err: %i", bus_comms_status);
+        return bus_comms_status;
     }
 
     printk("sensor manufacturer id: %s\n", rx_buf);
@@ -76,7 +76,7 @@ static int kx132_device_id_fetch(const struct device *dev)
     for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
     {
         data_str_ptr->manufacturer_id.as_bytes[i] = rx_buf[i];
-    }	      
+    }
 
     return 0;
 }
