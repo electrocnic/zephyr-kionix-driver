@@ -19,9 +19,40 @@
 #define CMD_KX132_REQUEST_PART_ID { KX132_I2C_SENSOR_ADDRESS, PART_ID }
 
 
+
+// Note:  Zephyr Project 2.6.0 provides sensor.h header file in
+//  ncs/zephyr/include/drivers/sensor.h.  An important enum given here
+//  is named sensor_channel.  Near it's end last two elements are:
 //
+//    189         SENSOR_CHAN_PRIV_START = SENSOR_CHAN_COMMON_COUNT,
+//
+//    194         SENSOR_CHAN_MAX = INT16_MAX,
+//
+//  Until we find better we're going to use "sensor channel private start"
+//  enum element to provide some custom channels to Kionix KX132-1211.
+//----------------------------------------------------------------------
+
+enum sensor_channels_kionix_specific {
+    SENSOR_CHAN_KIONIX_START = (SENSOR_CHAN_PRIV_START + 1),
+    SENSOR_CHAN_KIONIX_MANUFACTURER_ID,
+    SENSOR_CHAN_KIONIX_PART_ID,
+    SENSOR_CHAN_KIONIX_END,
+};
+
+
+// NEED to move this enum to a shared include file:
+enum kionix_routine_statae {
+    ROUTINE_OK,
+    ROUTINE_SUCCESS,
+    ROUTINE_ERROR_ENCOUNTERED,
+    UNDEFINED_SENSOR_CHANNEL,
+}; 
+
+
+
+//----------------------------------------------------------------------
 // - SECTION - function prototypes
-//
+//----------------------------------------------------------------------
 
 
-#endif
+#endif // KX132_1211_H

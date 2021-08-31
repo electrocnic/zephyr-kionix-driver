@@ -23,12 +23,14 @@ union string_union_type__manufacturer_id
 {
     char as_string[SIZE_MANUFACT_ID_STRING];
     uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
+    uint32_t as_32_bit_integer;
 };
 
 union string_union_type__part_id
 {
     char as_string[SIZE_MANUFACT_ID_STRING];
     uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
+    uint16_t as_16_bit_integer;
 };
 
 
@@ -55,14 +57,14 @@ struct kx132_1211_data
 static int kx132_device_id_fetch(const struct device *dev)
 {
     int bus_comms_status = 0;
-    struct kx132_1211_data *data_str_ptr = (struct kx132_1211_data *)dev->data;
+    struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
 
     uint8_t cmd[] = CMD_KX132_REQUEST_MANUFACTURER_ID;
     uint8_t rx_buf[] = {0, 0, 0, 0};
 
 
     // request manufacturer ID string from Kionix KX132-1211 sensor
-    bus_comms_status = i2c_write_read(data_str_ptr->i2c_dev, DT_INST_REG_ADDR(0),
+    bus_comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
                          cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
     if (bus_comms_status != 0)
     {
@@ -75,7 +77,7 @@ static int kx132_device_id_fetch(const struct device *dev)
     int i = 0;
     for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
     {
-        data_str_ptr->manufacturer_id.as_bytes[i] = rx_buf[i];
+        data_struc_ptr->manufacturer_id.as_bytes[i] = rx_buf[i];
     }
 
     return 0;
@@ -112,12 +114,59 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
 }
 
 
+
+
+// 2021-08-31 Notes:
+//  *  routine implementation underway
+//  *  must review ncs v1.6.1 ncs/zephyr/include/drivers/sensor.h channel enum for highest value
+//  *
+// Zephyr defines a structure 'sensor_value' as two 32-bit integers,
+// named .val1 and .val2.  We can use these to return smaller data,
+// such as a single 32-bit or 16-value.  We need only comment here the
+// way in which we are formatting our data to return to calling code.
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 static int kx132_1211_channel_get(const struct device *dev,
                              enum sensor_channel chan,
                              struct sensor_value *val)
 {
-// stub function   
-    return 0;
+// 2021-08-31 - function implementation in progress, TMH.
+
+    int routine_status = 0;
+
+// Following design pattern in J Wolff AQW driver for Sensirion SHTC3 sensor,
+// begin with a pointer to a data structure that's crafted to support
+// our new-to-us Kionix sensor:
+    struct kx132_1211_data *data = (struct kx132_1211_data *)dev->data;
+
+// Clear memory passed to us by calling code:
+    memset(val, 0, sizeof(*val));
+
+// Select data to 'get' based on caller's desired sensor channel:
+// ( data has already been fetched, thus 'to get' data is primarily a copy operation )
+    switch (chan)
+    {
+        case SENSOR_CHAN_KIONIX_MANUFACTURER_ID:  // a four byte value
+//            val->val1 = dev->data->manufacturer_id.as_32_bit_integer;
+//                             ^^^^ ...incorrect, this structure member is not named in a way we may access,
+//                                     see DEVICE_DEFINE expression end of this source file - TMH
+            val->val1 = data->manufacturer_id.as_32_bit_integer;
+            val->val2 = 0;
+            break;
+
+        case SENSOR_CHAN_KIONIX_PART_ID:          // a two byte value
+            val->val1 = data->part_id.as_16_bit_integer;
+            val->val2 = 0;
+            break;
+
+
+        default:
+            routine_status = UNDEFINED_SENSOR_CHANNEL;
+    }
+
+
+
+    return routine_status;
 }
 
 
