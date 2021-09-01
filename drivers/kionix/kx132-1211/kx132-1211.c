@@ -109,8 +109,20 @@ static int kx132_1211_attr_set(const struct device *dev,
 
 static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel channel)
 {
-// stub function   
-    return 0;
+    int routine_status = 0;
+    struct kx132_1211_data *data = (struct kx132_1211_data *)dev->data;
+
+    switch (channel)
+    {
+        case SENSOR_CHAN_KIONIX_MANUFACTURER_ID:  // a four byte value
+            kx132_device_id_fetch(dev);
+            break;
+
+        default:
+            routine_status = UNDEFINED_SENSOR_CHANNEL;
+    }
+
+    return routine_status;
 }
 
 
