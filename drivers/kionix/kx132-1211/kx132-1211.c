@@ -56,6 +56,7 @@ struct kx132_1211_data
 
 static int kx132_device_id_fetch(const struct device *dev)
 {
+    int i = 0;
     int bus_comms_status = 0;
     struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
 
@@ -72,9 +73,14 @@ static int kx132_device_id_fetch(const struct device *dev)
         return bus_comms_status;
     }
 
-    printk("sensor manufacturer id: %s\n", rx_buf);
+    for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
+    {
+        if ((rx_buf[i] < 0x20) || (rx_buf[i] > 0x7E))
+            { printk("manu' id byte %d outside ASCII printable range:  %u\n", i, rx_buf[i]); }
+    }
 
-    int i = 0;
+//    printk("sensor manufacturer id: %s\n", rx_buf);
+
     for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
     {
         data_struc_ptr->manufacturer_id.as_bytes[i] = rx_buf[i];
