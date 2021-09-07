@@ -64,6 +64,8 @@ static int kx132_device_id_fetch(const struct device *dev)
     uint8_t rx_buf[] = {0, 0, 0, 0};
 
 
+    printk("file kx132-1211.c fetching device ID . . .\n");
+
     // request manufacturer ID string from Kionix KX132-1211 sensor
     bus_comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
                          cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
