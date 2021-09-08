@@ -56,17 +56,13 @@ struct kx132_1211_data
 
 static int kx132_device_id_fetch(const struct device *dev)
 {
-    int i = 0;
-    int bus_comms_status = 0;
     struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
-
     uint8_t cmd[] = CMD_KX132_REQUEST_MANUFACTURER_ID;
     uint8_t rx_buf[] = {0, 0, 0, 0};
+    int bus_comms_status = 0;
+    int i = 0;
 
-
-    printk("file kx132-1211.c fetching device ID . . .\n");
-
-    // request manufacturer ID string from Kionix KX132-1211 sensor
+// request manufacturer ID string from Kionix KX132-1211 sensor
     bus_comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
                          cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
     if (bus_comms_status != 0)
@@ -81,11 +77,36 @@ static int kx132_device_id_fetch(const struct device *dev)
             { printk("manu' id byte %d outside ASCII printable range:  %u\n", i, rx_buf[i]); }
     }
 
-//    printk("sensor manufacturer id: %s\n", rx_buf);
-
     for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
     {
         data_struc_ptr->manufacturer_id.as_bytes[i] = rx_buf[i];
+    }
+
+    return 0;
+}
+
+
+
+static int kx132_part_id_fetch(const struct device *dev)
+{
+    int bus_comms_status = 0;
+    struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
+    uint8_t cmd[] = CMD_KX132_REQUEST_PART_ID;
+    uint8_t rx_buf[] = {0, 0};
+    int i = 0;
+
+// request part ID string from Kionix KX132-1211 sensor:
+    bus_comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
+                         cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
+    if (bus_comms_status != 0)
+    {
+        LOG_WRN("Unable to read numeric part ID . Err: %i", bus_comms_status);
+        return bus_comms_status;
+    }
+
+    for (i = 0; i < SIZE_PART_ID_STRING; i++)
+    {
+        data_struc_ptr->part_id.as_bytes[i] = rx_buf[i];
     }
 
     return 0;
@@ -118,12 +139,16 @@ static int kx132_1211_attr_set(const struct device *dev,
 static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel channel)
 {
     int routine_status = 0;
-    struct kx132_1211_data *data = (struct kx132_1211_data *)dev->data;
+//    struct kx132_1211_data *data = (struct kx132_1211_data *)dev->data;
 
     switch (channel)
     {
         case SENSOR_CHAN_KIONIX_MANUFACTURER_ID:  // a four byte value
             kx132_device_id_fetch(dev);
+            break;
+
+        case SENSOR_CHAN_KIONIX_PART_ID:          // a two byte value
+            kx132_part_id_fetch(dev);
             break;
 
         default:
@@ -183,8 +208,6 @@ static int kx132_1211_channel_get(const struct device *dev,
         default:
             routine_status = UNDEFINED_SENSOR_CHANNEL;
     }
-
-
 
     return routine_status;
 }
