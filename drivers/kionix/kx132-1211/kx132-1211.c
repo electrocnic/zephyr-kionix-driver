@@ -11,6 +11,7 @@
 #include <drivers/i2c.h>
 #include <drivers/sensor.h>
 #include "kx132-1211.h"
+#include "out-of-tree-drivers.h"
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(kx132, CONFIG_SENSOR_LOG_LEVEL);
@@ -125,13 +126,94 @@ static int kx132_1211_attr_get(const struct device *dev,
 
 
 
+// TO-DO:  move this enum to header file, once working:
+
+// REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_attribute
+// REF from Kionix AN092-Getting-Stated.pdf
+
+// QUESTION:  how do we keep our and any custom enumerated sensor
+//  attributes from colliding with other third party, out-of-tree
+//  driver enumerations?
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+enum kx132_1211_config_setting_e
+{
+    KX132_CONFIGURATION_SETTING_FIRST,
+
+    KX132_ENABLE_ASYNC_READINGS,
+    KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT,
+    KX132_ENABLE_SYNC_READINGS_WITHOUT_HW_INTERRUPT,
+    KX132_ENABLE_ACCELEROMETER_READINGS_BUFFER,
+    KX132_ENABLE_WATERMARK_INTERRUPT,
+    KX132_SET_TRIGGER_MODE,
+    KX132_ENABLE_WAKE_UP,
+    KX132_ENABLE_WAKE_UP_AND_BACK_TO_SLEEP,
+    KX132_ENABLE_TILT_POSITION_WITH_FACE_DETECT,
+    KX132_ENABLE_TAP_DOUBLE_TAP,
+    KX132_ENABLE_FREE_FALL_ENGINE,
+
+    KX132_CONFIGURATION_SETTING_LAST
+};
+
+
+
+// REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_channel.SENSOR_CHAN_ALL
+
 static int kx132_1211_attr_set(const struct device *dev,
                           enum sensor_channel chan,
                           enum sensor_attribute attr,
                           const struct sensor_value *val)
 {
-// stub function
-    return 0;
+    int status = ROUTINE_OK;
+
+    switch (attr)
+    {
+        case SENSOR_ATTR_CONFIGURATION:
+        {
+            switch (chan)
+            {
+                case SENSOR_CHAN_ALL:
+                {
+                    switch (val)
+                    {
+// When a sensor attribute to set is a configuration value, and it
+// applies to some or all readings channels not just one, then calling
+// code should call this routine with above two Zephyr enumerated
+// case values, and a final value in paramter 'val' which falls in
+// the local Kionix driver enumeration named 'kx132_1211_config_setting_e'.
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                        case KX132_ENABLE_ASYNC_READINGS:
+                        {
+                            kx132_enable_asynchronous_readings();
+                            break;
+                        }
+
+                        default: // ...action to take when requested config not supported
+                        {
+                            status = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
+                            break;
+                        }
+
+                    } // close scope of switch(val)
+                }
+
+                default: // ...action to take with unrecognized sensor channel
+                {
+                    status = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
+                    break;
+                }
+
+            } // close scope of switch(chan)
+        }
+
+        default: // ...default action to take with unrecognized sensor attribute
+        {
+            status = ROUTINE_STATUS__UNDEFINED_SENSOR_ATTRIBUTE;
+            break;
+        }
+    } // close scope of switch(attr)
+
+    return status;
 }
 
 
@@ -254,7 +336,6 @@ static struct kx132_1211_data kx132_1211_data;
 
 DEVICE_DEFINE(kx132_1211,
               DT_INST_LABEL(0),
-//              kx132_init,
               kx132_1211_init,
               NULL,
               &kx132_1211_data,

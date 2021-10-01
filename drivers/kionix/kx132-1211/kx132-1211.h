@@ -42,14 +42,17 @@ enum sensor_channels_kionix_specific {
 };
 
 
+#if 0
 // NEED to move this enum to a shared include file:
 enum kionix_routine_statae {
     ROUTINE_OK,
     ROUTINE_SUCCESS,
     ROUTINE_ERROR_ENCOUNTERED,
-    UNDEFINED_SENSOR_CHANNEL,
+    KX132_ROUTINE__UNDEFINED_SENSOR_CHANNEL,
+    KX132_ROUTINE__UNDEFINED_SENSOR_ATTRIBUTE,
+    KX132_ROUTINE__UNSUPPORTED_SENSOR_CONFIGURATION
 }; 
-
+#endif
 
 
 //----------------------------------------------------------------------
