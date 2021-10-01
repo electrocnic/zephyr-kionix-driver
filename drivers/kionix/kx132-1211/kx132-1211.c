@@ -55,6 +55,21 @@ struct kx132_1211_data
 
 
 
+//----------------------------------------------------------------------
+// - SECTION - Kionix sensor specific configuration routines
+//----------------------------------------------------------------------
+
+static int kx132_enable_asynchronous_readings()
+{
+// stub routine
+}
+
+
+
+//----------------------------------------------------------------------
+// - SECTION - Kionix sensor specific readings and data fetch routines
+//----------------------------------------------------------------------
+
 static int kx132_device_id_fetch(const struct device *dev)
 {
     struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
