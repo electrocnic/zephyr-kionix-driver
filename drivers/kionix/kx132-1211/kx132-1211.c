@@ -179,7 +179,7 @@ static int kx132_acceleration_x_axis_fetch(const struct device *dev)
 {
     int bus_comms_status = 0;
     struct kx132_1211_data* data_struc_ptr = (struct kx132_1211_data*)dev->data;
-    uint8_t cmd[] = { 0x02 }; // starting address of X acceleration reading, LSB of two byte value
+    uint8_t cmd[] = { 0x08 }; // starting address of X acceleration reading, LSB of two byte value
     uint8_t rx_buf[] = {0, 0};
     int i = 0;
 
@@ -207,8 +207,28 @@ static int kx132_acceleration_x_axis_fetch(const struct device *dev)
 
 static int kx132_acceleration_y_axis_fetch(const struct device *dev)
 {
-// stub
     int bus_comms_status = 0;
+    struct kx132_1211_data* data_struc_ptr = (struct kx132_1211_data*)dev->data;
+    uint8_t cmd[] = { 0x0A }; // starting address of X acceleration reading, LSB of two byte value
+    uint8_t rx_buf[] = {0, 0};
+    int i = 0;
+
+    bus_comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
+                         cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
+    if (bus_comms_status != 0)
+    {
+        LOG_WRN("Unable to read Y axis acceleration.  Error: %i", bus_comms_status);
+        return bus_comms_status;
+    }
+
+    for (i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++)
+    {
+        data_struc_ptr->accel_axis_y[i] = rx_buf[i];
+    }
+
+    printk("- DEV - Y axis acceleration is %d   - DEV -\n",
+      ((data_struc_ptr->accel_axis_y[1] * 0xFF) + data_struc_ptr->accel_axis_y[0]));
+
     return bus_comms_status;
 }
 
@@ -226,7 +246,7 @@ static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
 // stub
     int bus_comms_status = 0;
     struct kx132_1211_data* data_struc_ptr = (struct kx132_1211_data*)dev->data;
-    uint8_t cmd[] = { 0x02 }; // starting address of X acceleration reading, LSB of two byte value
+    uint8_t cmd[] = { 0x08 }; // starting address of X acceleration reading, LSB of two byte value
     uint8_t rx_buf[] = {0, 0,  0, 0,  0, 0};
     int i = 0;
 
@@ -237,6 +257,13 @@ static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
         LOG_WRN("Unable to read numeric part ID . Err: %i", bus_comms_status);
         return bus_comms_status;
     }
+
+    for (i = 0; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 0); i++)
+        { data_struc_ptr->accel_axis_x[i - 0] = rx_buf[i]; }
+    for (i = 2; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 2); i++)
+        { data_struc_ptr->accel_axis_y[i - 2] = rx_buf[i]; }
+    for (i = 4; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 4); i++)
+        { data_struc_ptr->accel_axis_z[i - 4] = rx_buf[i]; }
 
     printk("- DEV - X, Y and Z accelerations are %d, %d, %d   - DEV -\n",
       ((data_struc_ptr->accel_axis_x[1] * 0xFF) + data_struc_ptr->accel_axis_x[0]),
