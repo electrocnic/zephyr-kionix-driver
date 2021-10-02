@@ -48,9 +48,11 @@ struct kx132_1211_data
     const struct device *i2c_dev;
     union string_union_type__manufacturer_id manufacturer_id;
     union string_union_type__part_id part_id;
-    struct sensor_value accel_axis_x;
-    struct sensor_value accel_axis_y;
-    struct sensor_value accel_axis_z;
+    uint8_t accel_axis_x[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
+    uint8_t accel_axis_y[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
+    uint8_t accel_axis_z[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
+    uint8_t accel_axis_xyz[BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES];
+//    uint8_t padding[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
 };
 
 
@@ -59,13 +61,52 @@ struct kx132_1211_data
 // - SECTION - Kionix sensor specific configuration routines
 //----------------------------------------------------------------------
 
-static int kx132_enable_asynchronous_readings()
+static int kx132_enable_asynchronous_readings(const struct device *dev)
 {
 // stub routine
+
+
+// Note per Sensirion datasheet sensor SHTC3 sleep command is 0xB098,
+// given on page 6 of 14.
+
+    int comms_status = 0;
+    struct kx132_1211_data *data = dev->data;
+    int status = ROUTINE_OK;
+
+//    err = i2c_write(i2c_dev, sleep_cmd, sizeof(sleep_cmd), DT_INST_REG_ADDR(0));
+
+// Per AN092-Getting-Started.pdf from Kionix, page 2 of 27:
+    uint8_t cmd_cntl_00[] = { 0x1B, 0x00 };
+
+
+    printk("writing {%02X, %02X . . .\n", cmd_cntl_00[0], cmd_cntl_00[1]);
+//    comms_status = i2c_write(*dev->data->i2c_dev, config_command, sizeof(config_command),
+    comms_status = i2c_write(data->i2c_dev, cmd_cntl_00, sizeof(cmd_cntl_00), DT_INST_REG_ADDR(0));
+
+    if (comms_status != 0)
     {
-//        printk("manufacturer id byte %d outside ASCII printable range:  %u\n", i, rx_buf[i]);
-        printk("- STUB - configure async readings function - STUB -\n");
+        LOG_WRN("- ERROR - Unable to write CNTL register, but error:  %i", comms_status);
+        return comms_status;
     }
+
+    k_msleep(100);
+
+
+// Next commands (register writes) are:
+
+// KX132-1211 Register CTRL1:
+    uint8_t cmd_odcntl_06[] = { 0x21, 0x06 };
+    comms_status = i2c_write(data->i2c_dev, cmd_odcntl_06, sizeof(cmd_odcntl_06), DT_INST_REG_ADDR(0));
+    k_msleep(100);
+
+// KX132-1211 Register INC1:
+    uint8_t cmd_cntl_c0[] = { 0x1B, 0xC0 };
+    comms_status = i2c_write(data->i2c_dev, cmd_cntl_c0, sizeof(cmd_cntl_c0), DT_INST_REG_ADDR(0));
+    k_msleep(100);
+
+    printk("attempt to configure async reading complete.\n");
+
+    return status;
 }
 
 
@@ -131,6 +172,83 @@ static int kx132_part_id_fetch(const struct device *dev)
 
     return 0;
 }
+ 
+
+
+static int kx132_acceleration_x_axis_fetch(const struct device *dev)
+{
+    int bus_comms_status = 0;
+    struct kx132_1211_data* data_struc_ptr = (struct kx132_1211_data*)dev->data;
+    uint8_t cmd[] = { 0x02 }; // starting address of X acceleration reading, LSB of two byte value
+    uint8_t rx_buf[] = {0, 0};
+    int i = 0;
+
+    bus_comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
+                         cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
+    if (bus_comms_status != 0)
+    {
+        LOG_WRN("Unable to read X axis acceleration.  Error: %i", bus_comms_status);
+        return bus_comms_status;
+    }
+
+    for (i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++)
+    {
+        data_struc_ptr->accel_axis_x[i] = rx_buf[i];
+    }
+
+    printk("- DEV - X axis acceleration is %d   - DEV -\n",
+      ((data_struc_ptr->accel_axis_x[1] * 0xFF) + data_struc_ptr->accel_axis_x[0]));
+    printk("- DEV - ( requested %d bytes of data starting from sensor internal addr %d ) - DEV -\n",
+      sizeof(rx_buf), cmd[0]);
+
+    return bus_comms_status;
+}
+
+
+static int kx132_acceleration_y_axis_fetch(const struct device *dev)
+{
+// stub
+    int bus_comms_status = 0;
+    return bus_comms_status;
+}
+
+
+static int kx132_acceleration_z_axis_fetch(const struct device *dev)
+{
+// stub
+    int bus_comms_status = 0;
+    return bus_comms_status;
+}
+
+
+static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
+{
+// stub
+    int bus_comms_status = 0;
+    struct kx132_1211_data* data_struc_ptr = (struct kx132_1211_data*)dev->data;
+    uint8_t cmd[] = { 0x02 }; // starting address of X acceleration reading, LSB of two byte value
+    uint8_t rx_buf[] = {0, 0,  0, 0,  0, 0};
+    int i = 0;
+
+    bus_comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
+                         cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
+    if (bus_comms_status != 0)
+    {
+        LOG_WRN("Unable to read numeric part ID . Err: %i", bus_comms_status);
+        return bus_comms_status;
+    }
+
+    printk("- DEV - X, Y and Z accelerations are %d, %d, %d   - DEV -\n",
+      ((data_struc_ptr->accel_axis_x[1] * 0xFF) + data_struc_ptr->accel_axis_x[0]),
+      ((data_struc_ptr->accel_axis_y[1] * 0xFF) + data_struc_ptr->accel_axis_y[0]),
+      ((data_struc_ptr->accel_axis_z[1] * 0xFF) + data_struc_ptr->accel_axis_z[0])
+    );
+    printk("- DEV - ( requested %d bytes of data starting from sensor internal addr %d ) - DEV -\n",
+      sizeof(rx_buf), cmd[0]);
+
+
+    return bus_comms_status;
+}
 
 
 
@@ -176,7 +294,7 @@ static int kx132_1211_attr_set(const struct device *dev,
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                         case KX132_ENABLE_ASYNC_READINGS:
                         {
-                            kx132_enable_asynchronous_readings();
+                            kx132_enable_asynchronous_readings(dev);
                             break;
                         }
 
@@ -223,6 +341,22 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
 
         case SENSOR_CHAN_KIONIX_PART_ID:          // a two byte value
             kx132_part_id_fetch(dev);
+            break;
+
+        case SENSOR_CHAN_ACCEL_X:                 // one or two byte value, depending on KX132-1211 configuration
+            kx132_acceleration_x_axis_fetch(dev);
+            break;
+
+        case SENSOR_CHAN_ACCEL_Y:                 // one or two byte value, depending on KX132-1211 configuration
+            kx132_acceleration_y_axis_fetch(dev);
+            break;
+
+        case SENSOR_CHAN_ACCEL_Z:                 // one or two byte value, depending on KX132-1211 configuration
+            kx132_acceleration_z_axis_fetch(dev);
+            break;
+
+        case SENSOR_CHAN_ACCEL_XYZ:               // read of prior three pairs of registers in sequence
+            kx132_acceleration_xyz_axis_fetch(dev);
             break;
 
         default:

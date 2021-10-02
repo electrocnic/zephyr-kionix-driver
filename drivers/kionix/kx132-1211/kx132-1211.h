@@ -2,12 +2,6 @@
 #define KX132_1211_H
 
 
-// For following defines see Kionix document
-// KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf
-
-#define MAN_ID (0x00)
-#define PART_ID (0x01)
-
 // KX132-1211 I2C sensor address with ADDR pin connected to IO_VDD:
 // 2021-09-01 Updating per KX132-1211-Specifications-Rev-1.0.pdf:
 #define KX132_I2C_ADDRESS__ADDR_PIN_AT_GND    (0x1E)
@@ -15,6 +9,18 @@
 #define KX132_I2C_ADDRESS_FLIPPED__ADDR_PIN_AT_GND    (0x1C)
 #define KX132_I2C_ADDRESS_FLIPPED__ADDR_PIN_AT_IO_VDD (0x1D)
 
+
+#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS (2)
+#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES ((BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS) * 3) 
+
+
+
+// For following defines see Kionix document
+// KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf
+
+// Note following are KX132-1211 config' register addresses:
+#define MAN_ID (0x00)
+#define PART_ID (0x01)
 
 #define CMD_KX132_REQUEST_MANUFACTURER_ID { MAN_ID }
 
