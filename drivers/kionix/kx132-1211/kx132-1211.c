@@ -62,6 +62,10 @@ struct kx132_1211_data
 static int kx132_enable_asynchronous_readings()
 {
 // stub routine
+    {
+//        printk("manufacturer id byte %d outside ASCII printable range:  %u\n", i, rx_buf[i]);
+        printk("- STUB - configure async readings function - STUB -\n");
+    }
 }
 
 
@@ -90,7 +94,7 @@ static int kx132_device_id_fetch(const struct device *dev)
     for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
     {
         if ((rx_buf[i] < 0x20) || (rx_buf[i] > 0x7E))
-            { printk("manu' id byte %d outside ASCII printable range:  %u\n", i, rx_buf[i]); }
+            { printk("manufacturer id byte %d outside ASCII printable range:  %u\n", i, rx_buf[i]); }
     }
 
     for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
@@ -141,37 +145,6 @@ static int kx132_1211_attr_get(const struct device *dev,
 
 
 
-// TO-DO:  move this enum to header file, once working:
-
-// REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_attribute
-// REF from Kionix AN092-Getting-Stated.pdf
-
-// QUESTION:  how do we keep our and any custom enumerated sensor
-//  attributes from colliding with other third party, out-of-tree
-//  driver enumerations?
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-enum kx132_1211_config_setting_e
-{
-    KX132_CONFIGURATION_SETTING_FIRST,
-
-    KX132_ENABLE_ASYNC_READINGS,
-    KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT,
-    KX132_ENABLE_SYNC_READINGS_WITHOUT_HW_INTERRUPT,
-    KX132_ENABLE_ACCELEROMETER_READINGS_BUFFER,
-    KX132_ENABLE_WATERMARK_INTERRUPT,
-    KX132_SET_TRIGGER_MODE,
-    KX132_ENABLE_WAKE_UP,
-    KX132_ENABLE_WAKE_UP_AND_BACK_TO_SLEEP,
-    KX132_ENABLE_TILT_POSITION_WITH_FACE_DETECT,
-    KX132_ENABLE_TAP_DOUBLE_TAP,
-    KX132_ENABLE_FREE_FALL_ENGINE,
-
-    KX132_CONFIGURATION_SETTING_LAST
-};
-
-
-
 // REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_channel.SENSOR_CHAN_ALL
 
 static int kx132_1211_attr_set(const struct device *dev,
@@ -181,15 +154,19 @@ static int kx132_1211_attr_set(const struct device *dev,
 {
     int status = ROUTINE_OK;
 
+    int sensor_config_requested = val->val1;
+
     switch (attr)
     {
-        case SENSOR_ATTR_CONFIGURATION:
+// REF https://docs.zephyrproject.org/2.6.0/reference/peripherals/sensor.html#c.sensor_attribute
+//        case SENSOR_ATTR_CONFIGURATION:  <- this enumerator available in Zephyr RTOS 2.7.99 but not 2.6.0 - TMH
+        case SENSOR_ATTR_PRIV_START:
         {
             switch (chan)
             {
                 case SENSOR_CHAN_ALL:
                 {
-                    switch (val)
+                    switch (sensor_config_requested)
                     {
 // When a sensor attribute to set is a configuration value, and it
 // applies to some or all readings channels not just one, then calling
@@ -235,7 +212,7 @@ static int kx132_1211_attr_set(const struct device *dev,
 
 static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel channel)
 {
-    int routine_status = 0;
+    int status = 0;
 //    struct kx132_1211_data *data = (struct kx132_1211_data *)dev->data;
 
     switch (channel)
@@ -249,10 +226,10 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
             break;
 
         default:
-            routine_status = UNDEFINED_SENSOR_CHANNEL;
+            status = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
     }
 
-    return routine_status;
+    return status;
 }
 
 
@@ -303,7 +280,7 @@ static int kx132_1211_channel_get(const struct device *dev,
 
 
         default:
-            routine_status = UNDEFINED_SENSOR_CHANNEL;
+            routine_status = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
     }
 
     return routine_status;

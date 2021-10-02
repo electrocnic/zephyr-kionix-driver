@@ -42,22 +42,32 @@ enum sensor_channels_kionix_specific {
 };
 
 
-#if 0
-// NEED to move this enum to a shared include file:
-enum kionix_routine_statae {
-    ROUTINE_OK,
-    ROUTINE_SUCCESS,
-    ROUTINE_ERROR_ENCOUNTERED,
-    KX132_ROUTINE__UNDEFINED_SENSOR_CHANNEL,
-    KX132_ROUTINE__UNDEFINED_SENSOR_ATTRIBUTE,
-    KX132_ROUTINE__UNSUPPORTED_SENSOR_CONFIGURATION
-}; 
-#endif
+// REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_attribute
+// REF from Kionix AN092-Getting-Stated.pdf
 
+// QUESTION:  how do we keep our and any custom enumerated sensor
+//  attributes from colliding with other third party, out-of-tree
+//  driver enumerations?
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-//----------------------------------------------------------------------
-// - SECTION - function prototypes
-//----------------------------------------------------------------------
+enum kx132_1211_config_setting_e
+{
+    KX132_CONFIGURATION_SETTING_FIRST,
+
+    KX132_ENABLE_ASYNC_READINGS,
+    KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT,
+    KX132_ENABLE_SYNC_READINGS_WITHOUT_HW_INTERRUPT,
+    KX132_ENABLE_ACCELEROMETER_READINGS_BUFFER,
+    KX132_ENABLE_WATERMARK_INTERRUPT,
+    KX132_SET_TRIGGER_MODE,
+    KX132_ENABLE_WAKE_UP,
+    KX132_ENABLE_WAKE_UP_AND_BACK_TO_SLEEP,
+    KX132_ENABLE_TILT_POSITION_WITH_FACE_DETECT,
+    KX132_ENABLE_TAP_DOUBLE_TAP,
+    KX132_ENABLE_FREE_FALL_ENGINE,
+
+    KX132_CONFIGURATION_SETTING_LAST
+};
 
 
 #endif // KX132_1211_H
