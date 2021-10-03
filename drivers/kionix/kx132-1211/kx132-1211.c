@@ -1,7 +1,7 @@
 /**
- * Cornel Pump IIoT, Pulse Stage 1 firmware work
- * @author Ted Havelka (thavelka@cornellpump.com)
- * @copyright Copyright Cornell Pump 2021
+ * @project Kionix Sensor Drivers
+ * @author Ted Havelka
+ * @license Apache 2.0 licensed.
  */
 
 #define DT_DRV_COMPAT kionix_kx132_1211
