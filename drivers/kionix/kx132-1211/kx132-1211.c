@@ -111,6 +111,36 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 
 
 
+/*
+ * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ *  @brief   Routine to configure KX132-1211 Output Data Rate (ODR).
+ *  @param   Zephyr device pointer
+ *  @param   Zephyr sensor value
+ *  @note    sensor_value.val1 data members holds a value found in
+ *           KX132-1211 enumeration named kx132_1211_output_data_rates_e.
+ *           This enumeration helps with bounds checking on this passed
+ *           value.
+ * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ */
+
+static int kx132_configure_output_data_rate(device *dev, sensor_value *val);
+{
+    int status = ROUTINE_OK;
+
+    if ((val.val1 < KX132_ODR__0P781_HZ) || (val.val1 > KX132_ODR_25600_HZ))
+    {
+        status = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
+    }
+    else
+    {
+    }
+
+    return status;
+}
+
+
+
+
 //----------------------------------------------------------------------
 // - SECTION - Kionix sensor specific readings and data fetch routines
 //----------------------------------------------------------------------
@@ -322,6 +352,12 @@ static int kx132_1211_attr_set(const struct device *dev,
                         case KX132_ENABLE_ASYNC_READINGS:
                         {
                             kx132_enable_asynchronous_readings(dev);
+                            break;
+                        }
+
+                        case KX132_ENABLE_ASYNC_READINGS:
+                        {
+                            kx132_configure_output_data_rate(dev, val);
                             break;
                         }
 
