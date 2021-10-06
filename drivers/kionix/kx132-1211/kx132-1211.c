@@ -110,10 +110,16 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
  *  @brief   Routine to configure KX132-1211 Output Data Rate (ODR).
  *  @param   Zephyr device pointer
  *  @param   Zephyr sensor value
+ *
  *  @note    sensor_value.val1 data members holds a value found in
- *           KX132-1211 enumeration named kx132_1211_output_data_rates_e.
- *           This enumeration helps with bounds checking on this passed
- *           value.
+ *           KX132-1211 enumeration named 'kx132_1211_config_setting_e'.
+ *           This datum is tested to select which sensor attribute
+ *           calling code wants to update.
+ *
+ *           sensor_value.val2 data members holds a value found in
+ *           KX132-1211 enumeration named 'kx132_1211_output_data_rates_e'.
+ *           This datum represents the Output Data Rate setting to
+ *           apply here to the KX132-1211 sensor.
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  */
 
@@ -125,7 +131,7 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
     uint8_t scratch_pad_byte = 0;
     uint8_t odcntl_as_found = 0;
 
-    if ((val->val1 < KX132_ODR__0P781_HZ) || (val->val1 > KX132_ODR_25600_HZ))
+    if ((val->val2 < KX132_ODR__0P781_HZ) || (val->val2 > KX132_ODR_25600_HZ))
     {
         status = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
     }
@@ -142,7 +148,7 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 
         odcntl_as_found = scratch_pad_byte;  // save original value - may not be needed, review this - TMH
         scratch_pad_byte &= 0xF0;            // mask to erase OSA3:OSA0
-        scratch_pad_byte |= val->val1;       // write bit pattern to set output data rate
+        scratch_pad_byte |= val->val2;       // write bit pattern to set output data rate
 
         uint8_t cmd_odcntl[] = { KX132_1211_CONFIG_REGISTER__ODCNTL, scratch_pad_byte };
         status = i2c_write(data_struc_ptr->i2c_dev, cmd_odcntl, sizeof(cmd_odcntl), DT_INST_REG_ADDR(0));
