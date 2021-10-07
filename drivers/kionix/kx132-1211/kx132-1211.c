@@ -169,6 +169,8 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 // - SECTION - Kionix sensor specific readings and data fetch routines
 //----------------------------------------------------------------------
 
+// Note this routine fetches Kionix KX132-1211 Manufacturer ID string.
+
 static int kx132_device_id_fetch(const struct device *dev)
 {
     struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
@@ -231,18 +233,18 @@ static int kx132_part_id_fetch(const struct device *dev)
 
 static int kx132_acceleration_x_axis_fetch(const struct device *dev)
 {
-    int bus_comms_status = 0;
+    int comms_status = 0;
     struct kx132_1211_data* data_struc_ptr = (struct kx132_1211_data*)dev->data;
-    uint8_t cmd[] = { 0x08 }; // starting address of X acceleration reading, LSB of two byte value
+    uint8_t cmd[] = { KX132_1211_ACCELEROMETER_XOUT_L };
     uint8_t rx_buf[] = {0, 0};
     int i = 0;
 
-    bus_comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
+    comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
                          cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
-    if (bus_comms_status != 0)
+    if (comms_status != 0)
     {
-        LOG_WRN("Unable to read X axis acceleration.  Error: %i", bus_comms_status);
-        return bus_comms_status;
+        LOG_WRN("Unable to read X axis acceleration.  Error: %i", comms_status);
+        return comms_status;
     }
 
     for (i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++)
@@ -255,24 +257,24 @@ static int kx132_acceleration_x_axis_fetch(const struct device *dev)
     printk("- DEV - ( requested %d bytes of data starting from sensor internal addr %d ) - DEV -\n",
       sizeof(rx_buf), cmd[0]);
 
-    return bus_comms_status;
+    return comms_status;
 }
 
 
 static int kx132_acceleration_y_axis_fetch(const struct device *dev)
 {
-    int bus_comms_status = 0;
+    int comms_status = 0;
     struct kx132_1211_data* data_struc_ptr = (struct kx132_1211_data*)dev->data;
-    uint8_t cmd[] = { 0x0A }; // starting address of X acceleration reading, LSB of two byte value
+    uint8_t cmd[] = { KX132_1211_ACCELEROMETER_YOUT_L };
     uint8_t rx_buf[] = {0, 0};
     int i = 0;
 
-    bus_comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
+    comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
                          cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
-    if (bus_comms_status != 0)
+    if (comms_status != 0)
     {
-        LOG_WRN("Unable to read Y axis acceleration.  Error: %i", bus_comms_status);
-        return bus_comms_status;
+        LOG_WRN("Unable to read Y axis acceleration.  Error: %i", comms_status);
+        return comms_status;
     }
 
     for (i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++)
@@ -283,16 +285,43 @@ static int kx132_acceleration_y_axis_fetch(const struct device *dev)
     printk("- DEV - Y axis acceleration is %d   - DEV -\n",
       ((data_struc_ptr->accel_axis_y[1] * 0xFF) + data_struc_ptr->accel_axis_y[0]));
 
-    return bus_comms_status;
+    return comms_status;
 }
+
+
+
 
 
 static int kx132_acceleration_z_axis_fetch(const struct device *dev)
 {
-// stub
-    int bus_comms_status = 0;
-    return bus_comms_status;
+    int comms_status = 0;
+
+    struct kx132_1211_data* data_struc_ptr = (struct kx132_1211_data*)dev->data;
+    uint8_t cmd[] = { KX132_1211_ACCELEROMETER_ZOUT_L };
+    uint8_t rx_buf[] = {0, 0};
+    int i = 0;
+
+    comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
+                         cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
+    if (comms_status != 0)
+    {
+        LOG_WRN("Unable to read Z axis acceleration.  Error: %i", comms_status);
+        return comms_status;
+    }
+
+    for (i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++)
+    {
+        data_struc_ptr->accel_axis_z[i] = rx_buf[i];
+    }
+
+    printk("- DEV - Z axis acceleration is %d   - DEV -\n",
+      ((data_struc_ptr->accel_axis_z[1] * 0xFF) + data_struc_ptr->accel_axis_z[0]));
+
+    return comms_status;
 }
+
+
+
 
 
 static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
@@ -499,6 +528,20 @@ static int kx132_1211_channel_get(const struct device *dev,
             val->val2 = 0;
             break;
 
+        case SENSOR_CHAN_ACCEL_X:          // a two byte value
+            val->val1 = data->accel_axis_x.as_16_bit_integer;
+            val->val2 = 0;
+            break;
+
+        case SENSOR_CHAN_ACCEL_XYZ:               // six bytes of data,
+                                                  // three in lower res higher speed mode
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// 2021-10-07 Note, prior two cases copy data to calling code's sensor_value parameter,
+//  which by this API's signature is constrained to a single sensor_value
+//  instance.  But may calling code read values from the data
+//  member of device pointer data structure? - TMH
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            break;
 
         default:
             routine_status = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
