@@ -48,10 +48,13 @@ struct kx132_1211_data
     const struct device *i2c_dev;
     union string_union_type__manufacturer_id manufacturer_id;
     union string_union_type__part_id part_id;
+// Following three data members are written with LSB, MSB of respective accelerometer readings:
     uint8_t accel_axis_x[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
     uint8_t accel_axis_y[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
     uint8_t accel_axis_z[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
+// Following data member written with LSB, MSB of allaccelerometer readings X, Y and Z axes:
     uint8_t accel_axis_xyz[BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES];
+// QUESTION:  any reason we need to align data on four byte boundary? - TMH
 //    uint8_t padding[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
 };
 
@@ -529,17 +532,17 @@ static int kx132_1211_channel_get(const struct device *dev,
             break;
 
         case SENSOR_CHAN_ACCEL_X:          // a two byte value
-            val->val1 = ( ( data->accel_axis_x[0] << 8 ) + ( data->accel_axis_x[1] ) );
+            val->val1 = ( ( data->accel_axis_x[1] << 8 ) + ( data->accel_axis_x[0] ) );
             val->val2 = 0;
             break;
 
         case SENSOR_CHAN_ACCEL_Y:          // a two byte value
-            val->val1 = ( ( data->accel_axis_y[0] << 8 ) + ( data->accel_axis_y[1] ) );
+            val->val1 = ( ( data->accel_axis_y[1] << 8 ) + ( data->accel_axis_y[0] ) );
             val->val2 = 0;
             break;
 
         case SENSOR_CHAN_ACCEL_Z:          // a two byte value
-            val->val1 = ( ( data->accel_axis_z[0] << 8 ) + ( data->accel_axis_z[1] ) );
+            val->val1 = ( ( data->accel_axis_z[1] << 8 ) + ( data->accel_axis_z[0] ) );
             val->val2 = 0;
             break;
 
@@ -551,9 +554,10 @@ static int kx132_1211_channel_get(const struct device *dev,
 //          sensor_value.val1 <-- [ Y_MSB ][ Y_LSB ][ X_MSB ][ X_LSB ]
 //          sensor_value.val2 <-- [   0   ][   0   ][ Z_MSB ][ Z_LSB ]
 
-            val->val1 = ( ( data->accel_axis_x[0] << 8 )  + ( data->accel_axis_x[1] )
-                        + ( data->accel_axis_x[0] << 24 ) + ( data->accel_axis_y[1] << 16 ) );
-            val->val2 = ( ( data->accel_axis_z[0] << 8 ) + ( data->accel_axis_z[1] ) );
+            val->val1 = ( ( data->accel_axis_x[1] <<  8 ) + ( data->accel_axis_x[0] <<  0 )
+                        + ( data->accel_axis_x[1] << 24 ) + ( data->accel_axis_y[0] << 16 ) );
+
+            val->val2 = ( ( data->accel_axis_z[1] <<  8 ) + ( data->accel_axis_z[0] <<  0 ) );
             break;
 
         default:
