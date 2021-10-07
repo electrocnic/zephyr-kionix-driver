@@ -349,9 +349,9 @@ static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
         { data_struc_ptr->accel_axis_z[i - 4] = rx_buf[i]; }
 
     printk("- DEV - X, Y and Z accelerations are %d, %d, %d   - DEV -\n",
-      ((data_struc_ptr->accel_axis_x[1] * 0xFF) + data_struc_ptr->accel_axis_x[0]),
-      ((data_struc_ptr->accel_axis_y[1] * 0xFF) + data_struc_ptr->accel_axis_y[0]),
-      ((data_struc_ptr->accel_axis_z[1] * 0xFF) + data_struc_ptr->accel_axis_z[0])
+      ( ( data_struc_ptr->accel_axis_x[1] << 8 ) + data_struc_ptr->accel_axis_x[0] ),
+      ( ( data_struc_ptr->accel_axis_y[1] << 8 ) + data_struc_ptr->accel_axis_y[0] ),
+      ( ( data_struc_ptr->accel_axis_z[1] << 8 ) + data_struc_ptr->accel_axis_z[0] )
     );
     printk("- DEV - ( requested %d bytes of data starting from sensor internal addr %d ) - DEV -\n",
       sizeof(rx_buf), cmd[0]);
@@ -529,18 +529,31 @@ static int kx132_1211_channel_get(const struct device *dev,
             break;
 
         case SENSOR_CHAN_ACCEL_X:          // a two byte value
-            val->val1 = data->accel_axis_x.as_16_bit_integer;
+            val->val1 = ( ( data->accel_axis_x[0] << 8 ) + ( data->accel_axis_x[1] ) );
+            val->val2 = 0;
+            break;
+
+        case SENSOR_CHAN_ACCEL_Y:          // a two byte value
+            val->val1 = ( ( data->accel_axis_y[0] << 8 ) + ( data->accel_axis_y[1] ) );
+            val->val2 = 0;
+            break;
+
+        case SENSOR_CHAN_ACCEL_Z:          // a two byte value
+            val->val1 = ( ( data->accel_axis_z[0] << 8 ) + ( data->accel_axis_z[1] ) );
             val->val2 = 0;
             break;
 
         case SENSOR_CHAN_ACCEL_XYZ:               // six bytes of data,
                                                   // three in lower res higher speed mode
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// 2021-10-07 Note, prior two cases copy data to calling code's sensor_value parameter,
-//  which by this API's signature is constrained to a single sensor_value
-//  instance.  But may calling code read values from the data
-//  member of device pointer data structure? - TMH
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+// Here encode X, Y, Z two-byte accelerometer readings in struct sensor_value as follows:
+//
+//          sensor_value.val1 <-- [ Y_MSB ][ Y_LSB ][ X_MSB ][ X_LSB ]
+//          sensor_value.val2 <-- [   0   ][   0   ][ Z_MSB ][ Z_LSB ]
+
+            val->val1 = ( ( data->accel_axis_x[0] << 8 )  + ( data->accel_axis_x[1] )
+                        + ( data->accel_axis_x[0] << 24 ) + ( data->accel_axis_y[1] << 16 ) );
+            val->val2 = ( ( data->accel_axis_z[0] << 8 ) + ( data->accel_axis_z[1] ) );
             break;
 
         default:
