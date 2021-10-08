@@ -5,9 +5,6 @@ Note that to exercise this driver code one must compile it with the demo applica
 
 To compile this code it is necessary to clone the demo project, have `west` and other Zephyr command line tools installed, `west init` and `west update` per typical Zephyr RTOS application set up steps.
 
-## 2021-08-30
-
-@Brief:  This project is an out-of-tree Zephyr driver work.  This project does not yet build fully.  Developer and contributor Ted H. working through details of Zephyr drive driver API practices.
 
 ## 2021-08-24
 
