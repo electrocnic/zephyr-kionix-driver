@@ -12,6 +12,7 @@
 #include <drivers/sensor.h>
 #include "kx132-1211.h"
 #include "out-of-tree-drivers.h"
+#include "development-defines.h"
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(kx132, CONFIG_SENSOR_LOG_LEVEL);
@@ -75,8 +76,11 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 
 // Per AN092-Getting-Started.pdf from Kionix, page 2 of 27:
     uint8_t cmd_cntl_00[] = { 0x1B, 0x00 };
+
+#ifdef _DEV_ENABLE_PRINTK
 #ifdef DEV__KX132_SHOW_CONFIG_COMMANDS_BEFORE_SENDING
     printk("writing {%02X, %02X . . .\n", cmd_cntl_00[0], cmd_cntl_00[1]);
+#endif
 #endif
     comms_status = i2c_write(data->i2c_dev, cmd_cntl_00, sizeof(cmd_cntl_00), DT_INST_REG_ADDR(0));
 
@@ -101,7 +105,9 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
     comms_status = i2c_write(data->i2c_dev, cmd_cntl_c0, sizeof(cmd_cntl_c0), DT_INST_REG_ADDR(0));
     k_msleep(100);
 
+#ifdef _DEV_ENABLE_PRINTK
     printk("attempt to configure async reading complete.\n");
+#endif
 
     return status;
 }
@@ -191,11 +197,13 @@ static int kx132_device_id_fetch(const struct device *dev)
         return bus_comms_status;
     }
 
+#ifdef _DEV_ENABLE_PRINTK
     for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
     {
         if ((rx_buf[i] < 0x20) || (rx_buf[i] > 0x7E))
             { printk("manufacturer id byte %d outside ASCII printable range:  %u\n", i, rx_buf[i]); }
     }
+#endif
 
     for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
     {
@@ -255,10 +263,12 @@ static int kx132_acceleration_x_axis_fetch(const struct device *dev)
         data_struc_ptr->accel_axis_x[i] = rx_buf[i];
     }
 
+#ifdef _DEV_ENABLE_PRINTK
     printk("- DEV - X axis acceleration is %d   - DEV -\n",
       ( ( data_struc_ptr->accel_axis_x[1] << 8 ) + data_struc_ptr->accel_axis_x[0] ) );
     printk("- DEV - ( requested %d bytes of data starting from sensor internal addr %d ) - DEV -\n",
       sizeof(rx_buf), cmd[0]);
+#endif
 
     return comms_status;
 }
@@ -285,8 +295,10 @@ static int kx132_acceleration_y_axis_fetch(const struct device *dev)
         data_struc_ptr->accel_axis_y[i] = rx_buf[i];
     }
 
+#ifdef _DEV_ENABLE_PRINTK
     printk("- DEV - Y axis acceleration is %d   - DEV -\n",
       ( ( data_struc_ptr->accel_axis_y[1] << 8 ) + data_struc_ptr->accel_axis_y[0] ) );
+#endif
 
     return comms_status;
 }
@@ -317,8 +329,10 @@ static int kx132_acceleration_z_axis_fetch(const struct device *dev)
         data_struc_ptr->accel_axis_z[i] = rx_buf[i];
     }
 
+#ifdef _DEV_ENABLE_PRINTK
     printk("- DEV - Z axis acceleration is %d   - DEV -\n",
       ( ( data_struc_ptr->accel_axis_z[1] << 8 ) + data_struc_ptr->accel_axis_z[0] ) );
+#endif
 
     return comms_status;
 }
@@ -351,6 +365,7 @@ static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
     for (i = 4; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 4); i++)
         { data_struc_ptr->accel_axis_z[i - 4] = rx_buf[i]; }
 
+#ifdef _DEV_ENABLE_PRINTK
     printk("- DEV - X, Y and Z accelerations are %d, %d, %d   - DEV -\n",
       ( ( data_struc_ptr->accel_axis_x[1] << 8 ) + data_struc_ptr->accel_axis_x[0] ),
       ( ( data_struc_ptr->accel_axis_y[1] << 8 ) + data_struc_ptr->accel_axis_y[0] ),
@@ -358,7 +373,7 @@ static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
     );
     printk("- DEV - ( requested %d bytes of data starting from sensor internal addr %d ) - DEV -\n",
       sizeof(rx_buf), cmd[0]);
-
+#endif
 
     return bus_comms_status;
 }
