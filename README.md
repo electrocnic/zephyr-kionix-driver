@@ -1,7 +1,7 @@
 ## 2021-10-06
 @Brief:  This project builds, and a couple of KX132-1211 configurations are now working via this code for Kionix' KX132-1211 accelerometer.  Basic XYZ single shot readings are also working, via the demo project code which calls this driver.  Demo at https://github.com/tedhavelka/kionix-driver-demo.
 
-Note that to exercise this driver code one must compile it with the demo application, or anothe Zephyr app which correctly includes and calls its API.  As with Zephyr out of tree drivers this driver is not a stand alone app.
+Note that to exercise this driver code one must compile it with the demo application, or another Zephyr app which correctly includes and calls its API.  As with Zephyr out of tree drivers this driver is not a stand alone app.
 
 To compile this code it is necessary to clone the demo project, have `west` and other Zephyr command line tools installed, `west init` and `west update` per typical Zephyr RTOS application set up steps.
 
