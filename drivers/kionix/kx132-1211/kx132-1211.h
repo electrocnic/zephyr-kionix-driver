@@ -2,8 +2,8 @@
 #define KX132_1211_H
 
 
-// KX132-1211 I2C sensor address with ADDR pin connected to IO_VDD:
-// 2021-09-01 Updating per KX132-1211-Specifications-Rev-1.0.pdf:
+// KX132-1211 sensor possible I2C addresses:
+// ( See KX132-1211-Specifications-Rev-1.0.pdf for details )
 #define KX132_I2C_ADDRESS__ADDR_PIN_AT_GND    (0x1E)
 #define KX132_I2C_ADDRESS__ADDR_PIN_AT_IO_VDD (0x1F)
 #define KX132_I2C_ADDRESS_FLIPPED__ADDR_PIN_AT_GND    (0x1C)
@@ -22,10 +22,20 @@
 #define MAN_ID (0x00)
 #define PART_ID (0x01)
 
+#define KX132_1211_ACCELEROMETER_XOUT_L    (0x08)
+#define KX132_1211_ACCELEROMETER_XOUT_H    (0x09)
+#define KX132_1211_ACCELEROMETER_YOUT_L    (0x0A)
+#define KX132_1211_ACCELEROMETER_YOUT_H    (0x0B)
+#define KX132_1211_ACCELEROMETER_ZOUT_L    (0x0C)
+#define KX132_1211_ACCELEROMETER_ZOUT_H    (0x0D)
+
 #define KX132_1211_CONFIG_REGISTER__CNTL   (0x1B)
 #define KX132_1211_CONFIG_REGISTER__ODCNTL (0x21)
 //#define KX132_1211_CONFIG_REGISTER__
 
+// Given Zephyr's lower level I2C API, our sensor query type commands
+//  are effectively one byte in size and contain the address of the
+//  sensor configuration register from which to read:
 #define CMD_KX132_REQUEST_MANUFACTURER_ID { MAN_ID }
 #define CMD_KX132_REQUEST_PART_ID { PART_ID }
 
