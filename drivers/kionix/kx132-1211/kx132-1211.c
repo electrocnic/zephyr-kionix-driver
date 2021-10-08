@@ -532,17 +532,17 @@ static int kx132_1211_channel_get(const struct device *dev,
             break;
 
         case SENSOR_CHAN_ACCEL_X:          // a two byte value
-            val->val1 = ( ( data->accel_axis_x[1] << 8 ) + ( data->accel_axis_x[0] ) );
+            val->val1 = ( ( data->accel_axis_x[1] << 8 ) | ( data->accel_axis_x[0] ) );
             val->val2 = 0;
             break;
 
         case SENSOR_CHAN_ACCEL_Y:          // a two byte value
-            val->val1 = ( ( data->accel_axis_y[1] << 8 ) + ( data->accel_axis_y[0] ) );
+            val->val1 = ( ( data->accel_axis_y[1] << 8 ) | ( data->accel_axis_y[0] ) );
             val->val2 = 0;
             break;
 
         case SENSOR_CHAN_ACCEL_Z:          // a two byte value
-            val->val1 = ( ( data->accel_axis_z[1] << 8 ) + ( data->accel_axis_z[0] ) );
+            val->val1 = ( ( data->accel_axis_z[1] << 8 ) | ( data->accel_axis_z[0] ) );
             val->val2 = 0;
             break;
 
@@ -554,10 +554,10 @@ static int kx132_1211_channel_get(const struct device *dev,
 //          sensor_value.val1 <-- [ Y_MSB ][ Y_LSB ][ X_MSB ][ X_LSB ]
 //          sensor_value.val2 <-- [   0   ][   0   ][ Z_MSB ][ Z_LSB ]
 
-            val->val1 = ( ( data->accel_axis_x[1] <<  8 ) + ( data->accel_axis_x[0] <<  0 )
-                        + ( data->accel_axis_x[1] << 24 ) + ( data->accel_axis_y[0] << 16 ) );
+            val->val1 = ( ( data->accel_axis_x[1] <<  8 ) | ( data->accel_axis_x[0] <<  0 )
+                        | ( data->accel_axis_y[1] << 24 ) | ( data->accel_axis_y[0] << 16 ) );
 
-            val->val2 = ( ( data->accel_axis_z[1] <<  8 ) + ( data->accel_axis_z[0] <<  0 ) );
+            val->val2 = ( ( data->accel_axis_z[1] <<  8 ) | ( data->accel_axis_z[0] <<  0 ) );
             break;
 
         default:
