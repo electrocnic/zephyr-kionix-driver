@@ -256,7 +256,7 @@ static int kx132_acceleration_x_axis_fetch(const struct device *dev)
     }
 
     printk("- DEV - X axis acceleration is %d   - DEV -\n",
-      ((data_struc_ptr->accel_axis_x[1] * 0xFF) + data_struc_ptr->accel_axis_x[0]));
+      ( ( data_struc_ptr->accel_axis_x[1] << 8 ) + data_struc_ptr->accel_axis_x[0] ) );
     printk("- DEV - ( requested %d bytes of data starting from sensor internal addr %d ) - DEV -\n",
       sizeof(rx_buf), cmd[0]);
 
@@ -286,7 +286,7 @@ static int kx132_acceleration_y_axis_fetch(const struct device *dev)
     }
 
     printk("- DEV - Y axis acceleration is %d   - DEV -\n",
-      ((data_struc_ptr->accel_axis_y[1] * 0xFF) + data_struc_ptr->accel_axis_y[0]));
+      ( ( data_struc_ptr->accel_axis_y[1] << 8 ) + data_struc_ptr->accel_axis_y[0] ) );
 
     return comms_status;
 }
@@ -318,7 +318,7 @@ static int kx132_acceleration_z_axis_fetch(const struct device *dev)
     }
 
     printk("- DEV - Z axis acceleration is %d   - DEV -\n",
-      ((data_struc_ptr->accel_axis_z[1] * 0xFF) + data_struc_ptr->accel_axis_z[0]));
+      ( ( data_struc_ptr->accel_axis_z[1] << 8 ) + data_struc_ptr->accel_axis_z[0] ) );
 
     return comms_status;
 }
