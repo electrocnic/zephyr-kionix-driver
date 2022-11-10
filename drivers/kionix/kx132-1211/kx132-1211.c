@@ -621,16 +621,32 @@ static const struct sensor_driver_api kx132_api = {
 
 static struct kx132_1211_data kx132_1211_data;
 
+// NOTE Zephyr documentation says "Use DEVICE_DEFINE() only when device is not allocated from a devicetree node."
 
-DEVICE_DEFINE(kx132_1211,
-              DT_INST_LABEL(0),
-              kx132_1211_init,
-              NULL,
-              &kx132_1211_data,
-              NULL,
-              POST_KERNEL,
-              CONFIG_SENSOR_INIT_PRIORITY,
-              &kx132_api
+#if 0
+DEVICE_DEFINE(kx132_1211,                    // dev_id
+              DT_INST_LABEL(0),              // name
+              kx132_1211_init,               // init function
+              NULL,                          // pm - pointer to power management resources
+              &kx132_1211_data,              // data - pointer to device' private mutable data
+              NULL,                          // config - pointer to device' private constant data
+              POST_KERNEL,                   // level
+              CONFIG_SENSOR_INIT_PRIORITY,   // priority
+              &kx132_api                     // API
+);
+#endif
+
+// REF https://docs.zephyrproject.org/latest/kernel/drivers/index.html#c.DEVICE_DT_DEFINE
+
+DEVICE_DT_DEFINE(
+                 DT_NODELABEL(kionix_sensor),  // node_id
+                 kx132_1211_init,              // init function
+                 NULL,                         // pm
+                 &kx132_1211_data,             // data
+                 NULL,                         // config
+                 POST_KERNEL,                  // level
+                 CONFIG_SENSOR_INIT_PRIORITY,  // priority
+                 &kx132_api                    // API
 );
 
 // --- EOF ---
