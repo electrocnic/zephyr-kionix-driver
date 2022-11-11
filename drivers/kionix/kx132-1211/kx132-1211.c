@@ -7,7 +7,7 @@
 #define DT_DRV_COMPAT kionix_kx132_1211
 
 #include <math.h>
-#include <device.h>
+#include <zephyr/device.h>        // 2022-11-10 was <device.h>
 #include <drivers/i2c.h>
 #include <drivers/sensor.h>
 #include "kx132-1211.h"
