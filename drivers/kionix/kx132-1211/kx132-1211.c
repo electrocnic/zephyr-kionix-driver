@@ -14,7 +14,7 @@
 #include "out-of-tree-drivers.h"
 #include "development-defines.h"
 
-#include <logging/log.h>
+#include <zephyr/logging/log.h>     // 2022-11-10 was <logging/log.h>
 LOG_MODULE_REGISTER(kx132, CONFIG_SENSOR_LOG_LEVEL);
 
 
