@@ -7,9 +7,11 @@
 #define DT_DRV_COMPAT kionix_kx132_1211
 
 #include <math.h>
+
 #include <zephyr/device.h>          // 2022-11-10 was <device.h>
 #include <zephyr/drivers/i2c.h>     // 2022-11-10 was <drivers/i2c.h>
 #include <zephyr/drivers/sensor.h>  // 2022-11-10 was <drivers/sensor.h>
+
 #include "kx132-1211.h"
 #include "out-of-tree-drivers.h"
 #include "development-defines.h"
@@ -593,11 +595,12 @@ static int kx132_1211_init(const struct device *dev)
 
 // 2022-11-10 REF https://docs.zephyrproject.org/latest/build/dts/api/api.html#c.DT_INST_BUS_LABEL
 //    data->i2c_dev = device_get_binding(DT_INST_BUS_LABEL(0));
-    data->i2c_dev = device_get_binding(DEVICE_DT_GET(DT_INST_BUS(0)));
+//    data->i2c_dev = device_get_binding(DEVICE_DT_GET(DT_INST_BUS(0)));  // expected 'const char *' but argument is of type 'const struct device *'
+    data->i2c_dev = DEVICE_DT_GET(DT_INST_BUS(0));
 
     if (data->i2c_dev == NULL)
     {
-        LOG_ERR("Unable to get I2C Master.");
+        LOG_ERR("Unable to get I2C controller while initializing KX132-1211 device instance.");
         return -EINVAL;
     }
 
