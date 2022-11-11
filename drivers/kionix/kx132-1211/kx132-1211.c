@@ -591,7 +591,9 @@ static int kx132_1211_init(const struct device *dev)
 {
     struct kx132_1211_data *data = dev->data;
 
-    data->i2c_dev = device_get_binding(DT_INST_BUS_LABEL(0));
+// 2022-11-10 REF https://docs.zephyrproject.org/latest/build/dts/api/api.html#c.DT_INST_BUS_LABEL
+//    data->i2c_dev = device_get_binding(DT_INST_BUS_LABEL(0));
+    data->i2c_dev = device_get_binding(DEVICE_DT_GET(DT_INST_BUS(0)));
 
     if (data->i2c_dev == NULL)
     {
