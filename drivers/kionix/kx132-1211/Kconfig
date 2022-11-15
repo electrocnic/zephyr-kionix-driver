@@ -29,7 +29,6 @@ choice DEFINE_DEVICE_KX132_BY_MEANS_OF
 
 config DEFINE_DEVICE_KX132_VIA_DT_NODELABEL
 	bool "use device tree nodelabel"
-	default y
 	help
 	  KX132 driver uses a dts nodelabel to define device data structure at build time.
 
@@ -47,7 +46,6 @@ config KX132_DEVICE_TREE_NODELABEL_VALUE
 
 config DEFINE_DEVICE_KX132_VIA_DEVICE_DT_INST_DEFINE
 	bool "KX132-1211 device(s) defined for each 'okay' instance of accelerometer called out in project dts overlay files"
-	default n
 	help
 	  See https://docs.zephyrproject.org/latest/build/dts/api/api.html#c.DT_INST_FOREACH_STATUS_OKAY
 
