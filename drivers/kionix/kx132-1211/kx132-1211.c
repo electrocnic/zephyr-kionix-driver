@@ -651,8 +651,11 @@ DEVICE_DEFINE(kx132_1211,                    // dev_id
 // REF https://docs.zephyrproject.org/latest/kernel/drivers/index.html#c.DEVICE_DT_DEFINE
 
 DEVICE_DT_DEFINE(
-//                 DT_NODELABEL(kionix_sensor),  // node_id
-                 DT_NODELABEL(xstr(KX132_NODELABEL_VALUE)),  // node_id
+                 DT_NODELABEL(kionix_sensor),  // node_id
+
+//                 DT_NODELABEL(xstr(KX132_NODELABEL_VALUE)),  // node_id
+// [app_workspace]/zephyr/include/zephyr/devicetree.h:190:36: error: pasting "DT_N_NODELABEL_" and ""KX132_NODELABEL_VALUE"" does not give a valid preprocessing token
+
                  kx132_1211_init,              // init function
                  NULL,                         // pm
                  &kx132_1211_data,             // data
