@@ -23,13 +23,13 @@ choice DEFINE_DEVICE_KX132_BY_MEANS_OF
 	prompt "In KX132 device definition use nodelabel, or 'foreach device instance okay' Zephyr macro"
 	help
 	  In KX132 driver, define device by dts nodelabel, which a developer may
- implement in their board or hardware overlay file.  This way allows for
- instantiation of sensor data structures for one senaor only.  Alternately
- define KX132 devices for each compatible device node found with 'okay' status.
- Second way is more flexible but device tree parser specification, noted
- at https://docs.zephyrproject.org/latest/build/dts/api/api.html#c.DT_INST_FOREACH_STATUS_OKAY,
- does not guarantee two or more instances to be given in any particular
- order during the build process.
+	  implement in their board or hardware overlay file.  This way allows for
+	  instantiation of sensor data structures for one senaor only.  Alternately
+	  define KX132 devices for each compatible device node found with 'okay' status.
+	  Second way is more flexible but device tree parser specification, noted
+	  at https://docs.zephyrproject.org/latest/build/dts/api/api.html#c.DT_INST_FOREACH_STATUS_OKAY,
+	  does not guarantee two or more instances to be given in any particular
+	  order during the build process.
 
 ##----------------------------------------------------------------------
 # REF https://github.com/circuitdojo/air-quality-wing-zephyr-drivers/blob/main/drivers/shtc3/Kconfig#L13
@@ -47,15 +47,15 @@ config KX132_DEVICE_TREE_NODELABEL_VALUE
 	depends on DEFINE_DEVICE_KX132_VIA_DT_NODELABEL
 	help
 	  This option sets the string value of the DTS nodelabel which a
- developer adds to her, or his board DTS overlay file to declare the presence
- of a connected KX132-1211 accelerometer, on the target board or hardware.
+	  developer adds to her, or his board DTS overlay file to declare the presence
+	  of a connected KX132-1211 accelerometer, on the target board or hardware.
 
- To learn more about device tree nodelabels, refer to
- https://developer.nordicsemi.com/nRF_Connect_SDK/doc/1.5.0/zephyr/guides/dts/howtos.html#get-a-struct-device-from-a-devicetree-node
- as one starting point, along side Zephyr RTOS Project documentations.
+	  To learn more about device tree nodelabels, refer to
+	  https://developer.nordicsemi.com/nRF_Connect_SDK/doc/1.5.0/zephyr/guides/dts/howtos.html#get-a-struct-device-from-a-devicetree-node
+	  as one starting point, along side Zephyr RTOS Project documentations.
 
- If you want to use a nodelabel other than 'kionix_sensor', enter that string
- value here.
+	  If you want to use a nodelabel other than 'kionix_sensor', enter that string
+	  value here.
 
 
 config DEFINE_DEVICE_KX132_VIA_DEVICE_DT_INST_DEFINE
