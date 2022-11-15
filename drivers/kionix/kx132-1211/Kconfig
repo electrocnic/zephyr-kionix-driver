@@ -30,8 +30,13 @@ choice DEFINE_DEVICE_KX132_BY_MEANS_OF
 config DEFINE_DEVICE_KX132_VIA_DT_NODELABEL
 	bool "use device tree nodelabel"
 	default y
+	help
+	  KX132 driver uses a dts nodelabel to define device data structure at build time.
+
+config KX132_DEVICE_TREE_NODELABEL_VALUE
 	string "KX132-1211 device tree nodelabel name or value"
 	default "kionix_sensor"
+	depends on DEFINE_DEVICE_KX132_VIA_DT_NODELABEL
 	help
 	  This option sets the string value of the DTS nodelabel which a developer adds to her, or his board DTS overlay file to declare the presence of a connected KX132-1211 accelerometer, on the target board or hardware.
 
