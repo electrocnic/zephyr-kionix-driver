@@ -641,11 +641,18 @@ DEVICE_DEFINE(kx132_1211,                    // dev_id
 );
 #endif
 
+
+// # https://gcc.gnu.org/onlinedocs/gcc-3.4.6/cpp/Stringification.html . . . stringification via C macros
+#define xstr(s) str(s)
+#define str(s) #s
+// Ejemplo:   printk("- DEV 1028 - symbol ST_IIS2DH got assigned '%s'\n", xstr(ST_IIS2DH));
+
+
 // REF https://docs.zephyrproject.org/latest/kernel/drivers/index.html#c.DEVICE_DT_DEFINE
 
 DEVICE_DT_DEFINE(
 //                 DT_NODELABEL(kionix_sensor),  // node_id
-                 DT_NODELABEL(KX132_NODELABEL_VALUE),  // node_id
+                 DT_NODELABEL(xstr(KX132_NODELABEL_VALUE)),  // node_id
                  kx132_1211_init,              // init function
                  NULL,                         // pm
                  &kx132_1211_data,             // data
