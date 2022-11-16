@@ -669,7 +669,10 @@ DEVICE_DT_DEFINE(
 //                 DT_NODELABEL(str(KXNL)),      // node_id . . . works, but nodelabel is hard-coded
 // [app_workspace]/kionix-drivers/drivers/kionix/kx132-1211/kx132-1211.c:678:1: error: pasting ""KXNL"" and "_EXISTS" does not give a valid preprocessing token
 
-                 DT_NODELABEL(xstr(CONFIG_KXNL)),      // node_id . . . works, but nodelabel is hard-coded
+//                 DT_NODELABEL(xstr(CONFIG_KXNL)),      // node_id . . . works, but nodelabel is hard-coded
+// xus/kionix-drivers/drivers/kionix/kx132-1211/kx132-1211.c:681:1: error: pasting ""\"kionix_sensor\""" and "_EXISTS" does not give a valid preprocessing token
+
+                 DT_NODELABEL(CONFIG_KXNL),    // node_id . . . works, but nodelabel is hard-coded
 
                  kx132_1211_init,              // init function
                  NULL,                         // pm
