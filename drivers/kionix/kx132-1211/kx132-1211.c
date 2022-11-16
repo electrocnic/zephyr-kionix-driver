@@ -694,27 +694,26 @@ DEVICE_DT_DEFINE(
 
 
 
-#define KX132_SPI(inst)                                                                         \
-        (.spi = SPI_DT_SPEC_INST_GET(                                                           \
+#define KX132_SPI(inst)                                                                          \
+        (.spi = SPI_DT_SPEC_INST_GET(                                                            \
                  0, SPI_OP_MODE_MASTER | SPI_MODE_CPOL | SPI_MODE_CPHA | SPI_WORD_SET(8), 0),)
 
 #define KX132_I2C(inst) (.i2c = I2C_DT_SPEC_INST_GET(inst),)
 
-#define KX132_DEFINE(inst)                                                                      \
-        static struct kx132_1211_data kx132_1211_data_##inst;                                   \
-                                                                                                \
-        static const struct kx132_device_config kx132_device_config_##inst = {                  \
-                COND_CODE_1(DT_INST_ON_BUS(inst, i2c), IIS2DH_I2C(inst), ())                    \
-                COND_CODE_1(DT_INST_ON_BUS(inst, spi), IIS2DH_SPI(inst), ())                    \
-                .pm = CONFIG_KX132_POWER_MODE,                                                 \
-                IF_ENABLED(CONFIG_KX132_TRIGGER,                                               \
-                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),))    \
-        };                                                                                      \
-                                                                                                \
-        DEVICE_DT_INST_DEFINE(inst, kx132_1211_init, NULL,                                      \
+#define KX132_DEFINE(inst)                                                                       \
+        static struct kx132_1211_data kx132_1211_data_##inst;                                    \
+                                                                                                 \
+        static const struct kx132_device_config kx132_device_config_##inst = {                   \
+                COND_CODE_1(DT_INST_ON_BUS(inst, i2c), KX132_I2C(inst), ())                      \
+                COND_CODE_1(DT_INST_ON_BUS(inst, spi), KX132_SPI(inst), ())                      \
+                .pm = CONFIG_KX132_POWER_MODE,                                                   \
+                IF_ENABLED(CONFIG_KX132_TRIGGER,                                                 \
+                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),))     \
+        };                                                                                       \
+                                                                                                 \
+        DEVICE_DT_INST_DEFINE(inst, kx132_1211_init, NULL,                                       \
                               &kx132_1211_data_##inst, &kx132_device_config_##inst, POST_KERNEL, \
-                              CONFIG_SENSOR_INIT_PRIORITY, &kx132_driver_api);                 \
-
+                              CONFIG_SENSOR_INIT_PRIORITY, &kx132_driver_api);
 
 /* Create the struct device for every status "okay"*/
 DT_INST_FOREACH_STATUS_OKAY(KX132_DEFINE)
