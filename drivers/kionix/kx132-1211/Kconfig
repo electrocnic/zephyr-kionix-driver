@@ -16,6 +16,14 @@ config KX132_1211_DRV_NAME
 	help
 	  This option sets the driver name
 
+config KX132_POWER_MODE
+        int "KX132 sensor power modes"
+        range 0 1 
+        default 0
+        help
+          Specify the sensor power mode
+          0: stand by mode
+          1: high performance or low power mode (set by readings resolution selection)
 
 # REF zephyr/drivers/sensor/iis2dh/Kconfig
 
