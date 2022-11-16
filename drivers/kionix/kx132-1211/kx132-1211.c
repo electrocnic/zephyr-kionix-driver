@@ -693,6 +693,8 @@ DT_INST_FOREACH_STATUS_OKAY(SGP40_DEFINE)
                           CONFIG_SENSOR_INIT_PRIORITY,           \
                           &kx132_api);
 
+/* Create the struct device for every status "okay"*/
+DT_INST_FOREACH_STATUS_OKAY(KX132_1211_DEFINE)
 #endif
 
 
