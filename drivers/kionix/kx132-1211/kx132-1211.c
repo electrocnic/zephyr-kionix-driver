@@ -650,7 +650,8 @@ DEVICE_DEFINE(kx132_1211,                    // dev_id
 
 // REF https://docs.zephyrproject.org/latest/kernel/drivers/index.html#c.DEVICE_DT_DEFINE
 
-#if (CONFIG_DEFINE_DEVICE_KX132_VIA_DT_NODELABEL == 0)
+#if 1
+//#if (CONFIG_DEFINE_DEVICE_KX132_VIA_DT_NODELABEL == 0)
 #warning "- DEV 1115 - defining device KX132-1211 via Zephyr DEVICE_NODELABEL() macro . . ."
 
 DEVICE_DT_DEFINE(
@@ -666,7 +667,8 @@ DEVICE_DT_DEFINE(
 );
 #endif
 
-#if (CONFIG_DEFINE_DEVICE_KX132_VIA_DEVICE_DT_INST_DEFINE == 0)
+#if 0
+//#if (CONFIG_DEFINE_DEVICE_KX132_VIA_DEVICE_DT_INST_DEFINE == 0)
 #warning "- DEV 1115 - defining device KX132-1211 via Zephyr DEVICE_DT_INST_DEFINE() macro . . ."
 
 
