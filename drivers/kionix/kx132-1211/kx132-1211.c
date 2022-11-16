@@ -651,11 +651,15 @@ DEVICE_DEFINE(kx132_1211,                    // dev_id
 // REF https://docs.zephyrproject.org/latest/kernel/drivers/index.html#c.DEVICE_DT_DEFINE
 
 #if 1
+
+#define macro(x) x
+
 //#if (CONFIG_DEFINE_DEVICE_KX132_VIA_DT_NODELABEL == 0)
 #warning "- DEV 1115 - defining device KX132-1211 via Zephyr DEVICE_NODELABEL() macro . . ."
 
 DEVICE_DT_DEFINE(
-                 DT_NODELABEL(kionix_sensor),  // node_id . . . works, but nodelabel is hard-coded
+//                 DT_NODELABEL(kionix_sensor),  // node_id . . . works, but nodelabel is hard-coded
+                 DT_NODELABEL(macro(CONFIG_KX132_NODELABEL_VALUE)),  // node_id . . . works, but nodelabel is hard-coded
 
                  kx132_1211_init,              // init function
                  NULL,                         // pm
