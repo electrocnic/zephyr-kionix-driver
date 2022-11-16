@@ -659,7 +659,11 @@ DEVICE_DEFINE(kx132_1211,                    // dev_id
 
 DEVICE_DT_DEFINE(
 //                 DT_NODELABEL(kionix_sensor),  // node_id . . . works, but nodelabel is hard-coded
-                 DT_NODELABEL(macro(CONFIG_KX132_NODELABEL_VALUE)),  // node_id . . . works, but nodelabel is hard-coded
+
+//                 DT_NODELABEL(macro(CONFIG_KX132_NODELABEL_VALUE)),
+
+#define y macro(CONFIG_KX132_NODELABEL_VALUE)
+                 DT_NODELABEL(macro(y)),
 
                  kx132_1211_init,              // init function
                  NULL,                         // pm
