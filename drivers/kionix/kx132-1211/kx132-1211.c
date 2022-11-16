@@ -669,15 +669,18 @@ DEVICE_DT_DEFINE(
 #if CONFIG_DEFINE_DEVICE_KX132_VIA_DEVICE_DT_INST_DEFINE == y
 #warning "- DEV 1115 - defining device KX132-1211 via Zephyr DEVICE_DT_INST_DEFINE() macro . . ."
 
-// #define SGP40_DEFINE(inst)                                       \
-//     static struct sgp40_data sgp40_data_##inst;                  \
-//     DEVICE_DT_INST_DEFINE(inst,                                  \
-//                           sgp40_init, NULL,                      \
-//                           &sgp40_data_##inst, NULL, POST_KERNEL, \
-//                           CONFIG_SENSOR_INIT_PRIORITY, &sgp40_api);
-//
-// /* Create the struct device for every status "okay"*/
-// DT_INST_FOREACH_STATUS_OKAY(SGP40_DEFINE)
+#if 0
+## Sample driver code from Jared Wolff https://github.com/circuitdojo/air-quality-wing-zephyr-drivers/blob/main/drivers/sgp40/sgp40.c:
+#define SGP40_DEFINE(inst)                                       \
+    static struct sgp40_data sgp40_data_##inst;                  \
+    DEVICE_DT_INST_DEFINE(inst,                                  \
+                          sgp40_init, NULL,                      \
+                          &sgp40_data_##inst, NULL, POST_KERNEL, \
+                          CONFIG_SENSOR_INIT_PRIORITY, &sgp40_api);
+
+/* Create the struct device for every status "okay"*/
+DT_INST_FOREACH_STATUS_OKAY(SGP40_DEFINE)
+#endif
 
 #define KX132_1211_DEFINE(inst)                                  \
     static struct kx132_1211_data kx132_1211_data_##inst;        \
