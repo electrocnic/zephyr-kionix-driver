@@ -666,7 +666,7 @@ DEVICE_DT_DEFINE(
 );
 #endif
 
-#if CONFIG_DEFINE_DEVICE_KX132_VIA_DEVICE_DT_INST_DEFINE = y
+#if CONFIG_DEFINE_DEVICE_KX132_VIA_DEVICE_DT_INST_DEFINE == y
 #warning "- DEV 1115 - defining device KX132-1211 via Zephyr DEVICE_DT_INST_DEFINE() macro . . ."
 
 // #define SGP40_DEFINE(inst)                                       \
