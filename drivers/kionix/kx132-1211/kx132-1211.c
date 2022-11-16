@@ -664,9 +664,12 @@ DEVICE_DT_DEFINE(
 // [app_workspace]/zephyr/include/zephyr/devicetree.h:190:36: error: pasting "DT_N_NODELABEL_" and ""kionix_sensor"" does not give a valid preprocessing token
 
 //                 DT_NODELABEL(str(CONFIG_KX132_NODELABEL_VALUE)),  // node_id . . . works, but nodelabel is hard-coded
+// build time error here too, just not noted - TMH
 
-                 DT_NODELABEL(str(KXNL)),      // node_id . . . works, but nodelabel is hard-coded
+//                 DT_NODELABEL(str(KXNL)),      // node_id . . . works, but nodelabel is hard-coded
+// [app_workspace]/kionix-drivers/drivers/kionix/kx132-1211/kx132-1211.c:678:1: error: pasting ""KXNL"" and "_EXISTS" does not give a valid preprocessing token
 
+                 DT_NODELABEL(xstr(KXNL)),      // node_id . . . works, but nodelabel is hard-coded
 
                  kx132_1211_init,              // init function
                  NULL,                         // pm
