@@ -717,7 +717,7 @@ DEVICE_DT_DEFINE(
 
 
 /* Create the struct device for every status "okay"*/
-DT_INST_FOREACH_STATUS_OKAY(KX132_1211_DEFINE)
+DT_INST_FOREACH_STATUS_OKAY(KX132_DEFINE)
 
 
 
