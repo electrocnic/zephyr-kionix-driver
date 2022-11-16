@@ -1,6 +1,12 @@
 #ifndef KX132_1211_H
 #define KX132_1211_H
 
+// These includes here, following iis2dh.h example driver header file:
+#include <zephyr/drivers/i2c.h>
+#include <zephyr/drivers/spi.h>
+#include <zephyr/drivers/gpio.h>
+#include <zephyr/sys/util.h>
+#include <zephyr/drivers/sensor.h>
 
 
 
