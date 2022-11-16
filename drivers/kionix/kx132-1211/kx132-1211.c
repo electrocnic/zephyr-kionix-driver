@@ -616,7 +616,7 @@ static int kx132_1211_init(const struct device *dev)
 //  terms detailed here:
 // https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html
 
-static const struct sensor_driver_api kx132_api = {
+static const struct sensor_driver_api kx132_driver_api = {
     .attr_get = &kx132_1211_attr_get,
     .attr_set = &kx132_1211_attr_set,
     .sample_fetch = &kx132_1211_sample_fetch,
@@ -624,7 +624,7 @@ static const struct sensor_driver_api kx132_api = {
 };
 
 
-static struct kx132_1211_data kx132_1211_data;
+//static struct kx132_1211_data kx132_1211_data;
 
 // NOTE Zephyr documentation says "Use DEVICE_DEFINE() only when device is not allocated from a devicetree node."
 
@@ -637,7 +637,7 @@ DEVICE_DEFINE(kx132_1211,                    // dev_id
               NULL,                          // config - pointer to device' private constant data
               POST_KERNEL,                   // level
               CONFIG_SENSOR_INIT_PRIORITY,   // priority
-              &kx132_api                     // API
+              &kx132_driver_api                     // API
 );
 #endif
 
@@ -650,7 +650,7 @@ DEVICE_DEFINE(kx132_1211,                    // dev_id
 
 // REF https://docs.zephyrproject.org/latest/kernel/drivers/index.html#c.DEVICE_DT_DEFINE
 
-#if 1
+#if 0
 
 #define macro(x) x
 
@@ -671,17 +671,16 @@ DEVICE_DT_DEFINE(
                  NULL,                         // config
                  POST_KERNEL,                  // level
                  CONFIG_SENSOR_INIT_PRIORITY,  // priority
-                 &kx132_api                    // API
+                 &kx132_driver_api                    // API
 );
 #endif
 
+
 #if 0
-//#if (CONFIG_DEFINE_DEVICE_KX132_VIA_DEVICE_DT_INST_DEFINE == 0)
-#warning "- DEV 1115 - defining device KX132-1211 via Zephyr DEVICE_DT_INST_DEFINE() macro . . ."
-
-
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 #define KX132_1211_DEFINE(inst)                                  \
     static struct kx132_1211_data kx132_1211_data_##inst;        \
+                                                                 \
     DEVICE_DT_INST_DEFINE(inst,                                  \
                           kx132_1211_init,                       \
                           NULL,                                  \
@@ -689,11 +688,36 @@ DEVICE_DT_DEFINE(
                           NULL,                                  \
                           POST_KERNEL,                           \
                           CONFIG_SENSOR_INIT_PRIORITY,           \
-                          &kx132_api);
+                          &kx132_driver_api);
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+#endif
+
+
+
+#define KX132_SPI(inst)                                                                         \
+        (.spi = SPI_DT_SPEC_INST_GET(                                                           \
+                 0, SPI_OP_MODE_MASTER | SPI_MODE_CPOL | SPI_MODE_CPHA | SPI_WORD_SET(8), 0),)
+
+#define KX132_I2C(inst) (.i2c = I2C_DT_SPEC_INST_GET(inst),)
+
+#define KX132_DEFINE(inst)                                                                      \
+        static struct kx132_1211_data kx132_1211_data_##inst;                                   \
+                                                                                                \
+        static const struct kx132_device_config kx132_device_config_##inst = {                  \
+                COND_CODE_1(DT_INST_ON_BUS(inst, i2c), IIS2DH_I2C(inst), ())                    \
+                COND_CODE_1(DT_INST_ON_BUS(inst, spi), IIS2DH_SPI(inst), ())                    \
+                .pm = CONFIG_KX132_POWER_MODE,                                                 \
+                IF_ENABLED(CONFIG_KX132_TRIGGER,                                               \
+                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),))    \
+        };                                                                                      \
+                                                                                                \
+        DEVICE_DT_INST_DEFINE(inst, kx132_1211_init, NULL,                                      \
+                              &kx132_1211_data_##inst, &kx132_device_config_##inst, POST_KERNEL, \
+                              CONFIG_SENSOR_INIT_PRIORITY, &kx132_driver_api);                 \
+
 
 /* Create the struct device for every status "okay"*/
 DT_INST_FOREACH_STATUS_OKAY(KX132_1211_DEFINE)
-#endif
 
 
 

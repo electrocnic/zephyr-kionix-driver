@@ -2,6 +2,65 @@
 #define KX132_1211_H
 
 
+
+
+
+/**
+ * struct kx132_device_config - Kionix KX132-1211 hardware configuration
+ * @spi: SPI bus spec.
+ * @i2c: I2C bus spec.
+ * @pm: Power mode (to be determined - TMH).
+ * @int_gpio: GPIO spec for sensor pin interrupt.
+ */
+
+struct kx132_device_config {
+#if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
+	struct spi_dt_spec spi;
+#else
+#warning  "- WARNING KX132 driver - on SPI bus no device instance found with status 'okay'"
+#endif
+
+#if DT_ANY_INST_ON_BUS_STATUS_OKAY(i2c)
+	struct i2c_dt_spec i2c;
+#else
+#warning  "- WARNING KX132 driver - on I2C bus no device instance found with status 'okay'"
+#endif
+
+	uint8_t pm;
+#ifdef CONFIG_KX132_TRIGGER
+	struct gpio_dt_spec int_gpio;
+#endif /* CONFIG_KX132_TRIGGER */
+};
+
+
+/* sensor data */
+
+#if 0 // - following iis2dh driver code commented for reference - TMH
+
+struct iis2dh_data {
+	int16_t acc[3];
+	uint32_t gain;
+
+        stmdev_ctx_t *ctx;
+#ifdef CONFIG_IIS2DH_TRIGGER
+        const struct device *dev;
+        struct gpio_callback gpio_cb;
+        sensor_trigger_handler_t drdy_handler;
+#if defined(CONFIG_IIS2DH_TRIGGER_OWN_THREAD)
+        K_KERNEL_STACK_MEMBER(thread_stack, CONFIG_IIS2DH_THREAD_STACK_SIZE);
+        struct k_thread thread;
+        struct k_sem gpio_sem;
+#elif defined(CONFIG_IIS2DH_TRIGGER_GLOBAL_THREAD)
+        struct k_work work;
+#endif /* CONFIG_IIS2DH_TRIGGER_GLOBAL_THREAD */
+#endif /* CONFIG_IIS2DH_TRIGGER */
+};
+
+#endif // 0
+
+
+
+
 // KX132-1211 sensor possible I2C addresses:
 // ( See KX132-1211-Specifications-Rev-1.0.pdf for details )
 #define KX132_I2C_ADDRESS__ADDR_PIN_AT_GND    (0x1E)
