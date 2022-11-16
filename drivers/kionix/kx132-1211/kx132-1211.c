@@ -650,9 +650,51 @@ DEVICE_DEFINE(kx132_1211,                    // dev_id
 
 // REF https://docs.zephyrproject.org/latest/kernel/drivers/index.html#c.DEVICE_DT_DEFINE
 
-DEVICE_DT_DEFINE(
-//                 DT_NODELABEL(kionix_sensor),  // node_id . . . works, but nodelabel is hard-coded
+#if CONFIG_DEFINE_DEVICE_KX132_VIA_DT_NODELABEL == y
+#warning "- DEV 1115 - defining device KX132-1211 via Zephyr DEVICE_NODELABEL() macro . . ."
 
+DEVICE_DT_DEFINE(
+                 DT_NODELABEL(kionix_sensor),  // node_id . . . works, but nodelabel is hard-coded
+
+                 kx132_1211_init,              // init function
+                 NULL,                         // pm
+                 &kx132_1211_data,             // data
+                 NULL,                         // config
+                 POST_KERNEL,                  // level
+                 CONFIG_SENSOR_INIT_PRIORITY,  // priority
+                 &kx132_api                    // API
+);
+#endif
+
+#if CONFIG_DEFINE_DEVICE_KX132_VIA_DEVICE_DT_INST_DEFINE = y
+#warning "- DEV 1115 - defining device KX132-1211 via Zephyr DEVICE_DT_INST_DEFINE() macro . . ."
+
+// #define SGP40_DEFINE(inst)                                       \
+//     static struct sgp40_data sgp40_data_##inst;                  \
+//     DEVICE_DT_INST_DEFINE(inst,                                  \
+//                           sgp40_init, NULL,                      \
+//                           &sgp40_data_##inst, NULL, POST_KERNEL, \
+//                           CONFIG_SENSOR_INIT_PRIORITY, &sgp40_api);
+//
+// /* Create the struct device for every status "okay"*/
+// DT_INST_FOREACH_STATUS_OKAY(SGP40_DEFINE)
+
+#define KX132_1211_DEFINE(inst)                                  \
+    static struct kx132_1211_data kx132_1211_data_##inst;        \
+    DEVICE_DT_INST_DEFINE(inst,                                  \
+                          kx132_1211_init,                       \
+                          NULL,                                  \
+                          &kx132_1211_data_##inst,               \
+                          NULL,                                  \
+                          POST_KERNEL,                           \
+                          CONFIG_SENSOR_INIT_PRIORITY,           \
+                          &kx132_api);
+
+#endif
+
+
+
+#if 0
 #define nodelabel_value KX132_NODELABEL_VALUE
 //                 DT_NODELABEL(nodelabel_value),  // node_id . . . works, but nodelabel is hard-coded
 // [app_workspace]/zephyr/include/zephyr/devicetree.h:190:36: error: 'DT_N_NODELABEL_KX132_NODELABEL_VALUE_FULL_NAME' undeclared here (not in a function)
@@ -670,17 +712,12 @@ DEVICE_DT_DEFINE(
 // [app_workspace]/kionix-drivers/drivers/kionix/kx132-1211/kx132-1211.c:678:1: error: pasting ""KXNL"" and "_EXISTS" does not give a valid preprocessing token
 
 //                 DT_NODELABEL(xstr(CONFIG_KXNL)),      // node_id . . . works, but nodelabel is hard-coded
-// xus/kionix-drivers/drivers/kionix/kx132-1211/kx132-1211.c:681:1: error: pasting ""\"kionix_sensor\""" and "_EXISTS" does not give a valid preprocessing token
+// [app_workspace]/kionix-drivers/drivers/kionix/kx132-1211/kx132-1211.c:681:1: error: pasting ""\"kionix_sensor\""" and "_EXISTS" does not give a valid preprocessing token
 
-                 DT_NODELABEL(CONFIG_KXNL),    // node_id . . . works, but nodelabel is hard-coded
+//                 DT_NODELABEL(CONFIG_KXNL),    // node_id . . . works, but nodelabel is hard-coded
+// samples/iis2dh-driver-demo/build/zephyr/include/generated/autoconf.h:71:21: error: pasting ""kionix_sensor"" and "_EXISTS" does not give a valid preprocessing token
+#endif
 
-                 kx132_1211_init,              // init function
-                 NULL,                         // pm
-                 &kx132_1211_data,             // data
-                 NULL,                         // config
-                 POST_KERNEL,                  // level
-                 CONFIG_SENSOR_INIT_PRIORITY,  // priority
-                 &kx132_api                    // API
-);
+
 
 // --- EOF ---
