@@ -17,7 +17,7 @@
 #include "development-defines.h"
 
 #include <zephyr/logging/log.h>     // 2022-11-10 was <logging/log.h>
-LOG_MODULE_REGISTER(kx132, CONFIG_SENSOR_LOG_LEVEL);
+LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // NEED to review LOG_MODULE_DECLARE() stanzas in other driver sources - TMH
 
 
 #define SIZE_MANUFACT_ID_STRING (4)
@@ -588,22 +588,47 @@ static int kx132_1211_channel_get(const struct device *dev,
 
 
 
+// Following design pattern of Zephyr 3.2.0 zephyr/drivers/sensor/iis2dh/iis2dh.c:
+
+static int kx132_init_interface(const struct device *dev)
+{
+        int rstatus;
+
+#if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
+        rstatus = kx132_spi_init(dev);
+        if (rstatus) {
+                return rstatus;
+        }
+#elif DT_ANY_INST_ON_BUS_STATUS_OKAY(i2c)
+        rstatus = kx132_i2c_init(dev);
+        if (rstatus) {
+                return rstatus;
+        }
+#else
+#error "BUS MACRO NOT DEFINED IN DTS"
+#endif
+
+        return 0;
+}
+
+
+
+
 // FEATURE - initializating function in KX132-1211 driver:
 
 static int kx132_1211_init(const struct device *dev)
 {
-    struct kx132_1211_data *data = dev->data;
+//    struct kx132_1211_data *data = dev->data;
+//
+//    data->i2c_dev = DEVICE_DT_GET(DT_INST_BUS(0));
+//
+//    if (data->i2c_dev == NULL)
+//    {
+//        LOG_ERR("Unable to get I2C controller while initializing KX132-1211 device instance.");
+//        return -EINVAL;
+//    }
 
-// 2022-11-10 REF https://docs.zephyrproject.org/latest/build/dts/api/api.html#c.DT_INST_BUS_LABEL
-//    data->i2c_dev = device_get_binding(DT_INST_BUS_LABEL(0));
-//    data->i2c_dev = device_get_binding(DEVICE_DT_GET(DT_INST_BUS(0)));  // expected 'const char *' but argument is of type 'const struct device *'
-    data->i2c_dev = DEVICE_DT_GET(DT_INST_BUS(0));
-
-    if (data->i2c_dev == NULL)
-    {
-        LOG_ERR("Unable to get I2C controller while initializing KX132-1211 device instance.");
-        return -EINVAL;
-    }
+    kx132_init_interface(dev);
 
     return 0;
 }
@@ -744,53 +769,6 @@ DEVICE_DT_DEFINE(
 
 /* Create the struct device for every status "okay"*/
 DT_INST_FOREACH_STATUS_OKAY(KX132_DEFINE)
-
-
-
-
-
-//----------------------------------------------------------------------
-// - SECTION - notes and reference code
-//----------------------------------------------------------------------
-
-#if 0
-## Sample driver code from Jared Wolff https://github.com/circuitdojo/air-quality-wing-zephyr-drivers/blob/main/drivers/sgp40/sgp40.c:
-#define SGP40_DEFINE(inst)                                       \
-    static struct sgp40_data sgp40_data_##inst;                  \
-    DEVICE_DT_INST_DEFINE(inst,                                  \
-                          sgp40_init, NULL,                      \
-                          &sgp40_data_##inst, NULL, POST_KERNEL, \
-                          CONFIG_SENSOR_INIT_PRIORITY, &sgp40_api);
-
-/* Create the struct device for every status "okay"*/
-DT_INST_FOREACH_STATUS_OKAY(SGP40_DEFINE)
-#endif
-
-
-#if 0
-#define nodelabel_value KX132_NODELABEL_VALUE
-//                 DT_NODELABEL(nodelabel_value),  // node_id . . . works, but nodelabel is hard-coded
-// [app_workspace]/zephyr/include/zephyr/devicetree.h:190:36: error: 'DT_N_NODELABEL_KX132_NODELABEL_VALUE_FULL_NAME' undeclared here (not in a function)
-
-//                 DT_NODELABEL(xstr(KX132_NODELABEL_VALUE)),  // node_id
-// [app_workspace]/zephyr/include/zephyr/devicetree.h:190:36: error: pasting "DT_N_NODELABEL_" and ""KX132_NODELABEL_VALUE"" does not give a valid preprocessing token
-
-//                 DT_NODELABEL(CONFIG_KX132_NODELABEL_VALUE),  // node_id . . . works, but nodelabel is hard-coded
-// [app_workspace]/zephyr/include/zephyr/devicetree.h:190:36: error: pasting "DT_N_NODELABEL_" and ""kionix_sensor"" does not give a valid preprocessing token
-
-//                 DT_NODELABEL(str(CONFIG_KX132_NODELABEL_VALUE)),  // node_id . . . works, but nodelabel is hard-coded
-// build time error here too, just not noted - TMH
-
-//                 DT_NODELABEL(str(KXNL)),      // node_id . . . works, but nodelabel is hard-coded
-// [app_workspace]/kionix-drivers/drivers/kionix/kx132-1211/kx132-1211.c:678:1: error: pasting ""KXNL"" and "_EXISTS" does not give a valid preprocessing token
-
-//                 DT_NODELABEL(xstr(CONFIG_KXNL)),      // node_id . . . works, but nodelabel is hard-coded
-// [app_workspace]/kionix-drivers/drivers/kionix/kx132-1211/kx132-1211.c:681:1: error: pasting ""\"kionix_sensor\""" and "_EXISTS" does not give a valid preprocessing token
-
-//                 DT_NODELABEL(CONFIG_KXNL),    // node_id . . . works, but nodelabel is hard-coded
-// samples/iis2dh-driver-demo/build/zephyr/include/generated/autoconf.h:71:21: error: pasting ""kionix_sensor"" and "_EXISTS" does not give a valid preprocessing token
-#endif
-
 
 
 // --- EOF ---

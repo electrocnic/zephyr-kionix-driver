@@ -8,7 +8,7 @@
 #include <zephyr/sys/util.h>
 #include <zephyr/drivers/sensor.h>
 
-#include "kx132-register-interface.h" // to provide kx132_ctx_t sensor context data structure definition
+#include "kx132-register-interface.h" // to provide kionix_ctx_t sensor context data structure definition
 
 
 
@@ -96,7 +96,7 @@ struct kx132_1211_data {
 // NOTE:  this "sensor context" data structure holds function pointers to
 //  generalized, flexible register_write() and register_read() functions:
 
-        kx132_ctx_t *ctx;
+        kionix_ctx_t *ctx;
 
 // NOTE:  2022-11-18 following two Kconfig symbols Ted has not yet defined
 //  for Kionix driver:
