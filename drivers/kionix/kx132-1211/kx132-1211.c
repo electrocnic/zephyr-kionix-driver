@@ -20,24 +20,6 @@
 LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // NEED to review LOG_MODULE_DECLARE() stanzas in other driver sources - TMH
 
 
-#define SIZE_MANUFACT_ID_STRING (4)
-#define SIZE_PART_ID_STRING (2)
-
-union string_union_type__manufacturer_id
-{
-    char as_string[SIZE_MANUFACT_ID_STRING];
-    uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
-    uint32_t as_32_bit_integer;
-};
-
-union string_union_type__part_id
-{
-    char as_string[SIZE_MANUFACT_ID_STRING];
-    uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
-    uint16_t as_16_bit_integer;
-};
-
-
 //----------------------------------------------------------------------
 // Note:  struct sensor_value is defined in Zephyr's sensor.h header
 // file.  In Nordic ncs v1.6.1 SDK this file found in
@@ -550,17 +532,17 @@ static int kx132_1211_channel_get(const struct device *dev,
             val->val2 = 0;
             break;
 
-        case SENSOR_CHAN_ACCEL_X:          // a two byte value
+        case SENSOR_CHAN_ACCEL_X:                 // a two byte value
             val->val1 = ( ( data->accel_axis_x[1] << 8 ) | ( data->accel_axis_x[0] ) );
             val->val2 = 0;
             break;
 
-        case SENSOR_CHAN_ACCEL_Y:          // a two byte value
+        case SENSOR_CHAN_ACCEL_Y:                 // a two byte value
             val->val1 = ( ( data->accel_axis_y[1] << 8 ) | ( data->accel_axis_y[0] ) );
             val->val2 = 0;
             break;
 
-        case SENSOR_CHAN_ACCEL_Z:          // a two byte value
+        case SENSOR_CHAN_ACCEL_Z:                 // a two byte value
             val->val1 = ( ( data->accel_axis_z[1] << 8 ) | ( data->accel_axis_z[0] ) );
             val->val2 = 0;
             break;

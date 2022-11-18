@@ -12,6 +12,27 @@
 
 
 
+
+#define SIZE_MANUFACT_ID_STRING (4)
+#define SIZE_PART_ID_STRING (2)
+
+union string_union_type__manufacturer_id
+{
+    char as_string[SIZE_MANUFACT_ID_STRING];
+    uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
+    uint32_t as_32_bit_integer;
+};
+
+union string_union_type__part_id
+{
+    char as_string[SIZE_MANUFACT_ID_STRING];
+    uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
+    uint16_t as_16_bit_integer;
+};
+
+
+
+
 /**
  * struct kx132_device_config - Kionix KX132-1211 hardware configuration
  * @spi: SPI bus spec.
@@ -67,6 +88,9 @@ struct iis2dh_data {
 
 
 
+#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS (2)
+#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES ((BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS) * 3) 
+
 struct kx132_1211_data {
 	int16_t acc[3];
 
@@ -81,8 +105,8 @@ struct kx132_1211_data {
 //  structure . . .
 
     const struct device *i2c_dev;
-//    union string_union_type__manufacturer_id manufacturer_id;
-//    union string_union_type__part_id part_id;
+    union string_union_type__manufacturer_id manufacturer_id;
+    union string_union_type__part_id part_id;
 // Following three data members are written with LSB, MSB of respective accelerometer readings:
     uint8_t accel_axis_x[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
     uint8_t accel_axis_y[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
@@ -125,11 +149,6 @@ struct kx132_1211_data {
 #define KX132_I2C_ADDRESS__ADDR_PIN_AT_IO_VDD (0x1F)
 #define KX132_I2C_ADDRESS_FLIPPED__ADDR_PIN_AT_GND    (0x1C)
 #define KX132_I2C_ADDRESS_FLIPPED__ADDR_PIN_AT_IO_VDD (0x1D)
-
-
-#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS (2)
-#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES ((BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS) * 3) 
-
 
 
 // For following defines see Kionix document
