@@ -81,8 +81,8 @@ struct kx132_1211_data {
 //  structure . . .
 
     const struct device *i2c_dev;
-    union string_union_type__manufacturer_id manufacturer_id;
-    union string_union_type__part_id part_id;
+//    union string_union_type__manufacturer_id manufacturer_id;
+//    union string_union_type__part_id part_id;
 // Following three data members are written with LSB, MSB of respective accelerometer readings:
     uint8_t accel_axis_x[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
     uint8_t accel_axis_y[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];

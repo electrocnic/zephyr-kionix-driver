@@ -46,6 +46,7 @@ union string_union_type__part_id
 // Kionix KX132-1211 register definitions found in KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf.
 //----------------------------------------------------------------------
 
+#if 0 // - DEV 1118 - moving sensor data structure to Zephyr 3.2.0, STMicro 2022 standards - TMH
 struct kx132_1211_data
 {
     const struct device *i2c_dev;
@@ -60,6 +61,7 @@ struct kx132_1211_data
 // QUESTION:  any reason we need to align data on four byte boundary? - TMH
 //    uint8_t padding[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
 };
+#endif
 
 
 
