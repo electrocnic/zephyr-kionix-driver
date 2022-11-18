@@ -140,6 +140,8 @@ struct kx132_1211_data {
 };
 
 
+int kx132_i2c_init(const struct device *dev);
+int kx132_spi_init(const struct device *dev);
 
 
 
