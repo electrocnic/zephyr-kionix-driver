@@ -8,6 +8,7 @@
 #include <zephyr/sys/util.h>
 #include <zephyr/drivers/sensor.h>
 
+#include "kx132-register-interface.h" // to provide kx132_ctx_t sensor context data structure definition
 
 
 
@@ -63,6 +64,57 @@ struct iis2dh_data {
 };
 
 #endif // 0
+
+
+
+struct kx132_1211_data {
+	int16_t acc[3];
+
+// From the original 2021 kionix driver data structure:
+// NOTE:  all of these are slated to be removed.  Pointer to
+//  I2C controller will be part of kx132_ctx_t data structure,
+//  which will support both I2C and SPI buses.  The part ID
+//  and accelerometer readings are data which are normally
+//  read from the sensor and copied directly to memory to
+//  which calling code sends our driver here pointers.  No
+//  need to have a copy of those data in this sensor data
+//  structure . . .
+
+    const struct device *i2c_dev;
+    union string_union_type__manufacturer_id manufacturer_id;
+    union string_union_type__part_id part_id;
+// Following three data members are written with LSB, MSB of respective accelerometer readings:
+    uint8_t accel_axis_x[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
+    uint8_t accel_axis_y[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
+    uint8_t accel_axis_z[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
+// Following data member written with LSB, MSB of allaccelerometer readings X, Y and Z axes:
+    uint8_t accel_axis_xyz[BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES];
+// QUESTION:  any reason we need to align data on four byte boundary? - TMH
+//    uint8_t padding[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
+
+
+// NOTE:  this "sensor context" data structure holds function pointers to
+//  generalized, flexible register_write() and register_read() functions:
+
+        kx132_ctx_t *ctx;
+
+// NOTE:  2022-11-18 following two Kconfig symbols Ted has not yet defined
+//  for Kionix driver:
+
+#ifdef CONFIG_KX132_TRIGGER
+        const struct device *dev;
+        struct gpio_callback gpio_cb;
+        sensor_trigger_handler_t drdy_handler;
+#if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
+        K_KERNEL_STACK_MEMBER(thread_stack, CONFIG_KX132_THREAD_STACK_SIZE);
+        struct k_thread thread;
+        struct k_sem gpio_sem;
+#elif defined(CONFIG_KX132_TRIGGER_GLOBAL_THREAD)
+        struct k_work work;
+#endif /* CONFIG_KX132_TRIGGER_GLOBAL_THREAD */
+#endif /* CONFIG_KX132_TRIGGER */
+};
+
 
 
 
