@@ -356,7 +356,7 @@ static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
                          cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
     if (bus_comms_status != 0)
     {
-        LOG_WRN("Unable to read numeric part ID . Err: %i", bus_comms_status);
+        LOG_WRN("Unable to read X,Y,Z accelerometer axes data. Err: %i", bus_comms_status);
         return bus_comms_status;
     }
 
@@ -588,7 +588,6 @@ static int kx132_1211_channel_get(const struct device *dev,
 
 // FEATURE - initializating function in KX132-1211 driver:
 
-//static int kx132_init(const struct device *dev)
 static int kx132_1211_init(const struct device *dev)
 {
     struct kx132_1211_data *data = dev->data;
@@ -616,15 +615,18 @@ static int kx132_1211_init(const struct device *dev)
 //  terms detailed here:
 // https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html
 
-static const struct sensor_driver_api kx132_api = {
+static const struct sensor_driver_api kx132_driver_api = {
     .attr_get = &kx132_1211_attr_get,
     .attr_set = &kx132_1211_attr_set,
+#if CONFIG_KX132_TRIGGER
+    .trigger_set = kx132_trigger_set,
+#endif
     .sample_fetch = &kx132_1211_sample_fetch,
     .channel_get = &kx132_1211_channel_get
 };
 
 
-static struct kx132_1211_data kx132_1211_data;
+//static struct kx132_1211_data kx132_1211_data;
 
 // NOTE Zephyr documentation says "Use DEVICE_DEFINE() only when device is not allocated from a devicetree node."
 
@@ -637,21 +639,156 @@ DEVICE_DEFINE(kx132_1211,                    // dev_id
               NULL,                          // config - pointer to device' private constant data
               POST_KERNEL,                   // level
               CONFIG_SENSOR_INIT_PRIORITY,   // priority
-              &kx132_api                     // API
+              &kx132_driver_api                     // API
 );
 #endif
 
+
+// # https://gcc.gnu.org/onlinedocs/gcc-3.4.6/cpp/Stringification.html . . . stringification via C macros
+#define xstr(s) str(s)
+#define str(s) #s
+// Ejemplo:   printk("- DEV 1028 - symbol ST_IIS2DH got assigned '%s'\n", xstr(ST_IIS2DH));
+
+
 // REF https://docs.zephyrproject.org/latest/kernel/drivers/index.html#c.DEVICE_DT_DEFINE
 
+#if 0
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// NOTE:  intermediate device definition, which calls DT_NODELABEL to
+//   obtain a device tree node identifier.
+//
+// NOTE:  this way replaced original DT_LABEL() in app way, which contributor
+//   Ted first got working.  DT_LABEL() is deprecated as of Zephyr 3.2.0
+//   or earlier, but use of DT_NODELABEL() couples device tree overlays
+//   with this driver -- not a desirable design choice!
+
+#define macro(x) x
+
+//#if (CONFIG_DEFINE_DEVICE_KX132_VIA_DT_NODELABEL == 0)
+#warning "- DEV 1115 - defining device KX132-1211 via Zephyr DEVICE_NODELABEL() macro . . ."
+
 DEVICE_DT_DEFINE(
-                 DT_NODELABEL(kionix_sensor),  // node_id
+//                 DT_NODELABEL(kionix_sensor),  // node_id . . . works, but nodelabel is hard-coded
+
+//                 DT_NODELABEL(macro(CONFIG_KX132_NODELABEL_VALUE)),
+
+#define y macro(CONFIG_KX132_NODELABEL_VALUE)
+                 DT_NODELABEL(macro(y)),
+
                  kx132_1211_init,              // init function
                  NULL,                         // pm
                  &kx132_1211_data,             // data
                  NULL,                         // config
                  POST_KERNEL,                  // level
                  CONFIG_SENSOR_INIT_PRIORITY,  // priority
-                 &kx132_api                    // API
+                 &kx132_driver_api                    // API
 );
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+#endif
+
+
+#if 0
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// NOTE:  following device define follows CircuitDojo way.  Contributor
+//   Ted must review whether Jared Wolff's driver supports both I2C and
+//   SPI bus communications interfaces:
+
+#define KX132_1211_DEFINE(inst)                                  \
+    static struct kx132_1211_data kx132_1211_data_##inst;        \
+                                                                 \
+    DEVICE_DT_INST_DEFINE(inst,                                  \
+                          kx132_1211_init,                       \
+                          NULL,                                  \
+                          &kx132_1211_data_##inst,               \
+                          NULL,                                  \
+                          POST_KERNEL,                           \
+                          CONFIG_SENSOR_INIT_PRIORITY,           \
+                          &kx132_driver_api);
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+#endif
+
+
+
+// Note:  Zephyr 3.2.0 STMicro IIS2DH driver way:
+
+#define KX132_SPI(inst)                                                                       \
+        (.spi = SPI_DT_SPEC_INST_GET(                                                         \
+                 0, SPI_OP_MODE_MASTER | SPI_MODE_CPOL | SPI_MODE_CPHA | SPI_WORD_SET(8), 0),)
+
+#define KX132_I2C(inst) (.i2c = I2C_DT_SPEC_INST_GET(inst),)
+
+#define KX132_DEFINE(inst)                                                                    \
+        static struct kx132_1211_data kx132_1211_data_##inst;                                 \
+                                                                                              \
+        static const struct kx132_device_config kx132_device_config_##inst = {                \
+                COND_CODE_1(DT_INST_ON_BUS(inst, i2c), KX132_I2C(inst), ())                   \
+                COND_CODE_1(DT_INST_ON_BUS(inst, spi), KX132_SPI(inst), ())                   \
+                .pm = CONFIG_KX132_POWER_MODE,                                                \
+                IF_ENABLED(CONFIG_KX132_TRIGGER,                                              \
+                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),))  \
+        };                                                                                    \
+                                                                                              \
+        DEVICE_DT_INST_DEFINE(                                                                \
+                              inst,                                                           \
+                              kx132_1211_init,                                                \
+                              NULL,                                                           \
+                              &kx132_1211_data_##inst,                                        \
+                              &kx132_device_config_##inst,                                    \
+                              POST_KERNEL,                                                    \
+                              CONFIG_SENSOR_INIT_PRIORITY,                                    \
+                              &kx132_driver_api                                               \
+                             );
+
+/* Create the struct device for every status "okay"*/
+DT_INST_FOREACH_STATUS_OKAY(KX132_DEFINE)
+
+
+
+
+
+//----------------------------------------------------------------------
+// - SECTION - notes and reference code
+//----------------------------------------------------------------------
+
+#if 0
+## Sample driver code from Jared Wolff https://github.com/circuitdojo/air-quality-wing-zephyr-drivers/blob/main/drivers/sgp40/sgp40.c:
+#define SGP40_DEFINE(inst)                                       \
+    static struct sgp40_data sgp40_data_##inst;                  \
+    DEVICE_DT_INST_DEFINE(inst,                                  \
+                          sgp40_init, NULL,                      \
+                          &sgp40_data_##inst, NULL, POST_KERNEL, \
+                          CONFIG_SENSOR_INIT_PRIORITY, &sgp40_api);
+
+/* Create the struct device for every status "okay"*/
+DT_INST_FOREACH_STATUS_OKAY(SGP40_DEFINE)
+#endif
+
+
+#if 0
+#define nodelabel_value KX132_NODELABEL_VALUE
+//                 DT_NODELABEL(nodelabel_value),  // node_id . . . works, but nodelabel is hard-coded
+// [app_workspace]/zephyr/include/zephyr/devicetree.h:190:36: error: 'DT_N_NODELABEL_KX132_NODELABEL_VALUE_FULL_NAME' undeclared here (not in a function)
+
+//                 DT_NODELABEL(xstr(KX132_NODELABEL_VALUE)),  // node_id
+// [app_workspace]/zephyr/include/zephyr/devicetree.h:190:36: error: pasting "DT_N_NODELABEL_" and ""KX132_NODELABEL_VALUE"" does not give a valid preprocessing token
+
+//                 DT_NODELABEL(CONFIG_KX132_NODELABEL_VALUE),  // node_id . . . works, but nodelabel is hard-coded
+// [app_workspace]/zephyr/include/zephyr/devicetree.h:190:36: error: pasting "DT_N_NODELABEL_" and ""kionix_sensor"" does not give a valid preprocessing token
+
+//                 DT_NODELABEL(str(CONFIG_KX132_NODELABEL_VALUE)),  // node_id . . . works, but nodelabel is hard-coded
+// build time error here too, just not noted - TMH
+
+//                 DT_NODELABEL(str(KXNL)),      // node_id . . . works, but nodelabel is hard-coded
+// [app_workspace]/kionix-drivers/drivers/kionix/kx132-1211/kx132-1211.c:678:1: error: pasting ""KXNL"" and "_EXISTS" does not give a valid preprocessing token
+
+//                 DT_NODELABEL(xstr(CONFIG_KXNL)),      // node_id . . . works, but nodelabel is hard-coded
+// [app_workspace]/kionix-drivers/drivers/kionix/kx132-1211/kx132-1211.c:681:1: error: pasting ""\"kionix_sensor\""" and "_EXISTS" does not give a valid preprocessing token
+
+//                 DT_NODELABEL(CONFIG_KXNL),    // node_id . . . works, but nodelabel is hard-coded
+// samples/iis2dh-driver-demo/build/zephyr/include/generated/autoconf.h:71:21: error: pasting ""kionix_sensor"" and "_EXISTS" does not give a valid preprocessing token
+#endif
+
+
 
 // --- EOF ---
