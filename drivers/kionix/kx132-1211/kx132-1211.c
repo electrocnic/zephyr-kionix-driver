@@ -17,7 +17,13 @@
 #include "development-defines.h"
 
 #include <zephyr/logging/log.h>     // 2022-11-10 was <logging/log.h>
-LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // NEED to review LOG_MODULE_DECLARE() stanzas in other driver sources - TMH
+
+LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_MODULE_DECLARE() due to this line
+
+// NEED to review LOG_MODULE_DECLARE() stanzas in other driver sources,
+//  to  assure those are not in conflict with this related Zephyr
+//  logging macro - TMH
+
 
 
 //----------------------------------------------------------------------
@@ -28,22 +34,57 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // NEED to review LOG_MODUL
 // Kionix KX132-1211 register definitions found in KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf.
 //----------------------------------------------------------------------
 
-#if 0 // - DEV 1118 - moving sensor data structure to Zephyr 3.2.0, STMicro 2022 standards - TMH
-struct kx132_1211_data
+
+
+
+/**
+  * @defgroup  KX132_Interfaces_Functions
+  * @brief     This section provide a set of functions used to read and
+  *            write a generic register of the device.
+  *            MANDATORY: return 0 -> no Error.
+  * @{
+  *
+  */
+
+/**
+  * @brief  Read generic device register
+  *
+  * @param  ctx   read / write interface definitions(ptr)
+  * @param  reg   register to read
+  * @param  data  pointer to buffer that store the data read(ptr)
+  * @param  len   number of consecutive register to read
+  * @retval          interface status (MANDATORY: return 0 -> no Error)
+  *
+  */
+int32_t kx132_read_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t len)
 {
-    const struct device *i2c_dev;
-    union string_union_type__manufacturer_id manufacturer_id;
-    union string_union_type__part_id part_id;
-// Following three data members are written with LSB, MSB of respective accelerometer readings:
-    uint8_t accel_axis_x[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
-    uint8_t accel_axis_y[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
-    uint8_t accel_axis_z[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
-// Following data member written with LSB, MSB of allaccelerometer readings X, Y and Z axes:
-    uint8_t accel_axis_xyz[BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES];
-// QUESTION:  any reason we need to align data on four byte boundary? - TMH
-//    uint8_t padding[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
-};
-#endif
+  int32_t rstatus;
+
+  rstatus = ctx->read_reg(ctx->handle, reg, data, len);
+
+  return rstatus;
+}
+
+/**
+  * @brief  Write generic device register
+  *
+  * @param  ctx   read / write interface definitions(ptr)
+  * @param  reg   register to write
+  * @param  data  pointer to data to write in register reg(ptr)
+  * @param  len   number of consecutive register to write
+  * @retval          interface status (MANDATORY: return 0 -> no Error)
+  *
+  */
+int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t len)
+{
+  int32_t rstatus;
+
+  rstatus = ctx->write_reg(ctx->handle, reg, data, len);
+
+  return rstatus;
+}
+
+
 
 
 
@@ -53,49 +94,55 @@ struct kx132_1211_data
 
 static int kx132_enable_asynchronous_readings(const struct device *dev)
 {
-// Note per Sensirion datasheet sensor SHTC3 sleep command is 0xB098,
-// given on page 6 of 14.
 
-    int comms_status = 0;
+//    int comms_status = 0;
     struct kx132_1211_data *data = dev->data;
-    int status = ROUTINE_OK;
+    int rstatus = ROUTINE_OK;
 
 // Per AN092-Getting-Started.pdf from Kionix, page 2 of 27:
-    uint8_t cmd_cntl_00[] = { 0x1B, 0x00 };
+    uint8_t command_buffer[] = { 0x1B, 0x00 };
 
+// --- DEV 1118 BEGIN ---
+#if 0
 #ifdef _DEV_ENABLE_PRINTK
 #ifdef DEV__KX132_SHOW_CONFIG_COMMANDS_BEFORE_SENDING
     printk("writing {%02X, %02X . . .\n", cmd_cntl_00[0], cmd_cntl_00[1]);
 #endif
 #endif
-    comms_status = i2c_write(data->i2c_dev, cmd_cntl_00, sizeof(cmd_cntl_00), DT_INST_REG_ADDR(0));
+#endif
 
-    if (comms_status != 0)
+//    comms_status = i2c_write(data->i2c_dev, cmd_cntl_00, sizeof(cmd_cntl_00), DT_INST_REG_ADDR(0));
+
+// IIS2dh example call
+//
+//    ret = iis2dh_read_reg(ctx, IIS2DH_WHO_AM_I, buff, 1);
+
+    rstatus = kx132_write_reg(data->ctx, command_buffer[0], command_buffer, 1);
+
+    if ( rstatus != 0 )
     {
-        LOG_WRN("- ERROR - Unable to write CNTL register, but error:  %i", comms_status);
-        return comms_status;
+        LOG_WRN("- ERROR - unable to write CNTL register, got bus error:  %i", comms_status);
+        return rstatus;
     }
 
-    k_msleep(100);
+//    k_msleep(100);
 
 
 // Next commands (register writes) are:
 
 // KX132-1211 Register CTRL1:
     uint8_t cmd_odcntl_06[] = { 0x21, 0x06 };
-    comms_status = i2c_write(data->i2c_dev, cmd_odcntl_06, sizeof(cmd_odcntl_06), DT_INST_REG_ADDR(0));
-    k_msleep(100);
+//    rstatus |= i2c_write(data->i2c_dev, cmd_odcntl_06, sizeof(cmd_odcntl_06), DT_INST_REG_ADDR(0));
+    rstatus |= kx132_write_reg(data->ctx, cmd_odcntl_06[0], cmd_odcntl_06, 1);
+//    k_msleep(100);
 
 // KX132-1211 Register INC1:
     uint8_t cmd_cntl_c0[] = { 0x1B, 0xC0 };
-    comms_status = i2c_write(data->i2c_dev, cmd_cntl_c0, sizeof(cmd_cntl_c0), DT_INST_REG_ADDR(0));
-    k_msleep(100);
+//    rstatus |= i2c_write(data->i2c_dev, cmd_cntl_c0, sizeof(cmd_cntl_c0), DT_INST_REG_ADDR(0));
+    rstatus |= kx132_write_reg(data->ctx, cmd_cntl_c0[0], cmd_cntl_c0, 1);
+//    k_msleep(100);
 
-#ifdef _DEV_ENABLE_PRINTK
-    printk("attempt to configure async reading complete.\n");
-#endif
-
-    return status;
+    return rstatus;
 }
 
 
