@@ -171,11 +171,20 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 
 static int kx132_configure_output_data_rate(const struct device *dev, const struct sensor_value *val)
 {
-    int status = ROUTINE_OK;
-    uint8_t cmd[] = { KX132_ODCNTL };
-    struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
-    uint8_t scratch_pad_byte = 0;
+//    uint8_t cmd[] = { KX132_ODCNTL };
+//    struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
+    struct kx132_1211_data *data_struc_ptr = dev->data;
+//    uint8_t scratch_pad_byte = 0;
     uint8_t odcntl_as_found = 0;
+
+    uint8_t reg_val_to_read = 0x00U;
+    uint8_t *read_buffer = reg_val_to_read;
+    uint8_t reg_val_to_write = 0x00U;
+    uint8_t *write_buffer = reg_val_to_write;
+
+    int status = ROUTINE_OK;
+
+
 
     if ((val->val2 < KX132_ODR__0P781_HZ) || (val->val2 > KX132_ODR_25600_HZ))
     {
@@ -184,25 +193,30 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
     else
     {
 
+//
+//    reg_val_to_write = 0x06U;
+//    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, 1);
+//
+
 // Read present value of KX132-1211 output data rate control register:
-        status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
-                         cmd, sizeof(cmd), &scratch_pad_byte, sizeof(scratch_pad_byte));
+//        rstatus = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
+//                         cmd, sizeof(cmd), &scratch_pad_byte, sizeof(scratch_pad_byte));
 
-// NEED TO CHECK FOR I2C COMMS ERROR RETURN VALUE
-// if ( comms error ) { . . . }
-// else
+        rstatus = kx132_read_reg(data->ctx, KX132_ODCNTL, read_buffer, 1);
 
-        odcntl_as_found = scratch_pad_byte;  // save original value - may not be needed, review this - TMH
-        scratch_pad_byte &= 0xF0;            // mask to erase OSA3:OSA0
-        scratch_pad_byte |= val->val2;       // write bit pattern to set output data rate
+        if ( rstatus != ROUTINE_OK )
+        {
+            // ROUTINE_STATUS__COMM_FAILURE_ON_BUS
+        }
+        else
+        {
 
-        uint8_t cmd_odcntl[] = { KX132_ODCNTL, scratch_pad_byte };
-        status = i2c_write(data_struc_ptr->i2c_dev, cmd_odcntl, sizeof(cmd_odcntl), DT_INST_REG_ADDR(0));
+            write_buffer = read_buffer;  // save original value - may not be needed, review this - TMH
+            write_buffer &= 0xF0;            // mask to erase OSA3:OSA0
+            write_buffer |= val->val2;       // write bit pattern to set output data rate
 
-//        k_msleep(100);
-// QUESTION:  how quickly can we write KX132 config registers?  We're
-// not doing so often but we are writing several at start up time.
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, 1);
+        }
     }
 
     return status;
