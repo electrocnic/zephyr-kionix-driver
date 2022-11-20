@@ -224,7 +224,7 @@ static int kx132_device_id_fetch(const struct device *dev)
 
     for ( i = 0; i < SIZE_MANUFACT_ID_STRING; i++ )
     {
-        data_struc_ptr->manufacturer_id.as_bytes[i] = rx_buf[i];
+        data->manufacturer_id.as_bytes[i] = rx_buf[i];
     }
 
     return rstatus;
@@ -250,7 +250,7 @@ static int kx132_part_id_fetch(const struct device *dev)
 
     for ( i = 0; i < SIZE_PART_ID_STRING; i++ )
     {
-        data_struc_ptr->part_id.as_bytes[i] = read_buffer[i];
+        data->part_id.as_bytes[i] = read_buffer[i];
     }
 
     return rstatus;
@@ -276,12 +276,12 @@ static int kx132_acceleration_x_axis_fetch(const struct device *dev)
 
     for ( i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++ )
     {
-        data_struc_ptr->accel_axis_x[i] = read_buffer[i];
+        data->accel_axis_x[i] = read_buffer[i];
     }
 
 #ifdef _DEV_ENABLE_PRINTK
     printk("- DEV - X axis acceleration is %d   - DEV -\n",
-      ( ( data_struc_ptr->accel_axis_x[1] << 8 ) + data_struc_ptr->accel_axis_x[0] ) );
+      ( ( data->accel_axis_x[1] << 8 ) + data->accel_axis_x[0] ) );
     printk("- DEV - ( requested %d bytes of data starting from sensor internal addr %d ) - DEV -\n",
       sizeof(read_buffer), KX132_XOUT_L);
 #endif
@@ -309,12 +309,12 @@ static int kx132_acceleration_y_axis_fetch(const struct device *dev)
 
     for ( i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++ )
     {
-        data_struc_ptr->accel_axis_y[i] = read_buffer[i];
+        data->accel_axis_y[i] = read_buffer[i];
     }
 
 #ifdef _DEV_ENABLE_PRINTK
     printk("- DEV - Y axis acceleration is %d\n",
-      ( ( data_struc_ptr->accel_axis_y[1] << 8 ) + data_struc_ptr->accel_axis_y[0] ) );
+      ( ( data->accel_axis_y[1] << 8 ) + data->accel_axis_y[0] ) );
 #endif
 
     return rstatus;
@@ -342,7 +342,7 @@ static int kx132_acceleration_z_axis_fetch(const struct device *dev)
 
     for ( i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++ )
     {
-        data_struc_ptr->accel_axis_z[i] = read_buffer[i];
+        data->accel_axis_z[i] = read_buffer[i];
     }
 
 #ifdef _DEV_ENABLE_PRINTK
