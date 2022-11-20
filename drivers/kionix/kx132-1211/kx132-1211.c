@@ -103,7 +103,7 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 
     struct kx132_1211_data *data = dev->data;
     uint8_t reg_val_to_write = 0x00U;
-    uint8_t *write_buffer = reg_val_to_write;
+    uint8_t *write_buffer = &reg_val_to_write;
     int rstatus = ROUTINE_OK;
 
 //
@@ -164,12 +164,12 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 static int kx132_configure_output_data_rate(const struct device *dev, const struct sensor_value *val)
 {
 //    struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
-    struct kx132_1211_data *data_struc_ptr = dev->data;
+    struct kx132_1211_data *data_struc_ptr = *dev->data;
 
     uint8_t reg_val_to_read = 0x00U;
-    uint8_t *read_buffer = reg_val_to_read;
+    uint8_t *read_buffer = &reg_val_to_read;
     uint8_t reg_val_to_write = 0x00U;
-    uint8_t *write_buffer = reg_val_to_write;
+    uint8_t *write_buffer = &reg_val_to_write;
 
     int rstatus = ROUTINE_OK;
 
