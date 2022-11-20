@@ -208,7 +208,7 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
         }
     }
 
-    return status;
+    return rstatus;
 }
 
 
