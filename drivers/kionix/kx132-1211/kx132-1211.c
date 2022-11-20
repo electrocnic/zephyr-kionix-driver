@@ -128,7 +128,7 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 
     if ( rstatus != 0 )
     {
-        LOG_WRN("- ERROR - unable to write CNTL register, got bus error:  %i", comms_status);
+        LOG_WRN("- ERROR - unable to write CNTL register, got bus error:  %i", rstatus);
         return rstatus;
     }
 
