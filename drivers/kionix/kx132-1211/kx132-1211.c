@@ -360,7 +360,7 @@ static int kx132_acceleration_z_axis_fetch(const struct device *dev)
 static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
 {
     struct kx132_1211_data *data = dev->data;
-    uint8_t reg_val_to_rea = {0, 0, 0, 0, 0, 0};
+    uint8_t reg_val_to_read = {0, 0, 0, 0, 0, 0};
     uint8_t *read_buffer = &reg_val_to_read;
     int i = 0;
 
@@ -376,17 +376,17 @@ static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
     }
 
     for (i = 0; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 0); i++)
-        { data_struc_ptr->accel_axis_x[i - 0] = read_buffer[i]; }
+        { data->accel_axis_x[i - 0] = read_buffer[i]; }
     for (i = 2; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 2); i++)
-        { data_struc_ptr->accel_axis_y[i - 2] = read_buffer[i]; }
+        { data->accel_axis_y[i - 2] = read_buffer[i]; }
     for (i = 4; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 4); i++)
-        { data_struc_ptr->accel_axis_z[i - 4] = read_buffer[i]; }
+        { data->accel_axis_z[i - 4] = read_buffer[i]; }
 
 #ifdef _DEV_ENABLE_PRINTK
     printk("- DEV - X, Y and Z accelerations are %d, %d, %d   - DEV -\n",
-      ( ( data_struc_ptr->accel_axis_x[1] << 8 ) + data_struc_ptr->accel_axis_x[0] ),
-      ( ( data_struc_ptr->accel_axis_y[1] << 8 ) + data_struc_ptr->accel_axis_y[0] ),
-      ( ( data_struc_ptr->accel_axis_z[1] << 8 ) + data_struc_ptr->accel_axis_z[0] )
+      ( ( data->accel_axis_x[1] << 8 ) + data->accel_axis_x[0] ),
+      ( ( data->accel_axis_y[1] << 8 ) + data->accel_axis_y[0] ),
+      ( ( data->accel_axis_z[1] << 8 ) + data->accel_axis_z[0] )
     );
     printk("- DEV - ( requested %d bytes of data starting from sensor internal addr %d ) - DEV -\n",
       sizeof(read_buffer), KX132_XOUT_L);
