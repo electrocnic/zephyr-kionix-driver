@@ -163,8 +163,7 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 
 static int kx132_configure_output_data_rate(const struct device *dev, const struct sensor_value *val)
 {
-    struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
-//    struct kx132_1211_data *data_struc_ptr = *dev->data;
+    struct kx132_1211_data *data = dev->data;
 
     uint8_t reg_val_to_read = 0x00U;
     uint8_t *read_buffer = &reg_val_to_read;
@@ -200,9 +199,9 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
         else
         {
 
-            write_buffer = read_buffer;  // save original value - may not be needed, review this - TMH
-            write_buffer &= 0xF0;            // mask to erase OSA3:OSA0
-            write_buffer |= val->val2;       // write bit pattern to set output data rate
+            reg_val_to_write = reg_value_to_read;  // save original value - may not be needed, review this - TMH
+            reg_val_to_write &= 0xF0;            // mask to erase OSA3:OSA0
+            reg_val_to_write |= val->val2;       // write bit pattern to set output data rate
 
             rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, 1);
         }
