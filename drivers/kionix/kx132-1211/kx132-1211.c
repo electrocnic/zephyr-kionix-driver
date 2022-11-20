@@ -208,7 +208,7 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 
 static int kx132_device_id_fetch(const struct device *dev)
 {
-    struct kx132_1211_data *data_struc_ptr = dev->data;
+    struct kx132_1211_data *data = dev->data;
     uint8_t reg_val_to_read = {0, 0, 0, 0};
     uint8_t *read_buffer = &reg_val_to_read;
     int i = 0;
@@ -234,7 +234,7 @@ static int kx132_device_id_fetch(const struct device *dev)
 
 static int kx132_part_id_fetch(const struct device *dev)
 {
-    struct kx132_1211_data *data_struc_ptr = dev->data;
+    struct kx132_1211_data *data = dev->data;
     uint8_t reg_val_to_read = {0, 0};
     uint8_t *read_buffer = &reg_val_to_read;
     int i = 0;
@@ -260,7 +260,7 @@ static int kx132_part_id_fetch(const struct device *dev)
 
 static int kx132_acceleration_x_axis_fetch(const struct device *dev)
 {
-    struct kx132_1211_data* data_struc_ptr = dev->data;
+    struct kx132_1211_data *data = dev->data;
     uint8_t reg_val_to_read = {0, 0};
     uint8_t *read_buffer = &reg_val_to_read;
     int i = 0;
@@ -293,7 +293,7 @@ static int kx132_acceleration_x_axis_fetch(const struct device *dev)
 
 static int kx132_acceleration_y_axis_fetch(const struct device *dev)
 {
-    struct kx132_1211_data* data_struc_ptr = (struct kx132_1211_data*)dev->data;
+    struct kx132_1211_data *data = (struct kx132_1211_data*)dev->data;
     uint8_t reg_val_to_read = {0, 0};
     uint8_t *read_buffer = &reg_val_to_read;
     int i = 0;
@@ -326,7 +326,7 @@ static int kx132_acceleration_y_axis_fetch(const struct device *dev)
 
 static int kx132_acceleration_z_axis_fetch(const struct device *dev)
 {
-    struct kx132_1211_data* data_struc_ptr = dev->data;
+    struct kx132_1211_data *data = dev->data;
     uint8_t reg_val_to_read = {0, 0};
     uint8_t *read_buffer = &reg_val_to_read;
     int i = 0;
@@ -359,8 +359,8 @@ static int kx132_acceleration_z_axis_fetch(const struct device *dev)
 
 static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
 {
-    struct kx132_1211_data* data_struc_ptr = dev->data;
-    uint8_t reg_val_to_read = {0, 0, 0, 0, 0, 0};
+    struct kx132_1211_data *data = dev->data;
+    uint8_t reg_val_to_rea = {0, 0, 0, 0, 0, 0};
     uint8_t *read_buffer = &reg_val_to_read;
     int i = 0;
 
@@ -451,7 +451,7 @@ static int kx132_1211_attr_set(const struct device *dev,
 
                         default: // ...action to take when requested config not supported
                         {
-                            status = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
+                            rstatus = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
                             break;
                         }
 
@@ -460,7 +460,7 @@ static int kx132_1211_attr_set(const struct device *dev,
 
                 default: // ...action to take with unrecognized sensor channel
                 {
-                    status = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
+                    rstatus = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
                     break;
                 }
 
@@ -469,7 +469,7 @@ static int kx132_1211_attr_set(const struct device *dev,
 
         default: // ...default action to take with unrecognized sensor attribute
         {
-            status = ROUTINE_STATUS__UNDEFINED_SENSOR_ATTRIBUTE;
+            rstatus = ROUTINE_STATUS__UNDEFINED_SENSOR_ATTRIBUTE;
             break;
         }
     } // close scope of switch(attr)
@@ -510,7 +510,7 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
             break;
 
         default:
-            status = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
+            rstatus = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
     }
 
     return rstatus;
