@@ -27,6 +27,8 @@ static int kx132_i2c_read(const struct device *dev, uint8_t reg_addr, uint8_t *v
 	const struct kx132_device_config *config = dev->config;
 
 	return i2c_burst_read_dt(&config->i2c, reg_addr | 0x80, value, len);
+
+   printk("--- DEV 1120 --- kx132_i2c_read() got value 0x%02x, %c of length %u\n", value, value, len);
 }
 
 static int kx132_i2c_write(const struct device *dev, uint8_t reg_addr, uint8_t *value,
