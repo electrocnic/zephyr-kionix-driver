@@ -227,6 +227,16 @@ static int kx132_device_id_fetch(const struct device *dev)
         data->manufacturer_id.as_bytes[i] = read_buffer[i];
     }
 
+#if 1
+snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - KX132 manufacturer ID '%c %c %c %c'\n",
+  read_buffer[0],
+  read_buffer[1],
+  read_buffer[2],
+  read_buffer[3]
+  );
+printk("%s", lbuf);
+#endif
+
     return rstatus;
 }
 
