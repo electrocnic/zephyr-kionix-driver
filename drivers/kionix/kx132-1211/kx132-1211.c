@@ -209,7 +209,7 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 static int kx132_device_id_fetch(const struct device *dev)
 {
     struct kx132_1211_data *data = dev->data;
-    uint8_t reg_val_to_read = {0, 0, 0, 0};
+    uint8_t reg_val_to_read[] = {0, 0, 0, 0};
     uint8_t *read_buffer = &reg_val_to_read;
     int i = 0;
     int rstatus = 0;
@@ -224,7 +224,7 @@ static int kx132_device_id_fetch(const struct device *dev)
 
     for ( i = 0; i < SIZE_MANUFACT_ID_STRING; i++ )
     {
-        data->manufacturer_id.as_bytes[i] = rx_buf[i];
+        data->manufacturer_id.as_bytes[i] = read_buffer[i];
     }
 
     return rstatus;
@@ -235,7 +235,7 @@ static int kx132_device_id_fetch(const struct device *dev)
 static int kx132_part_id_fetch(const struct device *dev)
 {
     struct kx132_1211_data *data = dev->data;
-    uint8_t reg_val_to_read = {0, 0};
+    uint8_t reg_val_to_read[] = {0, 0};
     uint8_t *read_buffer = &reg_val_to_read;
     int i = 0;
     int rstatus = 0;
@@ -261,7 +261,7 @@ static int kx132_part_id_fetch(const struct device *dev)
 static int kx132_acceleration_x_axis_fetch(const struct device *dev)
 {
     struct kx132_1211_data *data = dev->data;
-    uint8_t reg_val_to_read = {0, 0};
+    uint8_t reg_val_to_read[] = {0, 0};
     uint8_t *read_buffer = &reg_val_to_read;
     int i = 0;
     int rstatus = 0;
@@ -294,7 +294,7 @@ static int kx132_acceleration_x_axis_fetch(const struct device *dev)
 static int kx132_acceleration_y_axis_fetch(const struct device *dev)
 {
     struct kx132_1211_data *data = (struct kx132_1211_data*)dev->data;
-    uint8_t reg_val_to_read = {0, 0};
+    uint8_t reg_val_to_read[] = {0, 0};
     uint8_t *read_buffer = &reg_val_to_read;
     int i = 0;
     int rstatus = 0;
@@ -322,12 +322,10 @@ static int kx132_acceleration_y_axis_fetch(const struct device *dev)
 
 
 
-
-
 static int kx132_acceleration_z_axis_fetch(const struct device *dev)
 {
     struct kx132_1211_data *data = dev->data;
-    uint8_t reg_val_to_read = {0, 0};
+    uint8_t reg_val_to_read[] = {0, 0};
     uint8_t *read_buffer = &reg_val_to_read;
     int i = 0;
     int rstatus = 0;
@@ -355,12 +353,10 @@ static int kx132_acceleration_z_axis_fetch(const struct device *dev)
 
 
 
-
-
 static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
 {
     struct kx132_1211_data *data = dev->data;
-    uint8_t reg_val_to_read = {0, 0, 0, 0, 0, 0};
+    uint8_t reg_val_to_read[] = {0, 0, 0, 0, 0, 0};
     uint8_t *read_buffer = &reg_val_to_read;
     int i = 0;
 
