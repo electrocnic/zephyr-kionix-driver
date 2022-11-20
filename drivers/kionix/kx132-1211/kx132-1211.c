@@ -228,6 +228,7 @@ static int kx132_device_id_fetch(const struct device *dev)
     }
 
 #if 1
+char lbuf[64];
 snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - KX132 manufacturer ID '%c %c %c %c'\n",
   read_buffer[0],
   read_buffer[1],
