@@ -8,6 +8,8 @@
 #include <zephyr/sys/util.h>
 #include <zephyr/drivers/sensor.h>
 
+#include "kx132-registers.h"       // to provide register addresses via symbols
+
 #include "kx132-register-interface.h" // to provide kionix_ctx_t sensor context data structure definition
 
 
@@ -153,32 +155,6 @@ int kx132_spi_init(const struct device *dev);
 #define KX132_I2C_ADDRESS_FLIPPED__ADDR_PIN_AT_IO_VDD (0x1D)
 
 
-// For following defines see Kionix document
-// KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf
-
-// Note following are KX132-1211 config' register addresses:
-#define MAN_ID (0x00)
-#define PART_ID (0x01)
-
-#define KX132_1211_ACCELEROMETER_XOUT_L    (0x08)
-#define KX132_1211_ACCELEROMETER_XOUT_H    (0x09)
-#define KX132_1211_ACCELEROMETER_YOUT_L    (0x0A)
-#define KX132_1211_ACCELEROMETER_YOUT_H    (0x0B)
-#define KX132_1211_ACCELEROMETER_ZOUT_L    (0x0C)
-#define KX132_1211_ACCELEROMETER_ZOUT_H    (0x0D)
-
-#define KX132_1211_CONFIG_REGISTER__CNTL   (0x1B)
-#define KX132_1211_CONFIG_REGISTER__ODCNTL (0x21)
-//#define KX132_1211_CONFIG_REGISTER__
-
-// Given Zephyr's lower level I2C API, our sensor query type commands
-//  are effectively one byte in size and contain the address of the
-//  sensor configuration register from which to read:
-#define CMD_KX132_REQUEST_MANUFACTURER_ID { MAN_ID }
-#define CMD_KX132_REQUEST_PART_ID { PART_ID }
-
-
-
 // Note:  Zephyr Project 2.6.0 provides sensor.h header file in
 //  ncs/zephyr/include/drivers/sensor.h.  An important enum given here
 //  is named sensor_channel.  Near it's end last two elements are:
@@ -195,7 +171,7 @@ enum sensor_channels_kionix_specific {
     SENSOR_CHAN_KIONIX_START = (SENSOR_CHAN_PRIV_START + 1),
     SENSOR_CHAN_KIONIX_MANUFACTURER_ID,
     SENSOR_CHAN_KIONIX_PART_ID,
-    SENSOR_CHAN_KIONIX_END,
+    SENSOR_CHAN_KIONIX_END
 };
 
 

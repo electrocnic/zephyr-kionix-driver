@@ -12,10 +12,6 @@
 #include <zephyr/drivers/i2c.h>     // 2022-11-10 was <drivers/i2c.h>
 #include <zephyr/drivers/sensor.h>  // 2022-11-10 was <drivers/sensor.h>
 
-#include "kx132-1211.h"
-#include "out-of-tree-drivers.h"
-#include "development-defines.h"
-
 #include <zephyr/logging/log.h>     // 2022-11-10 was <logging/log.h>
 
 LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_MODULE_DECLARE() due to this line
@@ -23,6 +19,11 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
 // NEED to review LOG_MODULE_DECLARE() stanzas in other driver sources,
 //  to  assure those are not in conflict with this related Zephyr
 //  logging macro - TMH
+
+#include "kx132-1211.h"
+#include "kx132-registers.h"
+#include "out-of-tree-drivers.h"
+#include "development-defines.h"
 
 
 
@@ -56,6 +57,7 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
   * @retval          interface status (MANDATORY: return 0 -> no Error)
   *
   */
+
 int32_t kx132_read_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t len)
 {
   int32_t rstatus;
@@ -64,6 +66,7 @@ int32_t kx132_read_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t l
 
   return rstatus;
 }
+
 
 /**
   * @brief  Write generic device register
@@ -75,6 +78,7 @@ int32_t kx132_read_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t l
   * @retval          interface status (MANDATORY: return 0 -> no Error)
   *
   */
+
 int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t len)
 {
   int32_t rstatus;
@@ -100,24 +104,27 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
     int rstatus = ROUTINE_OK;
 
 // Per AN092-Getting-Started.pdf from Kionix, page 2 of 27:
-    uint8_t command_buffer[] = { 0x1B, 0x00 };
+//    uint8_t command_buffer[] = { 0x1B, 0x00 };
+    uint8_t reg_val_to_write = 0x00U;
+    uint8_t *write_buffer = reg_val_to_write;
 
 // --- DEV 1118 BEGIN ---
-#if 0
-#ifdef _DEV_ENABLE_PRINTK
-#ifdef DEV__KX132_SHOW_CONFIG_COMMANDS_BEFORE_SENDING
-    printk("writing {%02X, %02X . . .\n", cmd_cntl_00[0], cmd_cntl_00[1]);
-#endif
-#endif
-#endif
 
 //    comms_status = i2c_write(data->i2c_dev, cmd_cntl_00, sizeof(cmd_cntl_00), DT_INST_REG_ADDR(0));
 
+
+//                                      I2C ctrlr, regaddr, data buffer, length data to write
+//                                           |       |          |                |
+// 112 typedef int32_t (*stmdev_write_ptr)(void *, uint8_t, const uint8_t *, uint16_t);
+// 113 typedef int32_t (*stmdev_read_ptr)(void *, uint8_t, uint8_t *, uint16_t);
+//                                           |       |          |                |
+//                                      I2C ctrlr, regaddr, data buffer, length data to read
+//
 // IIS2dh example call
 //
 //    ret = iis2dh_read_reg(ctx, IIS2DH_WHO_AM_I, buff, 1);
 
-    rstatus = kx132_write_reg(data->ctx, command_buffer[0], command_buffer, 1);
+    rstatus = kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, 1);
 
     if ( rstatus != 0 )
     {
@@ -131,16 +138,13 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 // Next commands (register writes) are:
 
 // KX132-1211 Register CTRL1:
-    uint8_t cmd_odcntl_06[] = { 0x21, 0x06 };
-//    rstatus |= i2c_write(data->i2c_dev, cmd_odcntl_06, sizeof(cmd_odcntl_06), DT_INST_REG_ADDR(0));
-    rstatus |= kx132_write_reg(data->ctx, cmd_odcntl_06[0], cmd_odcntl_06, 1);
-//    k_msleep(100);
+    reg_val_to_write = 0x06U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, 1);
 
 // KX132-1211 Register INC1:
-    uint8_t cmd_cntl_c0[] = { 0x1B, 0xC0 };
-//    rstatus |= i2c_write(data->i2c_dev, cmd_cntl_c0, sizeof(cmd_cntl_c0), DT_INST_REG_ADDR(0));
-    rstatus |= kx132_write_reg(data->ctx, cmd_cntl_c0[0], cmd_cntl_c0, 1);
-//    k_msleep(100);
+//    uint8_t cmd_cntl_c0[] = { 0x1B, 0xC0 };
+    reg_val_to_write = 0xC0U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, 1);
 
     return rstatus;
 }
@@ -168,7 +172,7 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 static int kx132_configure_output_data_rate(const struct device *dev, const struct sensor_value *val)
 {
     int status = ROUTINE_OK;
-    uint8_t cmd[] = { KX132_1211_CONFIG_REGISTER__ODCNTL };
+    uint8_t cmd[] = { KX132_ODCNTL };
     struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
     uint8_t scratch_pad_byte = 0;
     uint8_t odcntl_as_found = 0;
@@ -192,7 +196,7 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
         scratch_pad_byte &= 0xF0;            // mask to erase OSA3:OSA0
         scratch_pad_byte |= val->val2;       // write bit pattern to set output data rate
 
-        uint8_t cmd_odcntl[] = { KX132_1211_CONFIG_REGISTER__ODCNTL, scratch_pad_byte };
+        uint8_t cmd_odcntl[] = { KX132_ODCNTL, scratch_pad_byte };
         status = i2c_write(data_struc_ptr->i2c_dev, cmd_odcntl, sizeof(cmd_odcntl), DT_INST_REG_ADDR(0));
 
 //        k_msleep(100);
@@ -414,9 +418,9 @@ static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
 
 
 static int kx132_1211_attr_get(const struct device *dev,
-                          enum sensor_channel chan,
-                          enum sensor_attribute attr,
-                          struct sensor_value *val)
+                               enum sensor_channel chan,
+                               enum sensor_attribute attr,
+                               struct sensor_value *val)
 {
 // stub function
     return 0;
@@ -427,9 +431,9 @@ static int kx132_1211_attr_get(const struct device *dev,
 // REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_channel.SENSOR_CHAN_ALL
 
 static int kx132_1211_attr_set(const struct device *dev,
-                          enum sensor_channel chan,
-                          enum sensor_attribute attr,
-                          const struct sensor_value *val)
+                               enum sensor_channel chan,
+                               enum sensor_attribute attr,
+                               const struct sensor_value *val)
 {
     int status = ROUTINE_OK;
 
