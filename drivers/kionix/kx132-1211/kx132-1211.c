@@ -98,21 +98,18 @@ int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t 
 
 static int kx132_enable_asynchronous_readings(const struct device *dev)
 {
+// Register sequence this routine chosen per AN092-Getting-Started.pdf
+// from Kionix, page 2 of 27:
 
-//    int comms_status = 0;
     struct kx132_1211_data *data = dev->data;
-    int rstatus = ROUTINE_OK;
-
-// Per AN092-Getting-Started.pdf from Kionix, page 2 of 27:
-//    uint8_t command_buffer[] = { 0x1B, 0x00 };
     uint8_t reg_val_to_write = 0x00U;
     uint8_t *write_buffer = reg_val_to_write;
+    int rstatus = ROUTINE_OK;
 
-// --- DEV 1118 BEGIN ---
-
-//    comms_status = i2c_write(data->i2c_dev, cmd_cntl_00, sizeof(cmd_cntl_00), DT_INST_REG_ADDR(0));
-
-
+//
+// Notes on register read, write wrappers . . .
+//
+//
 //                                      I2C ctrlr, regaddr, data buffer, length data to write
 //                                           |       |          |                |
 // 112 typedef int32_t (*stmdev_write_ptr)(void *, uint8_t, const uint8_t *, uint16_t);
@@ -131,11 +128,6 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
         LOG_WRN("- ERROR - unable to write CNTL register, got bus error:  %i", rstatus);
         return rstatus;
     }
-
-//    k_msleep(100);
-
-
-// Next commands (register writes) are:
 
 // KX132-1211 Register CTRL1:
     reg_val_to_write = 0x06U;
@@ -171,24 +163,21 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 
 static int kx132_configure_output_data_rate(const struct device *dev, const struct sensor_value *val)
 {
-//    uint8_t cmd[] = { KX132_ODCNTL };
 //    struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
     struct kx132_1211_data *data_struc_ptr = dev->data;
-//    uint8_t scratch_pad_byte = 0;
-    uint8_t odcntl_as_found = 0;
 
     uint8_t reg_val_to_read = 0x00U;
     uint8_t *read_buffer = reg_val_to_read;
     uint8_t reg_val_to_write = 0x00U;
     uint8_t *write_buffer = reg_val_to_write;
 
-    int status = ROUTINE_OK;
+    int rstatus = ROUTINE_OK;
 
 
 
     if ((val->val2 < KX132_ODR__0P781_HZ) || (val->val2 > KX132_ODR_25600_HZ))
     {
-        status = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
+        rstatus = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
     }
     else
     {
