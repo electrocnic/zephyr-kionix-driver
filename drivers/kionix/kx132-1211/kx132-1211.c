@@ -228,7 +228,7 @@ static int kx132_device_id_fetch(const struct device *dev)
     }
 
 #if 1
-char lbuf[64];
+char lbuf[240];
 snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - in KX132 driver, manufacturer ID '%c %c %c %c'\n",
   read_buffer[0],
   read_buffer[1],
@@ -526,6 +526,20 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
 
 
 
+// https://docs.zephyrproject.org/latest/hardware/peripherals/sensor.html#c.sensor_sample_fetch_chan
+static int kx132_1211_sample_fetch_chan(const struct device *dev, enum sensor_channel channel)
+{
+// stub function - we'll refactor code in kx132_1211_sample_fetch() to mostly
+// or wholly be in this routine - TMH
+
+    int rstatus = 0;
+
+    return rstatus;
+}
+
+
+
+
 // 2021-08-31 Notes:
 //  *  routine implementation underway
 //  *  must review ncs v1.6.1 ncs/zephyr/include/drivers/sensor.h channel enum for highest value
@@ -666,6 +680,7 @@ static const struct sensor_driver_api kx132_driver_api = {
     .trigger_set = kx132_trigger_set,
 #endif
     .sample_fetch = &kx132_1211_sample_fetch,
+    .sample_fetch_chan = &kx132_1211_sample_fetch_chan,
     .channel_get = &kx132_1211_channel_get
 };
 
