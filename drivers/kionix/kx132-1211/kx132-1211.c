@@ -531,6 +531,7 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
 
 
 // https://docs.zephyrproject.org/latest/hardware/peripherals/sensor.html#c.sensor_sample_fetch_chan
+#if 0
 static int kx132_1211_sample_fetch_chan(const struct device *dev, enum sensor_channel channel)
 {
 // stub function - we'll refactor code in kx132_1211_sample_fetch() to mostly
@@ -540,6 +541,7 @@ static int kx132_1211_sample_fetch_chan(const struct device *dev, enum sensor_ch
 
     return rstatus;
 }
+#endif
 
 
 
