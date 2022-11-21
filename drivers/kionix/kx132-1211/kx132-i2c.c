@@ -18,6 +18,10 @@
 
 #include "kx132-1211.h"
 
+#include <stdio.h>                 // Only needed for development printk() calls, production code won't need this - TMH
+
+
+
 #if DT_ANY_INST_ON_BUS_STATUS_OKAY(i2c)
 
 LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
