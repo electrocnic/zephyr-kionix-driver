@@ -32,6 +32,11 @@ static int kx132_i2c_read(const struct device *dev, uint8_t reg_addr, uint8_t *v
 //   printk("***\n*** DEV 1120 --- kx132_i2c_read() got value 0x%02x, %c of length %u\n***\n", (uint32_t)value, (char)value, len);
    LOG_DBG("DEV 1120 - kx132_i2c_read() got value 0x%02x of length %u", (uint32_t)value, len);
 
+char lbuf[64];
+snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - in KX132 driver, I2C part got first byte %u out of %u bytes read\n",
+  value[0], len);
+printk("%s", lbuf);
+
 }
 
 static int kx132_i2c_write(const struct device *dev, uint8_t reg_addr, uint8_t *value,
