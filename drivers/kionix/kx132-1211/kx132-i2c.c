@@ -29,7 +29,9 @@ static int kx132_i2c_read(const struct device *dev, uint8_t reg_addr, uint8_t *v
 	return i2c_burst_read_dt(&config->i2c, reg_addr | 0x80, value, len);
 
 #warning "--- DEV 1120 --- compiling kx132_12c_read() function . . ."
-   printk("***\n*** DEV 1120 --- kx132_i2c_read() got value 0x%02x, %c of length %u\n***\n", (uint32_t)value, (char)value, len);
+//   printk("***\n*** DEV 1120 --- kx132_i2c_read() got value 0x%02x, %c of length %u\n***\n", (uint32_t)value, (char)value, len);
+   LOG_DBG("DEV 1120 - kx132_i2c_read() got value 0x%02x, %c of length %u", (uint32_t)value, (char)value, len);
+
 }
 
 static int kx132_i2c_write(const struct device *dev, uint8_t reg_addr, uint8_t *value,
