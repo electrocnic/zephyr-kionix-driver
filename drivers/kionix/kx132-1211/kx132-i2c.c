@@ -30,7 +30,8 @@ static int kx132_i2c_read(const struct device *dev, uint8_t reg_addr, uint8_t *v
 {
     char lbuf[240];
     int rstatus = 0;
-    int *sensor_reg_addr = &reg_addr;
+    int sensor_reg_addr = reg_addr;
+    int *reg_addr_ptr = &sensor_reg_addr;
 
 snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - about to read kx132 internal register 0x%02x, requesting %u bytes . . .\n",
   reg_addr, len);
@@ -40,7 +41,7 @@ printk("%s", lbuf);
 
 //    return i2c_burst_read_dt(&config->i2c, reg_addr | 0x80, value, len);
 //    rstatus = i2c_burst_read_dt(&config->i2c, reg_addr | 0x80, value, len);
-    rstatus = i2c_write_read_dt(&config->i2c, sensor_reg_addr, 1, value, len);
+    rstatus = i2c_write_read_dt(&config->i2c, reg_addr_ptr, 1, value, len);
 
 #warning "--- DEV 1120 --- compiling kx132_12c_read() function . . ."
 snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - in KX132 driver, I2C part got first byte %u out of %u bytes read\n",
