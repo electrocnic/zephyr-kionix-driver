@@ -20,7 +20,7 @@
 
 #if DT_ANY_INST_ON_BUS_STATUS_OKAY(i2c)
 
-LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
+//LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 static int kx132_i2c_read(const struct device *dev, uint8_t reg_addr, uint8_t *value, uint16_t len)
 {
@@ -53,8 +53,12 @@ int kx132_i2c_init(const struct device *dev)
 	const struct kx132_device_config *config = dev->config;
 
 	if (!device_is_ready(config->i2c.bus)) {
-		LOG_ERR("Bus device is not ready");
+		LOG_ERR("Bus device in KX132 driver, I2C part is not ready");
 		return -ENODEV;
+	}
+	else
+	{
+		LOG_ERR("I2C bus in KX132 driver tests ready!");
 	}
 
 	data->ctx = &kx132_i2c_ctx;

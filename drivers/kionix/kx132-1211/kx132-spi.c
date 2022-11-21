@@ -21,7 +21,7 @@
 #define KX132_SPI_READM   (3 << 6) /* 0xC0 */
 #define KX132_SPI_WRITEM  (1 << 6) /* 0x40 */
 
-LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
+//LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 static int kx132_spi_read(const struct device *dev, uint8_t reg, uint8_t *data, uint16_t len)
 {
@@ -95,7 +95,7 @@ int kx132_spi_init(const struct device *dev)
 	const struct kx132_device_config *config = dev->config;
 
 	if (!spi_is_ready(&config->spi)) {
-		LOG_ERR("Bus device Kionix type is not ready");
+		LOG_ERR("Bus device in KX132 driver, SPI part is not ready");
 		return -ENODEV;
 	}
 
