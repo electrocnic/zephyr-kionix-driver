@@ -28,6 +28,8 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 static int kx132_i2c_read(const struct device *dev, uint8_t reg_addr, uint8_t *value, uint16_t len)
 {
+printk("- ZZZ - kx132 i2c driver\n");
+
 	const struct kx132_device_config *config = dev->config;
 
 	return i2c_burst_read_dt(&config->i2c, reg_addr | 0x80, value, len);

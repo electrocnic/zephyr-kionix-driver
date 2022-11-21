@@ -680,7 +680,6 @@ static const struct sensor_driver_api kx132_driver_api = {
     .trigger_set = kx132_trigger_set,
 #endif
     .sample_fetch = &kx132_1211_sample_fetch,
-    .sample_fetch_chan = &kx132_1211_sample_fetch_chan,
     .channel_get = &kx132_1211_channel_get
 };
 
