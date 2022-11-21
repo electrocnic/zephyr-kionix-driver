@@ -31,7 +31,7 @@ static int kx132_i2c_read(const struct device *dev, uint8_t reg_addr, uint8_t *v
     char lbuf[240];
     int rstatus = 0;
 
-snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - about to read kx132 internal register 0x%02%x, requesting %u bytes . . .\n",
+snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - about to read kx132 internal register 0x%02x, requesting %u bytes . . .\n",
   reg_addr, len);
 printk("%s", lbuf);
 
