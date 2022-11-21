@@ -218,7 +218,7 @@ static int kx132_device_id_fetch(const struct device *dev)
     int i = 0;
     int rstatus = 0;
 
-    rstatus = kx132_read_reg(data->ctx, KX132_PART_ID, read_buffer, KX132_MAN_ID_SIZE);
+    rstatus = kx132_read_reg(data->ctx, KX132_MAN_ID, read_buffer, KX132_MAN_ID_SIZE);
 
     if ( rstatus != 0 )
     {
