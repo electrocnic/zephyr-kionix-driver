@@ -20,7 +20,7 @@
 
 #if DT_ANY_INST_ON_BUS_STATUS_OKAY(i2c)
 
-//LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
+LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 static int kx132_i2c_read(const struct device *dev, uint8_t reg_addr, uint8_t *value, uint16_t len)
 {

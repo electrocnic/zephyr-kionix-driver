@@ -21,7 +21,7 @@
 #define KX132_SPI_READM   (3 << 6) /* 0xC0 */
 #define KX132_SPI_WRITEM  (1 << 6) /* 0x40 */
 
-//LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
+LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 static int kx132_spi_read(const struct device *dev, uint8_t reg, uint8_t *data, uint16_t len)
 {
