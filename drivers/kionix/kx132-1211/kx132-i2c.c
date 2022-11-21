@@ -28,11 +28,13 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 static int kx132_i2c_read(const struct device *dev, uint8_t reg_addr, uint8_t *value, uint16_t len)
 {
-printk("- ZZZ - kx132 i2c driver\n");
+//printk("- ZZZ - kx132 i2c driver\n");
+        int rstatus = 0;
 
 	const struct kx132_device_config *config = dev->config;
 
-	return i2c_burst_read_dt(&config->i2c, reg_addr | 0x80, value, len);
+//	return i2c_burst_read_dt(&config->i2c, reg_addr | 0x80, value, len);
+	rstatus = i2c_burst_read_dt(&config->i2c, reg_addr | 0x80, value, len);
 
 #warning "--- DEV 1120 --- compiling kx132_12c_read() function . . ."
 //   printk("***\n*** DEV 1120 --- kx132_i2c_read() got value 0x%02x, %c of length %u\n***\n", (uint32_t)value, (char)value, len);
@@ -43,6 +45,7 @@ snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - in KX132 driver, I2C part got first b
   value[0], len);
 printk("%s", lbuf);
 
+    return rstatus;
 }
 
 static int kx132_i2c_write(const struct device *dev, uint8_t reg_addr, uint8_t *value,
