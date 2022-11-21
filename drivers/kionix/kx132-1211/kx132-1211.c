@@ -27,6 +27,10 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
 
 
 
+#include <stdio.h>
+
+
+
 //----------------------------------------------------------------------
 // Note:  struct sensor_value is defined in Zephyr's sensor.h header
 // file.  In Nordic ncs v1.6.1 SDK this file found in
