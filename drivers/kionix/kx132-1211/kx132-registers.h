@@ -38,6 +38,10 @@
 
 #define KX132_CNTL1  (0x1B)
 #define KX132_ODCNTL (0x21)
+#define KX132_INC1   (0x22)
+#define KX132_INC2   (0x23)
+#define KX132_INC3   (0x24)
+#define KX132_INC4   (0x25)
 
 
 
@@ -52,6 +56,19 @@ int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t 
 
 
 int kx132_enable_asynchronous_readings(const struct device *dev);
+
+int kx132_device_id_fetch(const struct device *dev);
+
+int kx132_part_id_fetch(const struct device *dev);
+
+int kx132_acceleration_x_axis_fetch(const struct device *dev);
+
+int kx132_acceleration_y_axis_fetch(const struct device *dev);
+
+int kx132_acceleration_z_axis_fetch(const struct device *dev);
+
+int kx132_acceleration_xyz_axis_fetch(const struct device *dev);
+
 
 
 

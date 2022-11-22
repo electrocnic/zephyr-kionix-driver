@@ -34,28 +34,18 @@ static int kx132_i2c_read(const struct device *dev, uint8_t reg_addr, uint8_t *v
     int rstatus = 0;
     int sensor_reg_addr = reg_addr;
     int *reg_addr_ptr = &sensor_reg_addr;
-
-#if 0
-snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - about to read kx132 internal register 0x%02x, requesting %u bytes . . .\n",
-  reg_addr, len);
-printk("%s", lbuf);
-#endif
-
     const struct kx132_device_config *config = dev->config;
 
+// diag 2 here
+
 //    return i2c_burst_read_dt(&config->i2c, reg_addr | 0x80, value, len);
-//    rstatus = i2c_burst_read_dt(&config->i2c, reg_addr | 0x80, value, len);
     rstatus = i2c_write_read_dt(&config->i2c, reg_addr_ptr, 1, value, len);
 
-#if 0
-#warning "--- DEV 1120 --- compiling kx132_12c_read() function . . ."
-snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - in KX132 driver, I2C part got first byte %u out of %u bytes read\n",
-  value[0], len);
-printk("%s", lbuf);
-#endif
+// diag 2 here
 
     return rstatus;
 }
+
 
 
 // REF https://github.com/zephyrproject-rtos/zephyr/blob/main/include/zephyr/drivers/i2c.h#L77  <-- i2c_dt_spec definition here
@@ -63,10 +53,14 @@ printk("%s", lbuf);
 static int kx132_i2c_write(const struct device *dev, uint8_t reg_addr, uint8_t *value, uint16_t len)
 {
     int rstatus = 0;
-//    int sensor_reg_addr = reg_addr;
-//    int *reg_addr_ptr = &sensor_reg_addr;
-
     const struct kx132_device_config *config = dev->config;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// NOTE 2022-11-22, trouble getting Zephyr I2C burst reads and writes
+//  to work.  Alternate I2C API selection here unfortunately compells a
+//  change in how calling code sets up and passes sensor internal
+//  register address:
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 //    return i2c_burst_write_dt(&config->i2c, reg_addr | 0x80, value, len);
     rstatus = i2c_write_dt(&config->i2c, value, len);
@@ -74,10 +68,14 @@ static int kx132_i2c_write(const struct device *dev, uint8_t reg_addr, uint8_t *
     return rstatus;
 }
 
+
+
 kionix_ctx_t kx132_i2c_ctx = {
 	.read_reg = (kionix_read_ptr) kx132_i2c_read,
 	.write_reg = (kionix_write_ptr) kx132_i2c_write,
 };
+
+
 
 int kx132_i2c_init(const struct device *dev)
 {
@@ -100,3 +98,32 @@ int kx132_i2c_init(const struct device *dev)
 	return 0;
 }
 #endif /* DT_ANY_INST_ON_BUS_STATUS_OKAY(i2c) */
+
+
+
+//----------------------------------------------------------------------
+// - SECTION - notes
+//----------------------------------------------------------------------
+
+#if 0
+
+// diag 1
+.........................
+snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - about to read kx132 internal register 0x%02x, requesting %u bytes . . .\n",
+  reg_addr, len);
+printk("%s", lbuf);
+.........................
+
+
+// diag 2
+.........................
+#warning "--- DEV 1120 --- compiling kx132_12c_read() function . . ."
+snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - in KX132 driver, I2C part got first byte %u out of %u bytes read\n",
+  value[0], len);
+printk("%s", lbuf);
+.........................
+
+
+#endif
+
+// --- EOF ---
