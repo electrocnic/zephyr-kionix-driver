@@ -176,6 +176,12 @@ static int kx132_1211_attr_set(const struct device *dev,
                             break;
                         }
 
+                        case KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT:
+                        {
+                            kx132_enable_synchronous_reading_with_hw_interrupt(dev);
+                            break;
+                        }
+
                         default: // ...action to take when requested config not supported
                         {
                             rstatus = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;

@@ -57,6 +57,8 @@ int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t 
 
 int kx132_enable_asynchronous_readings(const struct device *dev);
 
+int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev);
+
 int kx132_device_id_fetch(const struct device *dev);
 
 int kx132_part_id_fetch(const struct device *dev);

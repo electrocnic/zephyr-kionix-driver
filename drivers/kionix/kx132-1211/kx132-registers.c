@@ -173,7 +173,7 @@ int kx132_enable_asynchronous_readings(const struct device *dev)
 
 
 
-int kx132_enable_synchronous_reading_with_interrupt(const struct device *dev)
+int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev)
 {
 
     struct kx132_1211_data *data = dev->data;
