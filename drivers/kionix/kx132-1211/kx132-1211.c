@@ -21,10 +21,9 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
 //  logging macro - TMH
 
 #include "kx132-1211.h"
-#include "kx132-registers.h"
+#include "kx132-registers.h"       // to provide map of KX132 internal registers and bit-wise flags
 #include "out-of-tree-drivers.h"
-#include "development-defines.h"
-
+//#include "development-defines.h"
 
 
 #include <stdio.h>
@@ -100,6 +99,7 @@ int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t 
 // - SECTION - Kionix sensor specific configuration routines
 //----------------------------------------------------------------------
 
+#if 0
 static int kx132_enable_asynchronous_readings(const struct device *dev)
 {
 // Register sequence this routine chosen per AN092-Getting-Started.pdf
@@ -160,6 +160,7 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 
     return rstatus;
 }
+#endif
 
 
 
@@ -685,16 +686,6 @@ static int kx132_init_interface(const struct device *dev)
 
 static int kx132_1211_init(const struct device *dev)
 {
-//    struct kx132_1211_data *data = dev->data;
-//
-//    data->i2c_dev = DEVICE_DT_GET(DT_INST_BUS(0));
-//
-//    if (data->i2c_dev == NULL)
-//    {
-//        LOG_ERR("Unable to get I2C controller while initializing KX132-1211 device instance.");
-//        return -EINVAL;
-//    }
-
     kx132_init_interface(dev);
 
     return 0;
