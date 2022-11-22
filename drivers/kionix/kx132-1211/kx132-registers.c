@@ -271,7 +271,7 @@ int kx132_device_id_fetch(const struct device *dev)
         data->manufacturer_id.as_bytes[i] = read_buffer[i];
     }
 
-#if 1
+#if 0
 char lbuf[240];
 snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - in KX132 driver, manufacturer ID '%c %c %c %c'\n",
   read_buffer[0],
