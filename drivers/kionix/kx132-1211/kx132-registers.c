@@ -8,6 +8,16 @@
 
 
 //----------------------------------------------------------------------
+// - SECTION - includes
+//----------------------------------------------------------------------
+
+#include "kx132-1211.h"            // to provide KX132 data struct and config struct, couple unions, and enumerated settings
+//#include "kx132-register-interface.h" // to provide kionix_ctx_t type, KX132 "context" data structure
+
+
+
+
+//----------------------------------------------------------------------
 // - SECTION - Kionix sensor specific configuration routines
 //----------------------------------------------------------------------
 
