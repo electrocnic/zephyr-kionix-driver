@@ -9,9 +9,16 @@
 #define KX132_REGISTERS_H
 
 
+//----------------------------------------------------------------------
+// - SECTION - includes
+//----------------------------------------------------------------------
+
+#include "kx132-register-interface.h" // to provide kionix_ctx_t to function prototypes
+
+
 
 //----------------------------------------------------------------------
-// - SECTION -
+// - SECTION - defines
 //----------------------------------------------------------------------
 
 // For following defines see Kionix document
