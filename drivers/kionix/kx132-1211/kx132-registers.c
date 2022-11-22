@@ -11,8 +11,68 @@
 // - SECTION - includes
 //----------------------------------------------------------------------
 
+#include <zephyr/logging/log.h>
+LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
+
 #include "kx132-1211.h"            // to provide KX132 data struct and config struct, couple unions, and enumerated settings
 //#include "kx132-register-interface.h" // to provide kionix_ctx_t type, KX132 "context" data structure
+#include "out-of-tree-drivers.h"   // to provide enumerated driver scoped return values
+
+
+
+//----------------------------------------------------------------------
+// - SECTION - register read and write wrapper functions
+//----------------------------------------------------------------------
+
+/**
+  * @defgroup  KX132_Interfaces_Functions
+  * @brief     This section provide a set of functions used to read and
+  *            write a generic register of the device.
+  *            MANDATORY: return 0 -> no Error.
+  * @{
+  *
+  */
+
+/**
+  * @brief  Read generic device register
+  *
+  * @param  ctx   read / write interface definitions(ptr)
+  * @param  reg   register to read
+  * @param  data  pointer to buffer that store the data read(ptr)
+  * @param  len   number of consecutive register to read
+  * @retval          interface status (MANDATORY: return 0 -> no Error)
+  *
+  */
+
+int32_t kx132_read_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t len)
+{
+  int32_t rstatus;
+
+  rstatus = ctx->read_reg(ctx->handle, reg, data, len);
+
+  return rstatus;
+}
+
+
+/**
+  * @brief  Write generic device register
+  *
+  * @param  ctx   read / write interface definitions(ptr)
+  * @param  reg   register to write
+  * @param  data  pointer to data to write in register reg(ptr)
+  * @param  len   number of consecutive register to write
+  * @retval          interface status (MANDATORY: return 0 -> no Error)
+  *
+  */
+
+int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t len)
+{
+  int32_t rstatus;
+
+  rstatus = ctx->write_reg(ctx->handle, reg, data, len);
+
+  return rstatus;
+}
 
 
 

@@ -40,7 +40,7 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
 
 
 
-
+#if 0
 /**
   * @defgroup  KX132_Interfaces_Functions
   * @brief     This section provide a set of functions used to read and
@@ -90,7 +90,7 @@ int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t 
 
   return rstatus;
 }
-
+#endif
 
 
 
