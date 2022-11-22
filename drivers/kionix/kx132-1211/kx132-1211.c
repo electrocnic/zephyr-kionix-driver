@@ -106,8 +106,15 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 // from Kionix, page 2 of 27:
 
     struct kx132_1211_data *data = dev->data;
+#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING 
     uint8_t reg_val_to_write = 0x00U;
     uint8_t *write_buffer = &reg_val_to_write;
+    uint32_t len = 1;
+#else
+    uint8_t reg_addr_and_value_to_write = { KX132_CNTL1, 0x00U };
+    uint8_t *write_buffer = reg_addr_and_value_to_write;
+    uint32_t len = 2;
+#endif
     int rstatus = ROUTINE_OK;
 
 //
@@ -125,7 +132,7 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 //
 //    ret = iis2dh_read_reg(ctx, IIS2DH_WHO_AM_I, buff, 1);
 
-    rstatus = kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, 1);
+    rstatus = kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
 
     if ( rstatus != 0 )
     {
@@ -134,13 +141,22 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
     }
 
 // KX132-1211 Register CTRL1:
+#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING 
     reg_val_to_write = 0x06U;
-    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, 1);
+#else
+    write_buffer[0] = KX132_ODCNTL;
+    write_buffer[1] = 0x06U;
+#endif
+    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
 
 // KX132-1211 Register INC1:
-//    uint8_t cmd_cntl_c0[] = { 0x1B, 0xC0 };
+#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING 
     reg_val_to_write = 0xC0U;
-    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, 1);
+#else
+    write_buffer[0] = KX132_CNTL1;
+    write_buffer[1] = 0xC0U;
+#endif
+    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
 
     return rstatus;
 }
@@ -171,8 +187,14 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 
     uint8_t reg_val_to_read = 0x00U;
     uint8_t *read_buffer = &reg_val_to_read;
+#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING 
     uint8_t reg_val_to_write = 0x00U;
     uint8_t *write_buffer = &reg_val_to_write;
+#else
+    uint8_t reg_addr_and_value_to_write = { KX132_ODCNTL, 0x00U };
+    uint8_t *write_buffer = reg_addr_and_value_to_write;
+    uint32_t len = 2;
+#endif
 
     int rstatus = ROUTINE_OK;
 
@@ -195,7 +217,11 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
             reg_val_to_write &= 0xF0;            // mask to erase OSA3:OSA0
             reg_val_to_write |= val->val2;       // write bit pattern to set output data rate
 
+#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING 
             rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, 1);
+#else
+            rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, 2);
+#endif
         }
     }
 
