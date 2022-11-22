@@ -11,7 +11,7 @@
 // - SECTION - Kionix sensor specific configuration routines
 //----------------------------------------------------------------------
 
-static int kx132_enable_asynchronous_readings(const struct device *dev)
+int kx132_enable_asynchronous_readings(const struct device *dev)
 {
 // Register sequence this routine chosen per AN092-Getting-Started.pdf
 // from Kionix, page 2 of 27:

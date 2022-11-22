@@ -38,7 +38,7 @@
 // - SECTION -
 //----------------------------------------------------------------------
 
-static int kx132_enable_asynchronous_readings(const struct device *dev);
+int kx132_enable_asynchronous_readings(const struct device *dev);
 
 
 
