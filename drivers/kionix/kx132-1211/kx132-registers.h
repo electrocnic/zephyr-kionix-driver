@@ -38,6 +38,12 @@
 // - SECTION -
 //----------------------------------------------------------------------
 
+// Important wrapper functions to read registers, write registers:
+
+int32_t kx132_read_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t len);
+int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t len);
+
+
 int kx132_enable_asynchronous_readings(const struct device *dev);
 
 
