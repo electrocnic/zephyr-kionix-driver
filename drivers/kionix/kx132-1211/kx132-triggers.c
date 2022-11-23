@@ -1,4 +1,12 @@
+/**
+ * @project Kionix Sensor Drivers
+ * @author Ted Havelka
+ * @license Apache 2.0 licensed.
+ */
 
+
+
+#include <zephyr/driver/sensor.h>
 
 
 
