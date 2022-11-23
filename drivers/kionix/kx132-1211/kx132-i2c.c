@@ -62,6 +62,11 @@ static int kx132_i2c_write(const struct device *dev, uint8_t reg_addr, uint8_t *
 //  register address:
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+    char lbuf[128] = {0};
+    snprintf(lbuf, sizeof(lbuf), "- kx132-i2c.c - writing internal reg 0x%02X with 0x%02X . . .\n",
+      value[0], value[1]);
+    printk("%s", lbuf);
+
 //    return i2c_burst_write_dt(&config->i2c, reg_addr | 0x80, value, len);
     rstatus = i2c_write_dt(&config->i2c, value, len);
 
