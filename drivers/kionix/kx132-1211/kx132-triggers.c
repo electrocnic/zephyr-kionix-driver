@@ -6,7 +6,7 @@
 
 
 
-#include <zephyr/driver/sensor.h>
+#include <zephyr/drivers/sensor.h>
 
 
 
