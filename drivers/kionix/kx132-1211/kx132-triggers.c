@@ -8,6 +8,8 @@
 
 #include <zephyr/drivers/sensor.h>
 
+#include "kx132-1211.h"
+
 
 
 /**
@@ -23,7 +25,7 @@ int kx132_trigger_set(const struct device *dev,
 	struct kx132_data *kx132 = dev->data;
 	const struct kx132_device_config *cfg = dev->config;
 //	int16_t raw[3];
-	int state = (handler != NULL) ? PROPERTY_ENABLE : PROPERTY_DISABLE;
+//	int state = (handler != NULL) ? PROPERTY_ENABLE : PROPERTY_DISABLE;
 
 	if (!cfg->int_gpio.port) {
 		return -ENOTSUP;
