@@ -8,6 +8,29 @@
 #include <zephyr/sys/util.h>
 #include <zephyr/drivers/sensor.h>
 
+#include "kx132-registers.h"       // to provide register addresses via symbols
+
+#include "kx132-register-interface.h" // to provide kionix_ctx_t sensor context data structure definition
+
+
+
+
+#define SIZE_MANUFACT_ID_STRING (4)
+#define SIZE_PART_ID_STRING (2)
+
+union string_union_type__manufacturer_id
+{
+    char as_string[SIZE_MANUFACT_ID_STRING];
+    uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
+    uint32_t as_32_bit_integer;
+};
+
+union string_union_type__part_id
+{
+    char as_string[SIZE_MANUFACT_ID_STRING];
+    uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
+    uint16_t as_16_bit_integer;
+};
 
 
 
@@ -65,6 +88,68 @@ struct iis2dh_data {
 #endif // 0
 
 
+#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS (2)
+#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES ((BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS) * 3) 
+
+struct kx132_1211_data {
+	int16_t acc[3];
+
+// From the original 2021 kionix driver data structure:
+// NOTE:  all of these are slated to be removed.  Pointer to
+//  I2C controller will be part of kx132_ctx_t data structure,
+//  which will support both I2C and SPI buses.  The part ID
+//  and accelerometer readings are data which are normally
+//  read from the sensor and copied directly to memory to
+//  which calling code sends our driver here pointers.  No
+//  need to have a copy of those data in this sensor data
+//  structure . . .
+
+    const struct device *i2c_dev;
+    union string_union_type__manufacturer_id manufacturer_id;
+    union string_union_type__part_id part_id;
+// Following three data members are written with LSB, MSB of respective accelerometer readings:
+    uint8_t accel_axis_x[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
+    uint8_t accel_axis_y[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
+    uint8_t accel_axis_z[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
+// Following data member written with LSB, MSB of allaccelerometer readings X, Y and Z axes:
+    uint8_t accel_axis_xyz[BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES];
+// QUESTION:  any reason we need to align data on four byte boundary? - TMH
+//    uint8_t padding[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
+
+
+// NOTE:  this "sensor context" data structure holds function pointers to
+//  generalized, flexible register_write() and register_read() functions:
+
+        kionix_ctx_t *ctx;
+
+// NOTE:  2022-11-18 following two Kconfig symbols Ted has not yet defined
+//  for Kionix driver:
+
+#ifdef CONFIG_KX132_TRIGGER
+        const struct device *dev;
+        struct gpio_callback gpio_cb;
+        sensor_trigger_handler_t drdy_handler;
+#if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
+        K_KERNEL_STACK_MEMBER(thread_stack, CONFIG_KX132_THREAD_STACK_SIZE);
+        struct k_thread thread;
+        struct k_sem gpio_sem;
+#elif defined(CONFIG_KX132_TRIGGER_GLOBAL_THREAD)
+        struct k_work work;
+#endif /* CONFIG_KX132_TRIGGER_GLOBAL_THREAD */
+#endif /* CONFIG_KX132_TRIGGER */
+};
+
+
+int kx132_i2c_init(const struct device *dev);
+int kx132_spi_init(const struct device *dev);
+
+#ifdef CONFIG_KX132_TRIGGER
+int kx132_init_interrupt(const struct device *dev);
+int kx132_trigger_set(const struct device *dev,
+                      const struct sensor_trigger *trig,
+                      sensor_trigger_handler_t handler);
+#endif /* CONFIG_KX132_TRIGGER */
+
 
 
 // KX132-1211 sensor possible I2C addresses:
@@ -73,37 +158,6 @@ struct iis2dh_data {
 #define KX132_I2C_ADDRESS__ADDR_PIN_AT_IO_VDD (0x1F)
 #define KX132_I2C_ADDRESS_FLIPPED__ADDR_PIN_AT_GND    (0x1C)
 #define KX132_I2C_ADDRESS_FLIPPED__ADDR_PIN_AT_IO_VDD (0x1D)
-
-
-#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS (2)
-#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES ((BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS) * 3) 
-
-
-
-// For following defines see Kionix document
-// KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf
-
-// Note following are KX132-1211 config' register addresses:
-#define MAN_ID (0x00)
-#define PART_ID (0x01)
-
-#define KX132_1211_ACCELEROMETER_XOUT_L    (0x08)
-#define KX132_1211_ACCELEROMETER_XOUT_H    (0x09)
-#define KX132_1211_ACCELEROMETER_YOUT_L    (0x0A)
-#define KX132_1211_ACCELEROMETER_YOUT_H    (0x0B)
-#define KX132_1211_ACCELEROMETER_ZOUT_L    (0x0C)
-#define KX132_1211_ACCELEROMETER_ZOUT_H    (0x0D)
-
-#define KX132_1211_CONFIG_REGISTER__CNTL   (0x1B)
-#define KX132_1211_CONFIG_REGISTER__ODCNTL (0x21)
-//#define KX132_1211_CONFIG_REGISTER__
-
-// Given Zephyr's lower level I2C API, our sensor query type commands
-//  are effectively one byte in size and contain the address of the
-//  sensor configuration register from which to read:
-#define CMD_KX132_REQUEST_MANUFACTURER_ID { MAN_ID }
-#define CMD_KX132_REQUEST_PART_ID { PART_ID }
-
 
 
 // Note:  Zephyr Project 2.6.0 provides sensor.h header file in
@@ -122,7 +176,7 @@ enum sensor_channels_kionix_specific {
     SENSOR_CHAN_KIONIX_START = (SENSOR_CHAN_PRIV_START + 1),
     SENSOR_CHAN_KIONIX_MANUFACTURER_ID,
     SENSOR_CHAN_KIONIX_PART_ID,
-    SENSOR_CHAN_KIONIX_END,
+    SENSOR_CHAN_KIONIX_END
 };
 
 

@@ -12,30 +12,22 @@
 #include <zephyr/drivers/i2c.h>     // 2022-11-10 was <drivers/i2c.h>
 #include <zephyr/drivers/sensor.h>  // 2022-11-10 was <drivers/sensor.h>
 
-#include "kx132-1211.h"
-#include "out-of-tree-drivers.h"
-#include "development-defines.h"
-
 #include <zephyr/logging/log.h>     // 2022-11-10 was <logging/log.h>
-LOG_MODULE_REGISTER(kx132, CONFIG_SENSOR_LOG_LEVEL);
+
+LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_MODULE_DECLARE() due to this line
+
+// NEED to review LOG_MODULE_DECLARE() stanzas in other driver sources,
+//  to  assure those are not in conflict with this related Zephyr
+//  logging macro - TMH
+
+#include "kx132-1211.h"
+#include "kx132-registers.h"       // to provide map of KX132 internal registers and bit-wise flags
+#include "out-of-tree-drivers.h"
+//#include "development-defines.h"
 
 
-#define SIZE_MANUFACT_ID_STRING (4)
-#define SIZE_PART_ID_STRING (2)
+#include <stdio.h>
 
-union string_union_type__manufacturer_id
-{
-    char as_string[SIZE_MANUFACT_ID_STRING];
-    uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
-    uint32_t as_32_bit_integer;
-};
-
-union string_union_type__part_id
-{
-    char as_string[SIZE_MANUFACT_ID_STRING];
-    uint8_t as_bytes[SIZE_MANUFACT_ID_STRING];
-    uint16_t as_16_bit_integer;
-};
 
 
 //----------------------------------------------------------------------
@@ -46,73 +38,14 @@ union string_union_type__part_id
 // Kionix KX132-1211 register definitions found in KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf.
 //----------------------------------------------------------------------
 
-struct kx132_1211_data
-{
-    const struct device *i2c_dev;
-    union string_union_type__manufacturer_id manufacturer_id;
-    union string_union_type__part_id part_id;
-// Following three data members are written with LSB, MSB of respective accelerometer readings:
-    uint8_t accel_axis_x[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
-    uint8_t accel_axis_y[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
-    uint8_t accel_axis_z[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
-// Following data member written with LSB, MSB of allaccelerometer readings X, Y and Z axes:
-    uint8_t accel_axis_xyz[BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES];
-// QUESTION:  any reason we need to align data on four byte boundary? - TMH
-//    uint8_t padding[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
-};
-
 
 
 //----------------------------------------------------------------------
 // - SECTION - Kionix sensor specific configuration routines
 //----------------------------------------------------------------------
 
-static int kx132_enable_asynchronous_readings(const struct device *dev)
-{
-// Note per Sensirion datasheet sensor SHTC3 sleep command is 0xB098,
-// given on page 6 of 14.
-
-    int comms_status = 0;
-    struct kx132_1211_data *data = dev->data;
-    int status = ROUTINE_OK;
-
-// Per AN092-Getting-Started.pdf from Kionix, page 2 of 27:
-    uint8_t cmd_cntl_00[] = { 0x1B, 0x00 };
-
-#ifdef _DEV_ENABLE_PRINTK
-#ifdef DEV__KX132_SHOW_CONFIG_COMMANDS_BEFORE_SENDING
-    printk("writing {%02X, %02X . . .\n", cmd_cntl_00[0], cmd_cntl_00[1]);
+#if 0
 #endif
-#endif
-    comms_status = i2c_write(data->i2c_dev, cmd_cntl_00, sizeof(cmd_cntl_00), DT_INST_REG_ADDR(0));
-
-    if (comms_status != 0)
-    {
-        LOG_WRN("- ERROR - Unable to write CNTL register, but error:  %i", comms_status);
-        return comms_status;
-    }
-
-    k_msleep(100);
-
-
-// Next commands (register writes) are:
-
-// KX132-1211 Register CTRL1:
-    uint8_t cmd_odcntl_06[] = { 0x21, 0x06 };
-    comms_status = i2c_write(data->i2c_dev, cmd_odcntl_06, sizeof(cmd_odcntl_06), DT_INST_REG_ADDR(0));
-    k_msleep(100);
-
-// KX132-1211 Register INC1:
-    uint8_t cmd_cntl_c0[] = { 0x1B, 0xC0 };
-    comms_status = i2c_write(data->i2c_dev, cmd_cntl_c0, sizeof(cmd_cntl_c0), DT_INST_REG_ADDR(0));
-    k_msleep(100);
-
-#ifdef _DEV_ENABLE_PRINTK
-    printk("attempt to configure async reading complete.\n");
-#endif
-
-    return status;
-}
 
 
 
@@ -136,256 +69,65 @@ static int kx132_enable_asynchronous_readings(const struct device *dev)
 
 static int kx132_configure_output_data_rate(const struct device *dev, const struct sensor_value *val)
 {
-    int status = ROUTINE_OK;
-    uint8_t cmd[] = { KX132_1211_CONFIG_REGISTER__ODCNTL };
-    struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
-    uint8_t scratch_pad_byte = 0;
-    uint8_t odcntl_as_found = 0;
+    struct kx132_1211_data *data = dev->data;
+
+    uint8_t reg_val_to_read = 0x00U;
+    uint8_t *read_buffer = &reg_val_to_read;
+#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING 
+    uint8_t reg_val_to_write = 0x00U;
+    uint8_t *write_buffer = &reg_val_to_write;
+#else
+    uint8_t reg_addr_and_value_to_write[] = { KX132_ODCNTL, 0x00U };
+    uint8_t *write_buffer = reg_addr_and_value_to_write;
+    uint32_t len = 2;
+#endif
+
+    int rstatus = ROUTINE_OK;
+
 
     if ((val->val2 < KX132_ODR__0P781_HZ) || (val->val2 > KX132_ODR_25600_HZ))
     {
-        status = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
+        rstatus = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
     }
     else
     {
+        rstatus = kx132_read_reg(data->ctx, KX132_ODCNTL, read_buffer, 1);
 
-// Read present value of KX132-1211 output data rate control register:
-        status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
-                         cmd, sizeof(cmd), &scratch_pad_byte, sizeof(scratch_pad_byte));
+        if ( rstatus != ROUTINE_OK )
+        {
+            // ROUTINE_STATUS__COMM_FAILURE_ON_BUS
+        }
+        else
+        {
+#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING 
+            reg_val_to_write = reg_val_to_read;  // save original value - may not be needed, review this - TMH
+            reg_val_to_write &= 0xF0;            // mask to erase OSA3:OSA0
+            reg_val_to_write |= val->val2;       // write bit pattern to set output data rate
 
-// NEED TO CHECK FOR I2C COMMS ERROR RETURN VALUE
-// if ( comms error ) { . . . }
-// else
+            rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, 1);
+#else
+            reg_addr_and_value_to_write[1] = reg_val_to_read;  // save original value - may not be needed, review this - TMH
+            reg_addr_and_value_to_write[1] &= 0xF0;            // mask to erase OSA3:OSA0
+            reg_addr_and_value_to_write[1] |= val->val2;       // write bit pattern to set output data rate
 
-        odcntl_as_found = scratch_pad_byte;  // save original value - may not be needed, review this - TMH
-        scratch_pad_byte &= 0xF0;            // mask to erase OSA3:OSA0
-        scratch_pad_byte |= val->val2;       // write bit pattern to set output data rate
-
-        uint8_t cmd_odcntl[] = { KX132_1211_CONFIG_REGISTER__ODCNTL, scratch_pad_byte };
-        status = i2c_write(data_struc_ptr->i2c_dev, cmd_odcntl, sizeof(cmd_odcntl), DT_INST_REG_ADDR(0));
-
-//        k_msleep(100);
-// QUESTION:  how quickly can we write KX132 config registers?  We're
-// not doing so often but we are writing several at start up time.
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, 2);
+#endif
+        }
     }
 
-    return status;
+    return rstatus;
 }
-
 
 
 
 //----------------------------------------------------------------------
-// - SECTION - Kionix sensor specific readings and data fetch routines
+// - SECTION - routines per Zephyr sensor API
 //----------------------------------------------------------------------
-
-// Note this routine fetches Kionix KX132-1211 Manufacturer ID string.
-
-static int kx132_device_id_fetch(const struct device *dev)
-{
-    struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
-    uint8_t cmd[] = CMD_KX132_REQUEST_MANUFACTURER_ID;
-    uint8_t rx_buf[] = {0, 0, 0, 0};
-    int bus_comms_status = 0;
-    int i = 0;
-
-// request manufacturer ID string from Kionix KX132-1211 sensor
-    bus_comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
-                         cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
-    if (bus_comms_status != 0)
-    {
-        LOG_WRN("Unable to read manufacturer ID string. Err: %i", bus_comms_status);
-        return bus_comms_status;
-    }
-
-#ifdef _DEV_ENABLE_PRINTK
-    for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
-    {
-        if ((rx_buf[i] < 0x20) || (rx_buf[i] > 0x7E))
-            { printk("manufacturer id byte %d outside ASCII printable range:  %u\n", i, rx_buf[i]); }
-    }
-#endif
-
-    for (i = 0; i < SIZE_MANUFACT_ID_STRING; i++)
-    {
-        data_struc_ptr->manufacturer_id.as_bytes[i] = rx_buf[i];
-    }
-
-    return 0;
-}
-
-
-
-static int kx132_part_id_fetch(const struct device *dev)
-{
-    int bus_comms_status = 0;
-    struct kx132_1211_data *data_struc_ptr = (struct kx132_1211_data *)dev->data;
-    uint8_t cmd[] = CMD_KX132_REQUEST_PART_ID;
-    uint8_t rx_buf[] = {0, 0};
-    int i = 0;
-
-// request part ID string from Kionix KX132-1211 sensor:
-    bus_comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
-                         cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
-    if (bus_comms_status != 0)
-    {
-        LOG_WRN("Unable to read numeric part ID . Err: %i", bus_comms_status);
-        return bus_comms_status;
-    }
-
-    for (i = 0; i < SIZE_PART_ID_STRING; i++)
-    {
-        data_struc_ptr->part_id.as_bytes[i] = rx_buf[i];
-    }
-
-    return 0;
-}
- 
-
-
-static int kx132_acceleration_x_axis_fetch(const struct device *dev)
-{
-    int comms_status = 0;
-    struct kx132_1211_data* data_struc_ptr = (struct kx132_1211_data*)dev->data;
-    uint8_t cmd[] = { KX132_1211_ACCELEROMETER_XOUT_L };
-    uint8_t rx_buf[] = {0, 0};
-    int i = 0;
-
-    comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
-                         cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
-    if (comms_status != 0)
-    {
-        LOG_WRN("Unable to read X axis acceleration.  Error: %i", comms_status);
-        return comms_status;
-    }
-
-    for (i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++)
-    {
-        data_struc_ptr->accel_axis_x[i] = rx_buf[i];
-    }
-
-#ifdef _DEV_ENABLE_PRINTK
-    printk("- DEV - X axis acceleration is %d   - DEV -\n",
-      ( ( data_struc_ptr->accel_axis_x[1] << 8 ) + data_struc_ptr->accel_axis_x[0] ) );
-    printk("- DEV - ( requested %d bytes of data starting from sensor internal addr %d ) - DEV -\n",
-      sizeof(rx_buf), cmd[0]);
-#endif
-
-    return comms_status;
-}
-
-
-static int kx132_acceleration_y_axis_fetch(const struct device *dev)
-{
-    int comms_status = 0;
-    struct kx132_1211_data* data_struc_ptr = (struct kx132_1211_data*)dev->data;
-    uint8_t cmd[] = { KX132_1211_ACCELEROMETER_YOUT_L };
-    uint8_t rx_buf[] = {0, 0};
-    int i = 0;
-
-    comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
-                         cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
-    if (comms_status != 0)
-    {
-        LOG_WRN("Unable to read Y axis acceleration.  Error: %i", comms_status);
-        return comms_status;
-    }
-
-    for (i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++)
-    {
-        data_struc_ptr->accel_axis_y[i] = rx_buf[i];
-    }
-
-#ifdef _DEV_ENABLE_PRINTK
-    printk("- DEV - Y axis acceleration is %d   - DEV -\n",
-      ( ( data_struc_ptr->accel_axis_y[1] << 8 ) + data_struc_ptr->accel_axis_y[0] ) );
-#endif
-
-    return comms_status;
-}
-
-
-
-
-
-static int kx132_acceleration_z_axis_fetch(const struct device *dev)
-{
-    int comms_status = 0;
-
-    struct kx132_1211_data* data_struc_ptr = (struct kx132_1211_data*)dev->data;
-    uint8_t cmd[] = { KX132_1211_ACCELEROMETER_ZOUT_L };
-    uint8_t rx_buf[] = {0, 0};
-    int i = 0;
-
-    comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
-                         cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
-    if (comms_status != 0)
-    {
-        LOG_WRN("Unable to read Z axis acceleration.  Error: %i", comms_status);
-        return comms_status;
-    }
-
-    for (i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++)
-    {
-        data_struc_ptr->accel_axis_z[i] = rx_buf[i];
-    }
-
-#ifdef _DEV_ENABLE_PRINTK
-    printk("- DEV - Z axis acceleration is %d   - DEV -\n",
-      ( ( data_struc_ptr->accel_axis_z[1] << 8 ) + data_struc_ptr->accel_axis_z[0] ) );
-#endif
-
-    return comms_status;
-}
-
-
-
-
-
-static int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
-{
-// stub
-    int bus_comms_status = 0;
-    struct kx132_1211_data* data_struc_ptr = (struct kx132_1211_data*)dev->data;
-    uint8_t cmd[] = { 0x08 }; // starting address of X acceleration reading, LSB of two byte value
-    uint8_t rx_buf[] = {0, 0,  0, 0,  0, 0};
-    int i = 0;
-
-    bus_comms_status = i2c_write_read(data_struc_ptr->i2c_dev, DT_INST_REG_ADDR(0),
-                         cmd, sizeof(cmd), rx_buf, sizeof(rx_buf));
-    if (bus_comms_status != 0)
-    {
-        LOG_WRN("Unable to read numeric part ID . Err: %i", bus_comms_status);
-        return bus_comms_status;
-    }
-
-    for (i = 0; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 0); i++)
-        { data_struc_ptr->accel_axis_x[i - 0] = rx_buf[i]; }
-    for (i = 2; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 2); i++)
-        { data_struc_ptr->accel_axis_y[i - 2] = rx_buf[i]; }
-    for (i = 4; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 4); i++)
-        { data_struc_ptr->accel_axis_z[i - 4] = rx_buf[i]; }
-
-#ifdef _DEV_ENABLE_PRINTK
-    printk("- DEV - X, Y and Z accelerations are %d, %d, %d   - DEV -\n",
-      ( ( data_struc_ptr->accel_axis_x[1] << 8 ) + data_struc_ptr->accel_axis_x[0] ),
-      ( ( data_struc_ptr->accel_axis_y[1] << 8 ) + data_struc_ptr->accel_axis_y[0] ),
-      ( ( data_struc_ptr->accel_axis_z[1] << 8 ) + data_struc_ptr->accel_axis_z[0] )
-    );
-    printk("- DEV - ( requested %d bytes of data starting from sensor internal addr %d ) - DEV -\n",
-      sizeof(rx_buf), cmd[0]);
-#endif
-
-    return bus_comms_status;
-}
-
-
 
 static int kx132_1211_attr_get(const struct device *dev,
-                          enum sensor_channel chan,
-                          enum sensor_attribute attr,
-                          struct sensor_value *val)
+                               enum sensor_channel chan,
+                               enum sensor_attribute attr,
+                               struct sensor_value *val)
 {
 // stub function
     return 0;
@@ -396,11 +138,11 @@ static int kx132_1211_attr_get(const struct device *dev,
 // REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_channel.SENSOR_CHAN_ALL
 
 static int kx132_1211_attr_set(const struct device *dev,
-                          enum sensor_channel chan,
-                          enum sensor_attribute attr,
-                          const struct sensor_value *val)
+                               enum sensor_channel chan,
+                               enum sensor_attribute attr,
+                               const struct sensor_value *val)
 {
-    int status = ROUTINE_OK;
+    int rstatus = ROUTINE_OK;
 
     int sensor_config_requested = val->val1;
 
@@ -434,9 +176,15 @@ static int kx132_1211_attr_set(const struct device *dev,
                             break;
                         }
 
+                        case KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT:
+                        {
+                            kx132_enable_synchronous_reading_with_hw_interrupt(dev);
+                            break;
+                        }
+
                         default: // ...action to take when requested config not supported
                         {
-                            status = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
+                            rstatus = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
                             break;
                         }
 
@@ -445,7 +193,7 @@ static int kx132_1211_attr_set(const struct device *dev,
 
                 default: // ...action to take with unrecognized sensor channel
                 {
-                    status = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
+                    rstatus = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
                     break;
                 }
 
@@ -454,20 +202,19 @@ static int kx132_1211_attr_set(const struct device *dev,
 
         default: // ...default action to take with unrecognized sensor attribute
         {
-            status = ROUTINE_STATUS__UNDEFINED_SENSOR_ATTRIBUTE;
+            rstatus = ROUTINE_STATUS__UNDEFINED_SENSOR_ATTRIBUTE;
             break;
         }
     } // close scope of switch(attr)
 
-    return status;
+    return rstatus;
 }
 
 
 
 static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel channel)
 {
-    int status = 0;
-//    struct kx132_1211_data *data = (struct kx132_1211_data *)dev->data;
+    int rstatus = 0;
 
     switch (channel)
     {
@@ -496,11 +243,27 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
             break;
 
         default:
-            status = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
+            rstatus = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
     }
 
-    return status;
+    return rstatus;
 }
+
+
+
+
+// https://docs.zephyrproject.org/latest/hardware/peripherals/sensor.html#c.sensor_sample_fetch_chan
+#if 0
+static int kx132_1211_sample_fetch_chan(const struct device *dev, enum sensor_channel channel)
+{
+// stub function - we'll refactor code in kx132_1211_sample_fetch() to mostly
+// or wholly be in this routine - TMH
+
+    int rstatus = 0;
+
+    return rstatus;
+}
+#endif
 
 
 
@@ -516,17 +279,15 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 static int kx132_1211_channel_get(const struct device *dev,
-                             enum sensor_channel chan,
-                             struct sensor_value *val)
+                                  enum sensor_channel chan,
+                                  struct sensor_value *val)
 {
 // 2021-08-31 - function implementation in progress, TMH.
 
     int routine_status = 0;
 
-// Following design pattern in J Wolff AQW driver for Sensirion SHTC3 sensor,
-// begin with a pointer to a data structure that's crafted to support
-// our new-to-us Kionix sensor:
-    struct kx132_1211_data *data = (struct kx132_1211_data *)dev->data;
+//    struct kx132_1211_data *data = (struct kx132_1211_data *)dev->data;
+    struct kx132_1211_data *data = dev->data;
 
 // Clear memory passed to us by calling code:
     memset(val, 0, sizeof(*val));
@@ -548,17 +309,17 @@ static int kx132_1211_channel_get(const struct device *dev,
             val->val2 = 0;
             break;
 
-        case SENSOR_CHAN_ACCEL_X:          // a two byte value
+        case SENSOR_CHAN_ACCEL_X:                 // a two byte value
             val->val1 = ( ( data->accel_axis_x[1] << 8 ) | ( data->accel_axis_x[0] ) );
             val->val2 = 0;
             break;
 
-        case SENSOR_CHAN_ACCEL_Y:          // a two byte value
+        case SENSOR_CHAN_ACCEL_Y:                 // a two byte value
             val->val1 = ( ( data->accel_axis_y[1] << 8 ) | ( data->accel_axis_y[0] ) );
             val->val2 = 0;
             break;
 
-        case SENSOR_CHAN_ACCEL_Z:          // a two byte value
+        case SENSOR_CHAN_ACCEL_Z:                 // a two byte value
             val->val1 = ( ( data->accel_axis_z[1] << 8 ) | ( data->accel_axis_z[0] ) );
             val->val2 = 0;
             break;
@@ -586,23 +347,41 @@ static int kx132_1211_channel_get(const struct device *dev,
 
 
 
+//----------------------------------------------------------------------
+// - SECTION - instantiation and initialization code
+//----------------------------------------------------------------------
+
+// Following design pattern of Zephyr 3.2.0 zephyr/drivers/sensor/iis2dh/iis2dh.c:
+
+static int kx132_init_interface(const struct device *dev)
+{
+        int rstatus;
+
+#if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
+        rstatus = kx132_spi_init(dev);
+        if (rstatus) {
+                return rstatus;
+        }
+#elif DT_ANY_INST_ON_BUS_STATUS_OKAY(i2c)
+        rstatus = kx132_i2c_init(dev);
+        if (rstatus) {
+                return rstatus;
+        }
+#else
+#error "BUS MACRO NOT DEFINED IN DTS"
+#endif
+
+        return 0;
+}
+
+
+
+
 // FEATURE - initializating function in KX132-1211 driver:
 
-//static int kx132_init(const struct device *dev)
 static int kx132_1211_init(const struct device *dev)
 {
-    struct kx132_1211_data *data = dev->data;
-
-// 2022-11-10 REF https://docs.zephyrproject.org/latest/build/dts/api/api.html#c.DT_INST_BUS_LABEL
-//    data->i2c_dev = device_get_binding(DT_INST_BUS_LABEL(0));
-//    data->i2c_dev = device_get_binding(DEVICE_DT_GET(DT_INST_BUS(0)));  // expected 'const char *' but argument is of type 'const struct device *'
-    data->i2c_dev = DEVICE_DT_GET(DT_INST_BUS(0));
-
-    if (data->i2c_dev == NULL)
-    {
-        LOG_ERR("Unable to get I2C controller while initializing KX132-1211 device instance.");
-        return -EINVAL;
-    }
+    kx132_init_interface(dev);
 
     return 0;
 }
@@ -619,27 +398,13 @@ static int kx132_1211_init(const struct device *dev)
 static const struct sensor_driver_api kx132_driver_api = {
     .attr_get = &kx132_1211_attr_get,
     .attr_set = &kx132_1211_attr_set,
+#if CONFIG_KX132_TRIGGER
+    .trigger_set = kx132_trigger_set,
+#endif
     .sample_fetch = &kx132_1211_sample_fetch,
     .channel_get = &kx132_1211_channel_get
 };
 
-
-//static struct kx132_1211_data kx132_1211_data;
-
-// NOTE Zephyr documentation says "Use DEVICE_DEFINE() only when device is not allocated from a devicetree node."
-
-#if 0
-DEVICE_DEFINE(kx132_1211,                    // dev_id
-              DT_INST_LABEL(0),              // name
-              kx132_1211_init,               // init function
-              NULL,                          // pm - pointer to power management resources
-              &kx132_1211_data,              // data - pointer to device' private mutable data
-              NULL,                          // config - pointer to device' private constant data
-              POST_KERNEL,                   // level
-              CONFIG_SENSOR_INIT_PRIORITY,   // priority
-              &kx132_driver_api                     // API
-);
-#endif
 
 
 // # https://gcc.gnu.org/onlinedocs/gcc-3.4.6/cpp/Stringification.html . . . stringification via C macros
@@ -648,121 +413,39 @@ DEVICE_DEFINE(kx132_1211,                    // dev_id
 // Ejemplo:   printk("- DEV 1028 - symbol ST_IIS2DH got assigned '%s'\n", xstr(ST_IIS2DH));
 
 
-// REF https://docs.zephyrproject.org/latest/kernel/drivers/index.html#c.DEVICE_DT_DEFINE
 
-#if 0
+// Note:  Zephyr 3.2.0 STMicro IIS2DH driver way:
 
-#define macro(x) x
-
-//#if (CONFIG_DEFINE_DEVICE_KX132_VIA_DT_NODELABEL == 0)
-#warning "- DEV 1115 - defining device KX132-1211 via Zephyr DEVICE_NODELABEL() macro . . ."
-
-DEVICE_DT_DEFINE(
-//                 DT_NODELABEL(kionix_sensor),  // node_id . . . works, but nodelabel is hard-coded
-
-//                 DT_NODELABEL(macro(CONFIG_KX132_NODELABEL_VALUE)),
-
-#define y macro(CONFIG_KX132_NODELABEL_VALUE)
-                 DT_NODELABEL(macro(y)),
-
-                 kx132_1211_init,              // init function
-                 NULL,                         // pm
-                 &kx132_1211_data,             // data
-                 NULL,                         // config
-                 POST_KERNEL,                  // level
-                 CONFIG_SENSOR_INIT_PRIORITY,  // priority
-                 &kx132_driver_api                    // API
-);
-#endif
-
-
-#if 0
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-#define KX132_1211_DEFINE(inst)                                  \
-    static struct kx132_1211_data kx132_1211_data_##inst;        \
-                                                                 \
-    DEVICE_DT_INST_DEFINE(inst,                                  \
-                          kx132_1211_init,                       \
-                          NULL,                                  \
-                          &kx132_1211_data_##inst,               \
-                          NULL,                                  \
-                          POST_KERNEL,                           \
-                          CONFIG_SENSOR_INIT_PRIORITY,           \
-                          &kx132_driver_api);
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-#endif
-
-
-
-#define KX132_SPI(inst)                                                                          \
-        (.spi = SPI_DT_SPEC_INST_GET(                                                            \
+#define KX132_SPI(inst)                                                                       \
+        (.spi = SPI_DT_SPEC_INST_GET(                                                         \
                  0, SPI_OP_MODE_MASTER | SPI_MODE_CPOL | SPI_MODE_CPHA | SPI_WORD_SET(8), 0),)
 
 #define KX132_I2C(inst) (.i2c = I2C_DT_SPEC_INST_GET(inst),)
 
-#define KX132_DEFINE(inst)                                                                       \
-        static struct kx132_1211_data kx132_1211_data_##inst;                                    \
-                                                                                                 \
-        static const struct kx132_device_config kx132_device_config_##inst = {                   \
-                COND_CODE_1(DT_INST_ON_BUS(inst, i2c), KX132_I2C(inst), ())                      \
-                COND_CODE_1(DT_INST_ON_BUS(inst, spi), KX132_SPI(inst), ())                      \
-                .pm = CONFIG_KX132_POWER_MODE,                                                   \
-                IF_ENABLED(CONFIG_KX132_TRIGGER,                                                 \
-                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),))     \
-        };                                                                                       \
-                                                                                                 \
-        DEVICE_DT_INST_DEFINE(inst, kx132_1211_init, NULL,                                       \
-                              &kx132_1211_data_##inst, &kx132_device_config_##inst, POST_KERNEL, \
-                              CONFIG_SENSOR_INIT_PRIORITY, &kx132_driver_api);
+#define KX132_DEFINE(inst)                                                                    \
+        static struct kx132_1211_data kx132_1211_data_##inst;                                 \
+                                                                                              \
+        static const struct kx132_device_config kx132_device_config_##inst = {                \
+                COND_CODE_1(DT_INST_ON_BUS(inst, i2c), KX132_I2C(inst), ())                   \
+                COND_CODE_1(DT_INST_ON_BUS(inst, spi), KX132_SPI(inst), ())                   \
+                .pm = CONFIG_KX132_POWER_MODE,                                                \
+                IF_ENABLED(CONFIG_KX132_TRIGGER,                                              \
+                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),))  \
+        };                                                                                    \
+                                                                                              \
+        DEVICE_DT_INST_DEFINE(                                                                \
+                              inst,                                                           \
+                              kx132_1211_init,                                                \
+                              NULL,                                                           \
+                              &kx132_1211_data_##inst,                                        \
+                              &kx132_device_config_##inst,                                    \
+                              POST_KERNEL,                                                    \
+                              CONFIG_SENSOR_INIT_PRIORITY,                                    \
+                              &kx132_driver_api                                               \
+                             );
 
 /* Create the struct device for every status "okay"*/
 DT_INST_FOREACH_STATUS_OKAY(KX132_DEFINE)
-
-
-
-
-
-//----------------------------------------------------------------------
-// - SECTION - notes and reference code
-//----------------------------------------------------------------------
-
-#if 0
-## Sample driver code from Jared Wolff https://github.com/circuitdojo/air-quality-wing-zephyr-drivers/blob/main/drivers/sgp40/sgp40.c:
-#define SGP40_DEFINE(inst)                                       \
-    static struct sgp40_data sgp40_data_##inst;                  \
-    DEVICE_DT_INST_DEFINE(inst,                                  \
-                          sgp40_init, NULL,                      \
-                          &sgp40_data_##inst, NULL, POST_KERNEL, \
-                          CONFIG_SENSOR_INIT_PRIORITY, &sgp40_api);
-
-/* Create the struct device for every status "okay"*/
-DT_INST_FOREACH_STATUS_OKAY(SGP40_DEFINE)
-#endif
-
-
-#if 0
-#define nodelabel_value KX132_NODELABEL_VALUE
-//                 DT_NODELABEL(nodelabel_value),  // node_id . . . works, but nodelabel is hard-coded
-// [app_workspace]/zephyr/include/zephyr/devicetree.h:190:36: error: 'DT_N_NODELABEL_KX132_NODELABEL_VALUE_FULL_NAME' undeclared here (not in a function)
-
-//                 DT_NODELABEL(xstr(KX132_NODELABEL_VALUE)),  // node_id
-// [app_workspace]/zephyr/include/zephyr/devicetree.h:190:36: error: pasting "DT_N_NODELABEL_" and ""KX132_NODELABEL_VALUE"" does not give a valid preprocessing token
-
-//                 DT_NODELABEL(CONFIG_KX132_NODELABEL_VALUE),  // node_id . . . works, but nodelabel is hard-coded
-// [app_workspace]/zephyr/include/zephyr/devicetree.h:190:36: error: pasting "DT_N_NODELABEL_" and ""kionix_sensor"" does not give a valid preprocessing token
-
-//                 DT_NODELABEL(str(CONFIG_KX132_NODELABEL_VALUE)),  // node_id . . . works, but nodelabel is hard-coded
-// build time error here too, just not noted - TMH
-
-//                 DT_NODELABEL(str(KXNL)),      // node_id . . . works, but nodelabel is hard-coded
-// [app_workspace]/kionix-drivers/drivers/kionix/kx132-1211/kx132-1211.c:678:1: error: pasting ""KXNL"" and "_EXISTS" does not give a valid preprocessing token
-
-//                 DT_NODELABEL(xstr(CONFIG_KXNL)),      // node_id . . . works, but nodelabel is hard-coded
-// [app_workspace]/kionix-drivers/drivers/kionix/kx132-1211/kx132-1211.c:681:1: error: pasting ""\"kionix_sensor\""" and "_EXISTS" does not give a valid preprocessing token
-
-//                 DT_NODELABEL(CONFIG_KXNL),    // node_id . . . works, but nodelabel is hard-coded
-// samples/iis2dh-driver-demo/build/zephyr/include/generated/autoconf.h:71:21: error: pasting ""kionix_sensor"" and "_EXISTS" does not give a valid preprocessing token
-#endif
 
 
 
