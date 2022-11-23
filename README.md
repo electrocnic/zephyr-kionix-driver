@@ -11,5 +11,5 @@ KX132 interrupt support in this driver is not yet implemented.  Work underway on
 
 NXP's lpcxpresso55s69 presently tested.
 
-Most any board with an MXU for which Zephyr RTOS includes SoC level device tree sources, and in which MXU has at least one I2C and or SPI interface can be used to run this demo.  An appropriate device tree overlay file named `boards/[target_board_name].overlay` at the root of the project will normally suffice to inform Zephyr at compile time of which on-micro-controller peripheral(s) to enable to talk to the KX132 accelerometer.
+Most any board with an MCU for which Zephyr RTOS includes SoC level device tree sources, and in which MXU has at least one I2C and or SPI interface can be used to run this demo.  An appropriate device tree overlay file named `boards/[target_board_name].overlay` at the root of the project will normally suffice to inform Zephyr at compile time of which on-micro-controller peripheral(s) to enable to talk to the KX132 accelerometer.
 
