@@ -145,6 +145,13 @@ struct kx132_1211_data {
 int kx132_i2c_init(const struct device *dev);
 int kx132_spi_init(const struct device *dev);
 
+#ifdef CONFIG_KX132_TRIGGER
+int kx132_init_interrupt(const struct device *dev);
+int kx132_trigger_set(const struct device *dev,
+                      const struct sensor_trigger *trig,
+                      sensor_trigger_handler_t handler);
+#endif /* CONFIG_KX132_TRIGGER */
+
 
 
 // KX132-1211 sensor possible I2C addresses:

@@ -347,6 +347,10 @@ static int kx132_1211_channel_get(const struct device *dev,
 
 
 
+//----------------------------------------------------------------------
+// - SECTION - instantiation and initialization code
+//----------------------------------------------------------------------
+
 // Following design pattern of Zephyr 3.2.0 zephyr/drivers/sensor/iis2dh/iis2dh.c:
 
 static int kx132_init_interface(const struct device *dev)

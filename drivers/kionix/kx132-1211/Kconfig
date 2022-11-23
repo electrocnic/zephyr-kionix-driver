@@ -32,7 +32,7 @@ choice DEFINE_DEVICE_KX132_BY_MEANS_OF
 	help
 	  In KX132 driver, define device by dts nodelabel, which a developer may
 	  implement in their board or hardware overlay file.  This way allows for
-	  instantiation of sensor data structures for one senaor only.  Alternately
+	  instantiation of sensor data structures for one sensor only.  Alternately
 	  define KX132 devices for each compatible device node found with 'okay' status.
 	  Second way is more flexible but device tree parser specification, noted
 	  at https://docs.zephyrproject.org/latest/build/dts/api/api.html#c.DT_INST_FOREACH_STATUS_OKAY,
@@ -65,16 +65,18 @@ config KX132_NODELABEL_VALUE
 	  If you want to use a nodelabel other than 'kionix_sensor', enter that string
 	  value here.
 
-config KXNL
-	string "KX132-1211 device tree nodelabel name or value"
-	default "kionix_sensor"
-	depends on DEFINE_DEVICE_KX132_VIA_DT_NODELABEL
-
 config DEFINE_DEVICE_KX132_VIA_DEVICE_DT_INST_DEFINE
 	bool "KX132-1211 device(s) defined for each 'okay' instance"
 	help
 	  See https://docs.zephyrproject.org/latest/build/dts/api/api.html#c.DT_INST_FOREACH_STATUS_OKAY
 
 endchoice
+
+
+config KX132_TRIGGER
+        bool
+
+config KX132_TRIGGER_GLOBAL_THREAD
+        bool
 
 endif # KX132_1211
