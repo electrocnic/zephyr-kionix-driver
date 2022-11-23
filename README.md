@@ -1,12 +1,7 @@
-## 2021-10-06
-@Brief:  This project builds, and a couple of KX132-1211 configurations are now working via this code for Kionix' KX132-1211 accelerometer.  Basic XYZ single shot readings are also working, via the demo project code which calls this driver.  Demo at https://github.com/tedhavelka/kionix-driver-demo.
+## 2022-11-22
 
-Note that to exercise this driver code one must compile it with the demo application, or another Zephyr app which correctly includes and calls its API.  As with Zephyr out-of-tree drivers this driver is not a stand alone app.
+This project a Zephyr based sensor driver for Kionix KX132-1211 accelerometer.  As of this November this driver is a work in progress.  There is I2C communications with sensor tested and working.  A small subset of the roughly ninety eight config and data registers are configurable by this driver.  Enough registers are configurable to enable x,y,z continuous, asynchronous acceleration readings.
 
-To compile this code it is necessary to clone the demo project, have `west` and other Zephyr command line tools installed, `west init` and `west update` per typical Zephyr RTOS application set up steps.
-
-
-## 2021-08-24
-
-Zephyr RTOS driver for Kionix sensor, second attempt employing a typical Zephyr driver directory structure but this time with more knowledge about cmake, Kconfig and DTS.  Following directory and file layout as observed in 'Air Quality Wing' driver project by Jared Wolff.  Wolff's project hosted at https://github.com/circuitdojo/air-quality-wing-zephyr-drivers.
-
+As a driver, the code in this repository does not run as a stand-alone app.  There is no "int main" or "void main" routine.  A demo application which builds as a Zephyr RTOS 3.2.0 app can be found at https://github.com/tedhavelka/kionix-driver-demo.  In this repo, cd into `samples/kionix-demo-minimal` and build with `west build -b [name_of_supported_board]` there.
+ 
+KX132 interrupt support in this driver is not yet implemented.  Work underway on this important feature.
