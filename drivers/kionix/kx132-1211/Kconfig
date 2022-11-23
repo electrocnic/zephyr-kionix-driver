@@ -75,9 +75,11 @@ endchoice
 
 config KX132_TRIGGER
         bool
+	prompt "Enable KX132 trigger on one of sensor's two hardware based interrupts.  Choice of interrupt up to app developer."
 
 config KX132_TRIGGER_GLOBAL_THREAD
         bool
+	prompt "In driver code support trigger handler routine that runs in existing app thread, e.g. 'main', not dedicated thread."
 
 
 endif # KX132_1211
