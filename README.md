@@ -4,7 +4,7 @@ This project a Zephyr based sensor driver for Kionix KX132-1211 accelerometer.  
 
 As a driver, the code in this repository does not run as a stand-alone app.  There is no "int main" or "void main" routine.  A demo application which builds as a Zephyr RTOS 3.2.0 app can be found at https://github.com/tedhavelka/kionix-driver-demo.  In this repo, cd into `samples/kionix-demo-minimal` and build with `west build -b [name_of_supported_board]` there.  This demo version in the `samples` subdir is just a demo of the driver, really no other features.
 
-Sources in `[this_project_top_dir]/src` include some non-driver, non-demo features from the year 2021, and will be moved to a subdir or removed in a future code clean up action.
+Sources in `kionix_driver_demo/src`, the top directory of that just mentioned driver demo project, include some non-demo features from the year 2021.  These will be moved to a subdir or removed in a future code clean up action.  Again for the most straight-forward and easy to understand demo, navigate to, build and use `samples/kionix-demo-minimal` in the Kionix driver demo.
  
 KX132 interrupt support in this driver is not yet implemented.  Work underway on this important feature.
 
