@@ -174,7 +174,7 @@ static void kx132_work_cb(struct k_work *work)
 
         kx132_handle_interrupt(kx132->dev);
 }
-#endif /* CONFIG_IIS2DH_TRIGGER_GLOBAL_THREAD */
+#endif /* CONFIG_KX132_TRIGGER_GLOBAL_THREAD */
 
 
 
@@ -185,7 +185,9 @@ int kx132_init_interrupt(const struct device *dev)
     uint32_t rstatus;
 
     printk("- MARK 2 - kx132 triggers driver sub-part\n");
+    printk("- sensor device name is '%s'\n", dev->name);
 
+// # REF https://github.com/zephyrproject-rtos/zephyr/blob/main/include/zephyr/drivers/gpio.h#L271
     if (!device_is_ready(cfg->int_gpio.port))
     {
         printk("- MARK 3 - kx132 triggers, GPIO interrupt port not ready!\n");
