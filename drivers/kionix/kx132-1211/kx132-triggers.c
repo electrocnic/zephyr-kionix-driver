@@ -192,10 +192,10 @@ int kx132_init_interrupt(const struct device *dev)
     else
         { printk("- INFO - sensor config data structure not null,\n"); }
 
-    if ( cfg.int_gpio == NULL )
-        { printk("- WARNING - sensor config.int_gpio data structure found null!\n"); }
-    else
-        { printk("- INFO - sensor config.int_gpio data structure not null,\n"); }
+//    if ( cfg.int_gpio == NULL )
+//        { printk("- WARNING - sensor config.int_gpio data structure found null!\n"); }
+//    else
+//        { printk("- INFO - sensor config.int_gpio data structure not null,\n"); }
 
     if ( cfg->int_gpio.port == NULL )
         { printk("- WARNING - sensor config->int_gpio.port data structure found null!\n"); }
