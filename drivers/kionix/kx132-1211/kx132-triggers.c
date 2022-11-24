@@ -7,6 +7,9 @@
 
 
 #include <zephyr/drivers/sensor.h>
+#include <zephyr/logging/log.h> 
+
+LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 #include "kx132-1211.h"
 
@@ -22,7 +25,7 @@ int kx132_trigger_set(const struct device *dev,
 		       const struct sensor_trigger *trig,
 		       sensor_trigger_handler_t handler)
 {
-	struct kx132_data *kx132 = dev->data;
+	struct kx132_1211_data *kx132 = dev->data;
 	const struct kx132_device_config *cfg = dev->config;
 //	int16_t raw[3];
 //	int state = (handler != NULL) ? PROPERTY_ENABLE : PROPERTY_DISABLE;
