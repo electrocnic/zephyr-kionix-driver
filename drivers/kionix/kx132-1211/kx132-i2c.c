@@ -96,7 +96,7 @@ int kx132_i2c_init(const struct device *dev)
 	else
 	{
 		LOG_ERR("I2C bus in KX132 driver tests ready!");
-		printk("- kx132 i2c driver - I2C bus in KX132 driver tests ready!");
+		printk("- kx132 i2c driver - I2C bus in KX132 driver tests ready!\n");
 	}
 
 	data->ctx = &kx132_i2c_ctx;
