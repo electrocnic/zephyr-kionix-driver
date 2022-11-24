@@ -11,7 +11,7 @@
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/logging/log.h> 
 
-LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL);
+LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 #include "kx132-1211.h"            // to provide structs kx132_device_config, and kx132_1211_data
 #include "kx132-registers.h"       // to provide KX132_INC1 and similar
