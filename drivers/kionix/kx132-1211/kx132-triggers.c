@@ -98,7 +98,7 @@ int kx132_trigger_set(const struct device *dev,
 
 static int kx132_handle_drdy_int(const struct device *dev)
 {
-        struct kx132_data *data = dev->data;
+        struct kx132_1211_data *data = dev->data;
 
         struct sensor_trigger drdy_trig = { 
                 .type = SENSOR_TRIG_DATA_READY,
