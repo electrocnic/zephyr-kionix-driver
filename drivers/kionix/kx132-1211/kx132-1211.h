@@ -57,6 +57,7 @@ struct kx132_device_config {
 
 	uint8_t pm;
 #ifdef CONFIG_KX132_TRIGGER
+#warning "KX132 1211 driver - compiling gpio_dt_spec instance in struct 'kx132_device_config'"
 	struct gpio_dt_spec int_gpio;
 #endif /* CONFIG_KX132_TRIGGER */
 };
