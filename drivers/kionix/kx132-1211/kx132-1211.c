@@ -382,6 +382,8 @@ static int kx132_init_interface(const struct device *dev)
 
 static int kx132_1211_init(const struct device *dev)
 {
+    const struct kx132_device_config *cfg = dev->config;
+
     kx132_init_interface(dev);
 
 // Optionally check chip ID here:
