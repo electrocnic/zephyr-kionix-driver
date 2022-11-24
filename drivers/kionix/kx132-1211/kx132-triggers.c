@@ -7,6 +7,9 @@
  */
 
 
+// 2022-11-24 - stdio.h for debugging only:
+#include <stdio.h>
+
 
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/logging/log.h> 
@@ -181,6 +184,8 @@ int kx132_init_interrupt(const struct device *dev)
     const struct kx132_device_config *cfg = dev->config;
     uint32_t rstatus;
 
+    printk("- MARK 2 - kx132 triggers driver sub-part\n");
+
     if (!device_is_ready(cfg->int_gpio.port)) {
         LOG_ERR("%s: device %s is not ready", dev->name, cfg->int_gpio.port->name);
         return -ENODEV;
@@ -193,7 +198,7 @@ int kx132_init_interrupt(const struct device *dev)
 //     dev -> data -> dev
 
     kx132->dev = dev;
-    printk("- MARK 2 - kx132 triggers driver sub-part\n");
+    printk("- MARK 3 - kx132 triggers driver sub-part\n");
 
 #if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
     k_sem_init(&kx132->gpio_sem, 0, K_SEM_MAX_LIMIT);
@@ -205,7 +210,7 @@ int kx132_init_interrupt(const struct device *dev)
                     0, K_NO_WAIT);
 #elif defined(CONFIG_KX132_TRIGGER_GLOBAL_THREAD)
     kx132->work.handler = kx132_work_cb;
-    printk("- MARK 3 - kx132 triggers driver sub-part\n");
+    printk("- MARK 4 - kx132 triggers driver sub-part\n");
 #endif /* CONFIG_KX132_TRIGGER_OWN_THREAD */
 
     rstatus = gpio_pin_configure_dt(&cfg->int_gpio, GPIO_INPUT);
