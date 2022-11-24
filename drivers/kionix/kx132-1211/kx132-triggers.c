@@ -14,8 +14,8 @@
 LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 #include "kx132-1211.h"            // to provide structs kx132_device_config, and kx132_1211_data
-
 #include "kx132-registers.h"       // to provide KX132_INC1 and similar
+#include "out-of-tree-drivers.h"
 
 
 
@@ -40,11 +40,13 @@ static int kx132_enable_drdy(const struct device *dev,
     rstatus = kx132_read_reg(sensor->ctx, KX132_INC1, read_buffer, 1);
 
     /* set interrupt for pin INT1 */
-    iis2dh_pin_int1_config_get(iis2dh->ctx, &reg3);
+//    iis2dh_pin_int1_config_get(iis2dh->ctx, &reg3);
+
+// conditionally set interrupt for pin INT1:
 
     if ( enable )
     {
-        uint8_t data_to_write[] = {KX132_INC1, (read_buffer |= 0x30)};
+        uint8_t data_to_write[] = {KX132_INC1, (register_value |= 0x30)};
         uint8_t *write_buffer = data_to_write;
         rstatus = kx132_write_reg(sensor->ctx, KX132_INC1, write_buffer, 1);
     }

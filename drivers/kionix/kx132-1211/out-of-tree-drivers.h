@@ -21,4 +21,10 @@ enum kionix_routine_statae {
     COUNT_OF_ROUTINE_STATAE
 }; 
 
+
+// Copied from [Zephyr 3.2.0 workspace]/modules/hal/st/sensor/stmemsc/iis2dh_STdC/driver/iis2dh_reg.h:
+#define PROPERTY_DISABLE  (0U)
+#define PROPERTY_ENABLE   (1U)
+
+
 #endif // _OUT_OF_TREE_DRIVERS_H
