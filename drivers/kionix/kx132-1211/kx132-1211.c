@@ -1,6 +1,10 @@
 /**
  * @project Kionix Sensor Drivers
+ *
+ * @file kx132-1211.c
+ *
  * @author Ted Havelka
+ *
  * @license Apache 2.0 licensed.
  */
 
@@ -398,6 +402,7 @@ static int kx132_1211_init(const struct device *dev)
 
 #ifdef CONFIG_KX132_TRIGGER
         if (cfg->int_gpio.port) {
+printk("- MARK 1 kx132 -\n");
                 if (kx132_init_interrupt(dev) < 0) {
                         LOG_ERR("KX132:  failed to initialize interrupts");
                         return -EIO;
