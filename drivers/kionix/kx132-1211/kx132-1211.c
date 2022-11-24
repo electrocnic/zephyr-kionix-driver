@@ -378,10 +378,30 @@ static int kx132_init_interface(const struct device *dev)
 
 
 // FEATURE - initializating function in KX132-1211 driver:
+// # REF https://github.com/zephyrproject-rtos/zephyr/blob/main/drivers/sensor/iis2dh/iis2dh.c#L253
 
 static int kx132_1211_init(const struct device *dev)
 {
     kx132_init_interface(dev);
+
+// Optionally check chip ID here:
+
+// Optionally set a block data update mode, if applicable, here:
+
+// Optionally set an operating mode for power savings here:
+
+// Optionally set a default, compile time chosen Output Data Rate (ODR) here:
+
+// Optionally set a default range here:
+
+#ifdef CONFIG_KX132_TRIGGER
+        if (cfg->int_gpio.port) {
+                if (kx132_init_interrupt(dev) < 0) {
+                        LOG_ERR("KX132:  failed to initialize interrupts");
+                        return -EIO;
+                }
+        }
+#endif /* CONFIG_KX132_TRIGGER */
 
     return 0;
 }
