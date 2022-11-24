@@ -32,7 +32,6 @@ static int kx132_enable_drdy(const struct device *dev,
                              int enable)
 {
     struct kx132_1211_data *sensor = dev->data;
-//        KX132_INC1
     uint8_t register_value = 0; // iis2dh_ctrl_reg3_t reg3;
     uint8_t *read_buffer = &register_value;
     uint32_t rstatus = 0;
@@ -75,6 +74,8 @@ int kx132_trigger_set(const struct device *dev,
 //	int16_t raw[3];  // NEED review this array, needed in IIS2DH to clear interrupt but may not be needed in KX132.
 	int state = (handler != NULL) ? PROPERTY_ENABLE : PROPERTY_DISABLE;
 
+        printk("- kx132 driver trigger - assigned to state value of %u,\n", state);
+
 	if (!cfg->int_gpio.port) {
 		return -ENOTSUP;
 	}
@@ -92,4 +93,41 @@ int kx132_trigger_set(const struct device *dev,
 		return -ENOTSUP;
 	}
 }
+
+
+
+static int kx132_handle_drdy_int(const struct device *dev)
+{
+        struct kx132_data *data = dev->data;
+
+        struct sensor_trigger drdy_trig = { 
+                .type = SENSOR_TRIG_DATA_READY,
+                .chan = SENSOR_CHAN_ALL,
+        };
+
+        if (data->drdy_handler) {
+                data->drdy_handler(dev, &drdy_trig);
+        }
+
+        return 0;
+}
+
+
+
+/**
+ * Following code taken from iis2dh_trigger.c:
+ *
+ * iis2dh_handle_interrupt - handle the drdy event
+ * read data and call handler if registered any
+ */
+static void kx132_handle_interrupt(const struct device *dev)
+{
+        const struct kx132_device_config *cfg = dev->config;
+
+        kx132_handle_drdy_int(dev);
+
+        gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT_EDGE_TO_ACTIVE);
+}
+
+
 
