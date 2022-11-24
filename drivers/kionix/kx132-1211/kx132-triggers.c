@@ -175,4 +175,63 @@ static void kx132_work_cb(struct k_work *work)
 
 
 
+int kx132_init_interrupt(const struct device *dev)
+{
+	struct kx132_1211_data *kx132 = dev->data;
+	const struct kx132_device_config *cfg = dev->config;
+	uint32_t rstatus;
 
+	if (!device_is_ready(cfg->int_gpio.port)) {
+		LOG_ERR("%s: device %s is not ready", dev->name, cfg->int_gpio.port->name);
+		return -ENODEV;
+	}
+
+// QUESTION:  is following a cyclic assignment, where above *kx132 points to dev->data,
+//  and now here kx132->dev points to dev?  Is this saying:
+//      +--------------+
+//      V              |
+//     dev -> data -> dev
+
+	kx132->dev = dev;
+
+#if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
+	k_sem_init(&kx132->gpio_sem, 0, K_SEM_MAX_LIMIT);
+
+	k_thread_create(&kx132->thread, kx132->thread_stack,
+		       CONFIG_KX132_THREAD_STACK_SIZE,
+		       (k_thread_entry_t)kx132_thread, kx132,
+		       0, NULL, K_PRIO_COOP(CONFIG_KX132_THREAD_PRIORITY),
+		       0, K_NO_WAIT);
+#elif defined(CONFIG_KX132_TRIGGER_GLOBAL_THREAD)
+	kx132->work.handler = kx132_work_cb;
+#endif /* CONFIG_KX132_TRIGGER_OWN_THREAD */
+
+	rstatus = gpio_pin_configure_dt(&cfg->int_gpio, GPIO_INPUT);
+	if ( rstatus < 0 )
+        {
+		LOG_DBG("KX132:  Could not configure gpio");
+		return rstatus;
+	}
+
+	gpio_init_callback(&kx132->gpio_cb,
+			   kx132_gpio_callback,
+			   BIT(cfg->int_gpio.pin));
+
+	if ( gpio_add_callback(cfg->int_gpio.port, &kx132->gpio_cb) < 0 )
+        {
+		LOG_DBG("Could not set gpio callback");
+		return -EIO;
+	}
+
+#if 0 // not applicable to KX132:
+	/* enable drdy on int1 in pulse mode */
+	if (iis2dh_int1_pin_notification_mode_set(iis2dh->ctx, IIS2DH_INT1_PULSED)) {
+		return -EIO;
+	}
+#endif
+	return gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT_EDGE_TO_ACTIVE);
+}
+
+
+
+// --- EOF ---
