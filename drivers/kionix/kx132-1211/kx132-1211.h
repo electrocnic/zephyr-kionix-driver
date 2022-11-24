@@ -92,7 +92,13 @@ struct iis2dh_data {
 #define BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES ((BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS) * 3) 
 
 struct kx132_1211_data {
-	int16_t acc[3];
+
+// NEED to review whether this array needed, it is at present
+// and at first KX132 driver draft copied over from IIS2DH
+// driver, as found in Zephyr 3.2.0.  Looks like it might be
+// used as part of a dummy read, to clear an interrupt bit in 
+// the IIS2DH:
+    int16_t acc[3];
 
 // From the original 2021 kionix driver data structure:
 // NOTE:  all of these are slated to be removed.  Pointer to
@@ -100,11 +106,20 @@ struct kx132_1211_data {
 //  which will support both I2C and SPI buses.  The part ID
 //  and accelerometer readings are data which are normally
 //  read from the sensor and copied directly to memory to
-//  which calling code sends our driver here pointers.  No
-//  need to have a copy of those data in this sensor data
-//  structure . . .
+//  which calling code sends our driver here pointers.
+//
+//  Seems there should be no need to have a copy of data read
+//  from the sensor, but Zephyr's sensor API documentation speaks
+//  of sensor drivers internally holding a copy of all sensor
+//  readings and status which can be requested via Zephyr's
+//  'fetch and get' driver design.  Supposedly reduces bus
+//  traffic, though not sure if this can be true in the case
+//  of every and all senor types - TMH
 
+// NEED to review this data member, which seems now moot with
+// the adding of the sensor context type 'kionix_ctx_t':
     const struct device *i2c_dev;
+
     union string_union_type__manufacturer_id manufacturer_id;
     union string_union_type__part_id part_id;
 // Following three data members are written with LSB, MSB of respective accelerometer readings:
@@ -120,21 +135,21 @@ struct kx132_1211_data {
 // NOTE:  this "sensor context" data structure holds function pointers to
 //  generalized, flexible register_write() and register_read() functions:
 
-        kionix_ctx_t *ctx;
+    kionix_ctx_t *ctx;
 
 // NOTE:  2022-11-18 following two Kconfig symbols Ted has not yet defined
 //  for Kionix driver:
 
 #ifdef CONFIG_KX132_TRIGGER
-        const struct device *dev;
-        struct gpio_callback gpio_cb;
-        sensor_trigger_handler_t drdy_handler;
+    const struct device *dev;
+    struct gpio_callback gpio_cb;
+    sensor_trigger_handler_t drdy_handler;
 #if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
-        K_KERNEL_STACK_MEMBER(thread_stack, CONFIG_KX132_THREAD_STACK_SIZE);
-        struct k_thread thread;
-        struct k_sem gpio_sem;
+    K_KERNEL_STACK_MEMBER(thread_stack, CONFIG_KX132_THREAD_STACK_SIZE);
+    struct k_thread thread;
+    struct k_sem gpio_sem;
 #elif defined(CONFIG_KX132_TRIGGER_GLOBAL_THREAD)
-        struct k_work work;
+    struct k_work work;
 #endif /* CONFIG_KX132_TRIGGER_GLOBAL_THREAD */
 #endif /* CONFIG_KX132_TRIGGER */
 };

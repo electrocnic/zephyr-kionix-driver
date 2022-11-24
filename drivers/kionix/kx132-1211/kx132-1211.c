@@ -289,8 +289,6 @@ static int kx132_1211_channel_get(const struct device *dev,
 // 2021-08-31 - function implementation in progress, TMH.
 
     int routine_status = 0;
-
-//    struct kx132_1211_data *data = (struct kx132_1211_data *)dev->data;
     struct kx132_1211_data *data = dev->data;
 
 // Clear memory passed to us by calling code:

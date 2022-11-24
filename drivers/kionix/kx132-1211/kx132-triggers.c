@@ -186,7 +186,9 @@ int kx132_init_interrupt(const struct device *dev)
 
     printk("- MARK 2 - kx132 triggers driver sub-part\n");
 
-    if (!device_is_ready(cfg->int_gpio.port)) {
+    if (!device_is_ready(cfg->int_gpio.port))
+    {
+        printk("- MARK 3 - kx132 triggers, GPIO interrupt port not ready!\n");
         LOG_ERR("%s: device %s is not ready", dev->name, cfg->int_gpio.port->name);
         return -ENODEV;
     }
@@ -197,8 +199,8 @@ int kx132_init_interrupt(const struct device *dev)
 //      V              |
 //     dev -> data -> dev
 
+    printk("- MARK 4 - kx132 triggers, pointing sensor->data->dev back to 'sensor',\n");
     kx132->dev = dev;
-    printk("- MARK 3 - kx132 triggers driver sub-part\n");
 
 #if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
     k_sem_init(&kx132->gpio_sem, 0, K_SEM_MAX_LIMIT);
@@ -209,8 +211,8 @@ int kx132_init_interrupt(const struct device *dev)
                     0, NULL, K_PRIO_COOP(CONFIG_KX132_THREAD_PRIORITY),
                     0, K_NO_WAIT);
 #elif defined(CONFIG_KX132_TRIGGER_GLOBAL_THREAD)
+    printk("- MARK 4 - kx132 triggers, assigning sensor->data->work.handler 'kx132_work_cb',\n");
     kx132->work.handler = kx132_work_cb;
-    printk("- MARK 4 - kx132 triggers driver sub-part\n");
 #endif /* CONFIG_KX132_TRIGGER_OWN_THREAD */
 
     rstatus = gpio_pin_configure_dt(&cfg->int_gpio, GPIO_INPUT);
