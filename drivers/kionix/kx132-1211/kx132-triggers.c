@@ -131,3 +131,48 @@ static void kx132_handle_interrupt(const struct device *dev)
 
 
 
+static void kx132_gpio_callback(const struct device *dev,
+                                 struct gpio_callback *cb, uint32_t pins)
+{
+        struct kx132_1211_data *kx132 =
+                CONTAINER_OF(cb, struct kx132_1211_data, gpio_cb);
+        const struct kx132_device_config *cfg = kx132->dev->config;
+
+        if ((pins & BIT(cfg->int_gpio.pin)) == 0U) {
+                return;
+        }
+
+        gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT_DISABLE);
+
+#if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
+        k_sem_give(&kx132->gpio_sem);
+#elif defined(CONFIG_KX132_TRIGGER_GLOBAL_THREAD)
+        k_work_submit(&kx132->work);
+#endif /* CONFIG_KX132_TRIGGER_OWN_THREAD */
+}
+
+#ifdef CONFIG_KX132_TRIGGER_OWN_THREAD
+static void kx132_thread(struct kx132_1211_data *kx132)
+{
+        while (1) {
+                k_sem_take(&kx132->gpio_sem, K_FOREVER);
+                kx132_handle_interrupt(kx132->dev);
+        }
+}
+#endif /* CONFIG_KX132_TRIGGER_OWN_THREAD */
+
+
+
+#ifdef CONFIG_KX132_TRIGGER_GLOBAL_THREAD
+static void kx132_work_cb(struct k_work *work)
+{
+        struct kx132_1211_data *kx132 =
+                CONTAINER_OF(work, struct kx132_1211_data, work);
+
+        kx132_handle_interrupt(kx132->dev);
+}
+#endif /* CONFIG_IIS2DH_TRIGGER_GLOBAL_THREAD */
+
+
+
+
