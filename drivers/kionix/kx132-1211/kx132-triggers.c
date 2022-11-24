@@ -187,9 +187,9 @@ int kx132_init_interrupt(const struct device *dev)
     printk("- MARK 2 - kx132 triggers driver sub-part\n");
     printk("- sensor device name is '%s'\n", dev->name);
     if ( cfg == NULL )
-        { printk("- WARNING - sensor config data structure found null!\n"; }
+        { printk("- WARNING - sensor config data structure found null!\n"); }
     else
-        { printk("- INFO - sensor config data structure not null,\n"; }
+        { printk("- INFO - sensor config data structure not null,\n"); }
 
 
 // # REF https://github.com/zephyrproject-rtos/zephyr/blob/main/include/zephyr/drivers/gpio.h#L271
