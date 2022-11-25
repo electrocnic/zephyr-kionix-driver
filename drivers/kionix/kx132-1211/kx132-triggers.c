@@ -202,6 +202,10 @@ int kx132_init_interrupt(const struct device *dev)
     else
         { printk("- INFO - sensor config->int_gpio.port data structure not null,\n"); }
 
+    printk("- MARK 3 -\n");
+    printk("- INFO - cfg->int_gpio.port->name holds '%s'\n", cfg->int_gpio.port->name);
+    printk("- MARK 4 -\n");
+
 // DEBUG 1124 END
 
 
