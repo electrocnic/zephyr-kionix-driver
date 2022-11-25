@@ -206,6 +206,14 @@ int kx132_init_interrupt(const struct device *dev)
     printk("- INFO - cfg->int_gpio.port->name holds '%s'\n", cfg->int_gpio.port->name);
     printk("- MARK 4 -\n");
 
+// Are we able to successfully call `device_is_ready()` from here?
+    if ( device_is_ready(dev) )
+        { printk("- INFO - KX132-1211 device ready,\n"); }
+    else
+        { printk("- INFO - KX132-1211 device not ready!\n"); }
+
+//        { printk("\n"); }
+
 // DEBUG 1124 END
 
 
