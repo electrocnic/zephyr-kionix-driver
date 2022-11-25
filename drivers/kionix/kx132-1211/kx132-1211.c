@@ -451,8 +451,8 @@ static const struct sensor_driver_api kx132_driver_api = {
 
 #ifdef CONFIG_KX132_TRIGGER
 #warning "- DEV 1125 - assigning Zephyr DT macro value to .int_gpio of kx132_device_config structure,"
-struct gpio_dt_spec int_gpio_for_diag;
-int_gpio_for_diag = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 });
+const struct gpio_dt_spec int_gpio_for_diag = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 });
+printk("- KX132 driver - interrupt GPIO port name holds '%s',\n", int_gpio_for_diag.port->name);
 #endif
 
 
