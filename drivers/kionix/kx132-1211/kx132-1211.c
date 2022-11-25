@@ -447,6 +447,15 @@ static const struct sensor_driver_api kx132_driver_api = {
 
 #define KX132_I2C(inst) (.i2c = I2C_DT_SPEC_INST_GET(inst),)
 
+
+
+#ifdef CONFIG_KX132_TRIGGER
+#warning "- DEV 1125 - assigning Zephyr DT macro value to .int_gpio of kx132_device_config structure,"
+struct gpio_dt_spec int_gpio_for_diag;
+int_gpio_for_diag = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 });
+#endif
+
+
 #define KX132_DEFINE(inst)                                                                    \
         static struct kx132_1211_data kx132_1211_data_##inst;                                 \
                                                                                               \
@@ -455,10 +464,7 @@ static const struct sensor_driver_api kx132_driver_api = {
                 COND_CODE_1(DT_INST_ON_BUS(inst, spi), KX132_SPI(inst), ())                   \
                 .pm = CONFIG_KX132_POWER_MODE,                                                \
                 IF_ENABLED(CONFIG_KX132_TRIGGER,                                              \
-/*                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)) */ \
-#warning "- DEV 1125 - assigning Zephyr DT macro value to .int_gpio of kx132_device_config structure," \
-                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),) \
-)  \
+                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),))  \
         };                                                                                    \
                                                                                               \
         DEVICE_DT_INST_DEFINE(                                                                \
@@ -474,6 +480,10 @@ static const struct sensor_driver_api kx132_driver_api = {
 
 /* Create the struct device for every status "okay"*/
 DT_INST_FOREACH_STATUS_OKAY(KX132_DEFINE)
+
+
+
+
 
 
 
