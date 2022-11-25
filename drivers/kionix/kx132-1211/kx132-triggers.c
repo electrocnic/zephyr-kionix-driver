@@ -219,6 +219,7 @@ int kx132_init_interrupt(const struct device *dev)
     if ( cfg->int_gpio.port->state != NULL )
         { printk("- INFO - cfg->int_gpio.port->state not null,\n"); }
     printk("- MARK 4 -\n");
+    printk("- INFO - cfg->int_gpio.port->state->initialized holds %u,\n", (uint8_t)cfg->int_gpio.port->state->initialized);
     printk("- INFO - cfg->int_gpio.port->state->init_res holds %u,\n", cfg->int_gpio.port->state->init_res);
     printk("- MARK 5 -\n");
 
