@@ -212,6 +212,9 @@ int kx132_init_interrupt(const struct device *dev)
     else
         { printk("- INFO - KX132-1211 device not ready!\n"); }
 
+// 'port' is of type Zephyr device, whose struct entails? . . . :
+//
+
 //        { printk("\n"); }
 
 // DEBUG 1124 END
