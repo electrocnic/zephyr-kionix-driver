@@ -455,7 +455,10 @@ static const struct sensor_driver_api kx132_driver_api = {
                 COND_CODE_1(DT_INST_ON_BUS(inst, spi), KX132_SPI(inst), ())                   \
                 .pm = CONFIG_KX132_POWER_MODE,                                                \
                 IF_ENABLED(CONFIG_KX132_TRIGGER,                                              \
-                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),))  \
+/*                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)) */ \
+#warning "- DEV 1125 - assigning Zephyr DT macro value to .int_gpio of kx132_device_config structure," \
+                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),) \
+)  \
         };                                                                                    \
                                                                                               \
         DEVICE_DT_INST_DEFINE(                                                                \
