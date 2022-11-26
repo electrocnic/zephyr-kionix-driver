@@ -399,6 +399,7 @@ static int kx132_1211_init(const struct device *dev)
 // Optionally set a default range here:
 
 #ifdef CONFIG_KX132_TRIGGER
+#warning "zztop"
         if (cfg->int_gpio.port) {
 
 printk("- MARK 1 - kx132 1211 driver\n");
