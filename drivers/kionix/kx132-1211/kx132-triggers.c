@@ -30,6 +30,11 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
  *        found to be value, or not NULL at compile time.
  */
 
+
+#if CONFIG_KX132_TRIGGER_NONE
+// skip compilation of trigger related routines
+#else
+
 static int kx132_enable_drdy(const struct device *dev,
                              enum sensor_trigger_type type,
                              int enable)
@@ -294,6 +299,8 @@ int kx132_init_interrupt(const struct device *dev)
 #endif
 	return gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT_EDGE_TO_ACTIVE);
 }
+
+#endif // CONFIG_KX132_TRIGGER_NONE
 
 
 
