@@ -105,6 +105,9 @@ int kx132_trigger_set(const struct device *dev,
 
 static int kx132_handle_drdy_int(const struct device *dev)
 {
+#if CONFIG_KX132_TRIGGER_NONE
+    return -ENOTSUP;
+#else
         struct kx132_1211_data *data = dev->data;
 
         struct sensor_trigger drdy_trig = { 
@@ -117,6 +120,7 @@ static int kx132_handle_drdy_int(const struct device *dev)
         }
 
         return 0;
+#endif
 }
 
 
@@ -129,11 +133,15 @@ static int kx132_handle_drdy_int(const struct device *dev)
  */
 static void kx132_handle_interrupt(const struct device *dev)
 {
+#if CONFIG_KX132_TRIGGER_NONE
+    return;
+#else
         const struct kx132_device_config *cfg = dev->config;
 
         kx132_handle_drdy_int(dev);
 
         gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT_EDGE_TO_ACTIVE);
+#endif
 }
 
 
