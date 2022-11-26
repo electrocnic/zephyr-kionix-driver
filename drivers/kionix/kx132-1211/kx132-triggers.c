@@ -44,6 +44,7 @@ static int kx132_enable_drdy(const struct device *dev,
     uint8_t *read_buffer = &register_value;
     uint32_t rstatus = 0;
 
+#warning "- KX132 triggers - compiling routine kx132_enable_drdy()"
     rstatus = kx132_read_reg(sensor->ctx, KX132_INC1, read_buffer, 1);
 
     /* set interrupt for pin INT1 */
@@ -85,7 +86,8 @@ int kx132_trigger_set(const struct device *dev,
 //	int16_t raw[3];  // NEED review this array, needed in IIS2DH to clear interrupt but may not be needed in KX132.
 	int state = (handler != NULL) ? PROPERTY_ENABLE : PROPERTY_DISABLE;
 
-        printk("- kx132 driver trigger - assigned to state value of %u,\n", state);
+#warning "- KX132 triggers - compiling routine kx132_trigger_set()"
+        printk("- kx132 driver trigger - assigned to state value of %u, non-zero means handler routine not null\n", state);
 
 	if (!cfg->int_gpio.port) {
 		return -ENOTSUP;
@@ -110,11 +112,12 @@ int kx132_trigger_set(const struct device *dev,
 
 static int kx132_handle_drdy_int(const struct device *dev)
 {
-#if CONFIG_KX132_TRIGGER_NONE
-    return -ENOTSUP;
-#else
+//#if CONFIG_KX132_TRIGGER_NONE
+//    return -ENOTSUP;
+//#else
         struct kx132_1211_data *data = dev->data;
 
+#warning "- KX132 triggers - compiling routine kx132_handle_drdy_int()"
         struct sensor_trigger drdy_trig = { 
                 .type = SENSOR_TRIG_DATA_READY,
                 .chan = SENSOR_CHAN_ALL,
@@ -125,7 +128,7 @@ static int kx132_handle_drdy_int(const struct device *dev)
         }
 
         return 0;
-#endif
+//#endif
 }
 
 
@@ -138,15 +141,16 @@ static int kx132_handle_drdy_int(const struct device *dev)
  */
 static void kx132_handle_interrupt(const struct device *dev)
 {
-#if CONFIG_KX132_TRIGGER_NONE
-    return;
-#else
+//#if CONFIG_KX132_TRIGGER_NONE
+//    return;
+//#else
+#warning "- KX132 triggers - compiling routine kx132_handle_interrupt()"
         const struct kx132_device_config *cfg = dev->config;
 
         kx132_handle_drdy_int(dev);
 
         gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT_EDGE_TO_ACTIVE);
-#endif
+//#endif
 }
 
 
@@ -154,6 +158,7 @@ static void kx132_handle_interrupt(const struct device *dev)
 static void kx132_gpio_callback(const struct device *dev,
                                  struct gpio_callback *cb, uint32_t pins)
 {
+#warning "- KX132 triggers - compiling routine kx132_gpio_callback()"
         struct kx132_1211_data *kx132 =
                 CONTAINER_OF(cb, struct kx132_1211_data, gpio_cb);
         const struct kx132_device_config *cfg = kx132->dev->config;
@@ -174,6 +179,7 @@ static void kx132_gpio_callback(const struct device *dev,
 #ifdef CONFIG_KX132_TRIGGER_OWN_THREAD
 static void kx132_thread(struct kx132_1211_data *kx132)
 {
+#warning "- KX132 triggers - compiling routine kx132_thread()"
         while (1) {
                 k_sem_take(&kx132->gpio_sem, K_FOREVER);
                 kx132_handle_interrupt(kx132->dev);
@@ -186,6 +192,7 @@ static void kx132_thread(struct kx132_1211_data *kx132)
 #ifdef CONFIG_KX132_TRIGGER_GLOBAL_THREAD
 static void kx132_work_cb(struct k_work *work)
 {
+#warning "- KX132 triggers - compiling routine kx132_work_cb()"
         struct kx132_1211_data *kx132 =
                 CONTAINER_OF(work, struct kx132_1211_data, work);
 
@@ -200,6 +207,8 @@ int kx132_init_interrupt(const struct device *dev)
     struct kx132_1211_data *kx132 = dev->data;
     const struct kx132_device_config *cfg = dev->config;
     uint32_t rstatus;
+
+#warning "- KX132 triggers - compiling routine kx132_init_interrupt()"
 
 // DEBUG 1124 BEGIN
     printk("- MARK 2 - kx132 triggers driver sub-part\n");
