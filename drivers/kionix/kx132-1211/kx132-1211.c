@@ -399,7 +399,7 @@ static int kx132_1211_init(const struct device *dev)
 // Optionally set a default range here:
 
 //#ifdef CONFIG_KX132_TRIGGER
-#if CONFIG_KX132_TRIGGER == y
+    IF_ENABLED(CONFIG_KX132_TRIGGER,
         if (cfg->int_gpio.port) {
 
 printk("- MARK 1 - kx132 1211 driver\n");
@@ -413,7 +413,8 @@ printk("- KX132 driver - interrupt GPIO port name holds '%s',\n", int_gpio_for_d
                         return -EIO;
                 }
         }
-#endif /* CONFIG_KX132_TRIGGER */
+)
+//#endif /* CONFIG_KX132_TRIGGER */
 
     return 0;
 }
