@@ -72,6 +72,9 @@ int kx132_trigger_set(const struct device *dev,
 		       const struct sensor_trigger *trig,
 		       sensor_trigger_handler_t handler)
 {
+#if CONFIG_KX132_TRIGGER_NONE
+    return -ENOTSUP;
+#else
 	struct kx132_1211_data *kx132 = dev->data;
 	const struct kx132_device_config *cfg = dev->config;
 //	int16_t raw[3];  // NEED review this array, needed in IIS2DH to clear interrupt but may not be needed in KX132.
@@ -95,6 +98,7 @@ int kx132_trigger_set(const struct device *dev,
 		LOG_ERR("KX132 driver - Unsupported sensor trigger");
 		return -ENOTSUP;
 	}
+#endif
 }
 
 
