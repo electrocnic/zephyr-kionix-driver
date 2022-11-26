@@ -400,7 +400,12 @@ static int kx132_1211_init(const struct device *dev)
 
 #ifdef CONFIG_KX132_TRIGGER
         if (cfg->int_gpio.port) {
+
 printk("- MARK 1 - kx132 1211 driver\n");
+
+const struct gpio_dt_spec int_gpio_for_diag = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 });
+printk("- KX132 driver - interrupt GPIO port name holds '%s',\n", int_gpio_for_diag.port->name);
+
                 if (kx132_init_interrupt(dev) < 0) {
                         LOG_ERR("KX132:  failed to initialize interrupts");
                         return -EIO;
@@ -451,8 +456,6 @@ static const struct sensor_driver_api kx132_driver_api = {
 
 #ifdef CONFIG_KX132_TRIGGER
 #warning "- DEV 1125 - assigning Zephyr DT macro value to .int_gpio of kx132_device_config structure,"
-const struct gpio_dt_spec int_gpio_for_diag = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 });
-printk("- KX132 driver - interrupt GPIO port name holds '%s',\n", int_gpio_for_diag.port->name);
 #endif
 
 
@@ -464,7 +467,7 @@ printk("- KX132 driver - interrupt GPIO port name holds '%s',\n", int_gpio_for_d
                 COND_CODE_1(DT_INST_ON_BUS(inst, spi), KX132_SPI(inst), ())                   \
                 .pm = CONFIG_KX132_POWER_MODE,                                                \
                 IF_ENABLED(CONFIG_KX132_TRIGGER,                                              \
-                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),))  \
+                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, irq_gpios, { 0 }),))  \
         };                                                                                    \
                                                                                               \
         DEVICE_DT_INST_DEFINE(                                                                \
@@ -477,6 +480,12 @@ printk("- KX132 driver - interrupt GPIO port name holds '%s',\n", int_gpio_for_d
                               CONFIG_SENSOR_INIT_PRIORITY,                                    \
                               &kx132_driver_api                                               \
                              );
+
+
+// - DEV 1125 - trying alternate interrupt bindings types, in multi-line macro about fifteen lines above here:
+//                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),))  \
+//                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, irq_gpios, { 0 }),))  \
+
 
 /* Create the struct device for every status "okay"*/
 DT_INST_FOREACH_STATUS_OKAY(KX132_DEFINE)
