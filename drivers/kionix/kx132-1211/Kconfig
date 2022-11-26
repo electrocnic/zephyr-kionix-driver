@@ -73,13 +73,36 @@ config DEFINE_DEVICE_KX132_VIA_DEVICE_DT_INST_DEFINE
 endchoice
 
 
-config KX132_TRIGGER
-        bool
-	prompt "Enable KX132 trigger on one of sensor's two hardware based interrupts.  Choice of interrupt up to app developer."
+
+#config KX132_TRIGGER
+#        bool
+#	prompt "Enable KX132 trigger on one of sensor's two hardware based interrupts.  Choice of interrupt up to app developer."
+#
+#config KX132_TRIGGER_GLOBAL_THREAD
+#        bool
+#	prompt "In driver code support trigger handler routine that runs in existing app thread, e.g. 'main', not dedicated thread."
+
+
+
+choice KX132_TRIGGER_MODE
+        prompt "Trigger mode"
+        help
+          Specify the type of triggering to be used by the driver.
+
+config KX132_TRIGGER_NONE
+        bool "No trigger"
 
 config KX132_TRIGGER_GLOBAL_THREAD
-        bool
-	prompt "In driver code support trigger handler routine that runs in existing app thread, e.g. 'main', not dedicated thread."
+        bool "Use global thread"
+        depends on GPIO
+        select KX132_TRIGGER
+
+#config KX132_TRIGGER_OWN_THREAD
+#        bool "Use own thread"
+#        depends on GPIO
+#        select KX132_TRIGGER
+
+endchoice
 
 
 endif # KX132_1211
