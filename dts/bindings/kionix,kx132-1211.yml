@@ -19,5 +19,5 @@ properties:
 
     irq-gpios:
       type: phandle-array
-      required: true
+      required: false
       description: Interrupt GPIO pin
