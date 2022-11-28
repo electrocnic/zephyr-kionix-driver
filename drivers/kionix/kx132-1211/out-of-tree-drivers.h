@@ -19,6 +19,7 @@ enum kionix_routine_statae {
     ROUTINE_STATUS__COMM_FAILURE_SPI,
     ROUTINE_STATUS__COMM_FAILURE_ON_BUS,
     ROUTINE_STATUS__GPIO_DRDY_INTERRUPT_LOOKS_MAL_ASSIGNED,
+    ROUTINE_STATUS__GPIO_DRDY_INTERRUPT_REINIT_FAIL,
     COUNT_OF_ROUTINE_STATAE
 }; 
 
@@ -26,6 +27,9 @@ enum kionix_routine_statae {
 // Copied from [Zephyr 3.2.0 workspace]/modules/hal/st/sensor/stmemsc/iis2dh_STdC/driver/iis2dh_reg.h:
 #define PROPERTY_DISABLE  (0U)
 #define PROPERTY_ENABLE   (1U)
+
+
+#define DEFAULT_INTERAL_OPTION_OF_ZERO (0U)
 
 
 #endif // _OUT_OF_TREE_DRIVERS_H

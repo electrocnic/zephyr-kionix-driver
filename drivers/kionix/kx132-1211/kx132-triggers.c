@@ -36,6 +36,58 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 // skip compilation of trigger related routines
 #else
 
+
+
+
+//----------------------------------------------------------------------
+// - SECTION - KX132 specific functions
+//----------------------------------------------------------------------
+
+int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
+{
+    struct kx132_device_data *kx132 = dev->data;
+    const struct kx132_device_config *cfg = dev->config;
+    uint32_t rstatus = 0;
+
+    (void)option;
+
+    if ( data->drdy_port_status != DRDY_PORT_INITIALIZED )
+    {
+        cfg->int_gpio.port = { 0 };
+        cfg->int_gpio.port = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 });
+        if ( strlen(cfg->int_gpio.port->name) > MINIMUM_EXPECTED_GPIO_PORT_NAME_LENGTH )
+        {
+            if (!device_is_ready(cfg->int_gpio.port))
+            {
+                rstatus = -ENODEV;
+                printk("- KX132 triggers - after drdy port reinitialization port still tests not ready\n");
+            }
+            else
+            {
+                printk("- KX132 triggers - drdy 'data ready' port reinitialization looks good\n");
+            }
+        }
+        else
+        {
+            cfg->int_gpio.port = { 0 };
+            data->drdy_port_status = DRDY_PORT_NOT_INITIALIZED;
+            rstatus = ROUTINE_STATUS__GPIO_DRDY_INTERRUPT_REINIT_FAIL;
+            printk("- KX132 triggers - per port name length, drdy 'data ready' port failed to reinitialize\n");
+        }
+    }
+    else
+    {
+        printk("- KX132 triggers - drdy 'data ready' port marked initialized, --force_reinit not yet implemented\n");
+    }
+    return rstatus;
+}
+
+
+
+//----------------------------------------------------------------------
+// - SECTION - STMicro IIS2DH adapted functions:
+//----------------------------------------------------------------------
+
 static int kx132_enable_drdy(const struct device *dev,
                              enum sensor_trigger_type type,
                              int enable)

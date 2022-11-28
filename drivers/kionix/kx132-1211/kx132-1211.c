@@ -29,6 +29,7 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
 #include "kx132-registers.h"       // to provide map of KX132 internal registers and bit-wise flags
 #include "out-of-tree-drivers.h"
 //#include "development-defines.h"
+#define "kx132-triggers.h"         // to provide sensor interrupt port reinitialization code
 
 
 #include <stdio.h>
@@ -184,6 +185,12 @@ static int kx132_1211_attr_set(const struct device *dev,
                         case KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT:
                         {
                             kx132_enable_synchronous_reading_with_hw_interrupt(dev);
+                            break;
+                        }
+
+                        case KX132_REINITIALIZE_DRDY_GPIO_PORT:
+                        {
+                            kx132_reinitialize_interrupt_port(dev, DEFAULT_INTERAL_OPTION_OF_ZERO);
                             break;
                         }
 
