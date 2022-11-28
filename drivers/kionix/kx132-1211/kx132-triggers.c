@@ -56,7 +56,8 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
     if ( data->drdy_port_status != DRDY_PORT_INITIALIZED )
     {
         cfg->int_gpio.port = NULL;
-        cfg->int_gpio.port = GPIO_DT_SPEC_INST_GET_OR(0, drdy_gpios, { 0 });
+        cfg->int_gpio.port = DEVICE_DT_GET(DT_NODELABEL(kionix_sensor_1));
+
         if ( strlen(cfg->int_gpio.port->name) > MINIMUM_EXPECTED_GPIO_PORT_NAME_LENGTH )
         {
             if (!device_is_ready(cfg->int_gpio.port))
