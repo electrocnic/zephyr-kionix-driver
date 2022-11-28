@@ -1,6 +1,10 @@
 /**
  * @project Kionix Sensor Drivers
+ *
+ * @file kx132-triggers.c
+ *
  * @author Ted Havelka
+ *
  * @license Apache 2.0 licensed.
  *
  * NOTE this code copied and adapted from STMicro iis2dh_trigger.c, in Zephyr RTOS 3.2.0.
@@ -72,7 +76,7 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
         }
         else
         {
-            cfg->int_gpio.port = { 0 };
+            cfg->int_gpio.port = NULL;
             data->drdy_port_status = DRDY_PORT_NOT_INITIALIZED;
             rstatus = ROUTINE_STATUS__GPIO_DRDY_INTERRUPT_REINIT_FAIL;
             printk("- KX132 triggers - per port name length, drdy 'data ready' port failed to reinitialize\n");
