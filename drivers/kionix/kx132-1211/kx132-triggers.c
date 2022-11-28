@@ -249,6 +249,7 @@ int kx132_init_interrupt(const struct device *dev)
 
     if ( strlen(cfg->int_gpio.port->name) < 3 )
     {
+        printk("- kx132-triggers.c - drdy port looks mal-assigned, deferring further port checks for now . . .\n");
         return ROUTINE_STATUS__GPIO_DRDY_INTERRUPT_LOOKS_MAL_ASSIGNED;
     }
 // DEV NOTE 2022-11-28:  mark 4 is the last mark we see, let's see if a test of port.name length
