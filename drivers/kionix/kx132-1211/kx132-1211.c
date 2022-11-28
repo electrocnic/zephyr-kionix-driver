@@ -473,8 +473,15 @@ static const struct sensor_driver_api kx132_driver_api = {
                 COND_CODE_1(DT_INST_ON_BUS(inst, i2c), KX132_I2C(inst), ())                   \
                 COND_CODE_1(DT_INST_ON_BUS(inst, spi), KX132_SPI(inst), ())                   \
                 .pm = CONFIG_KX132_POWER_MODE,                                                \
-                IF_ENABLED(CONFIG_KX132_TRIGGER,                                              \
-                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),))  \
+\
+                IF_ENABLED(                                          \
+                           CONFIG_KX132_TRIGGER,                     \
+                           (                                         \
+.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),       \
+                           )                                         \
+                          )                                          \
+                IF_ENABLED(CONFIG_KX132_TRIGGER, #warning "zztop - kx132-1211.c:483") \
+\
         };                                                                                    \
                                                                                               \
         DEVICE_DT_INST_DEFINE(                                                                \
@@ -496,10 +503,6 @@ static const struct sensor_driver_api kx132_driver_api = {
 
 /* Create the struct device for every status "okay"*/
 DT_INST_FOREACH_STATUS_OKAY(KX132_DEFINE)
-
-
-
-
 
 
 
