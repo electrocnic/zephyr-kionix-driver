@@ -245,6 +245,15 @@ int kx132_init_interrupt(const struct device *dev)
     if ( cfg->int_gpio.port->state != NULL )
         { printk("- INFO - cfg->int_gpio.port->state not null,\n"); }
     printk("- MARK 4 -\n");
+
+    if ( len(cfg->int_gpio.port->name) < 3 )
+    {
+        return ROUTINE_STATUS__GPIO_DRDY_INTERRUPT_LOOKS_MAL_ASSIGNED;
+    }
+// DEV NOTE 2022-11-28:  mark 4 is the last mark we see, let's see if a test of port.name length
+//  allow this driver to introspect and possibly retry gpio_dt_spec member type
+//  assignment later in or after boot times . . .
+
     printk("- INFO - cfg->int_gpio.port->state->initialized holds %u,\n", (uint8_t)cfg->int_gpio.port->state->initialized);
     printk("- INFO - cfg->int_gpio.port->state->init_res holds %u,\n", cfg->int_gpio.port->state->init_res);
     printk("- MARK 5 -\n");

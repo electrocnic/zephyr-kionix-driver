@@ -139,6 +139,11 @@ struct kx132_1211_data {
 
     kionix_ctx_t *ctx;
 
+// - DEV 1128 - driver introspection effort to address early,
+//  seeming mal-assigned drdy "data ready" GPIO port device pointer:
+
+    uint32_t drdy_port_status;
+
 // NOTE:  2022-11-18 following two Kconfig symbols Ted has not yet defined
 //  for Kionix driver:
 
@@ -257,5 +262,14 @@ enum kx132_1211_output_data_rates_e
 };
 
 
+
+// "Data ready" interrupt port status possibilites:
+enum kx132_1211_drdy_port_status_e
+{
+    DRDY_PORT_NOT_INITIALIZED,
+    DRDY_PORT_FOUND_NULL,
+    DRDY_PORT_MAL_INITIALIZED,
+    DRDY_PORT_INITIALIZED
+};
 
 #endif // KX132_1211_H

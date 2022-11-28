@@ -489,7 +489,9 @@ static const struct sensor_driver_api kx132_driver_api = {
                               POST_KERNEL,                                                    \
                               CONFIG_SENSOR_INIT_PRIORITY,                                    \
                               &kx132_driver_api                                               \
-                             );
+                             ); \
+\
+        kx132_1211_data_##inst->drdy_port_status = DRDY_PORT_NOT_INITIALIZED;
 
 
 // - DEV 1125 - trying alternate interrupt bindings types, in multi-line macro about fifteen lines above here:
