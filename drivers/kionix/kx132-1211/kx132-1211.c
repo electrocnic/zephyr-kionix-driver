@@ -474,12 +474,9 @@ static const struct sensor_driver_api kx132_driver_api = {
                 COND_CODE_1(DT_INST_ON_BUS(inst, spi), KX132_SPI(inst), ())                   \
                 .pm = CONFIG_KX132_POWER_MODE,                                                \
 \
-                IF_ENABLED(                                          \
-                           CONFIG_KX132_TRIGGER,                     \
-                           (                                         \
-.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),       \
-                           )                                         \
-                          )                                          \
+                IF_ENABLED(CONFIG_KX132_TRIGGER_GLOBAL_THREAD,                                \
+                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
+                          )                                                                   \
 \
         };                                                                                    \
                                                                                               \
