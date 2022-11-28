@@ -480,7 +480,6 @@ static const struct sensor_driver_api kx132_driver_api = {
 .int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),       \
                            )                                         \
                           )                                          \
-                IF_ENABLED(CONFIG_KX132_TRIGGER, #warning "zztop - kx132-1211.c:483") \
 \
         };                                                                                    \
                                                                                               \
