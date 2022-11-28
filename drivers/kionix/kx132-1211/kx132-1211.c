@@ -135,8 +135,31 @@ static int kx132_1211_attr_get(const struct device *dev,
                                enum sensor_attribute attr,
                                struct sensor_value *val)
 {
-// stub function
-    return 0;
+    int rstatus = ROUTINE_OK;
+
+    switch (attr)
+    {
+// 2022-11-28 Unsure if we'll need it, but first case may be to
+//  return a per device stored nodelabel string value.  So far
+//  not finding a non-static, run time way to identify which instance
+//  of a like sensor or device to which a `const struct device *dev`
+//  points . . .     - TMH
+//
+//        case xxx:
+//            break;
+
+// Note also that static device tree macros won't allows us to
+// express any C language operators, so while structures can be
+// declard statically nothing can be assigned any values.  We may
+// need a way, if it comes to it, to pass nodelabels which are
+// string values, to this driver, whose conventional Zephyr API
+// only provides for sensor_t values to be shared.  That will be
+// kludgy at best to convey strings between app and driver code.
+
+        default:
+    }
+
+    return rstatus;
 }
 
 
@@ -154,6 +177,11 @@ static int kx132_1211_attr_set(const struct device *dev,
 
     switch (attr)
     {
+
+// Note:  Zephyr standard sensor attribute case values will be
+//  added here, at top of SWITCH construct.  None do far implemented as
+//  of 2022-11-28 - TMH
+
 // REF https://docs.zephyrproject.org/2.6.0/reference/peripherals/sensor.html#c.sensor_attribute
 //        case SENSOR_ATTR_CONFIGURATION:  <- this enumerator available in Zephyr RTOS 2.7.99 but not 2.6.0 - TMH
         case SENSOR_ATTR_PRIV_START:
