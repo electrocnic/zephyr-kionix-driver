@@ -157,6 +157,8 @@ static int kx132_1211_attr_get(const struct device *dev,
 // kludgy at best to convey strings between app and driver code.
 
         default:
+            rstatus = ROUTINE_STATUS__UNDEFINED_SENSOR_ATTRIBUTE;
+            break;
     }
 
     return rstatus;
