@@ -20,6 +20,7 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 #include "kx132-1211.h"            // to provide structs kx132_device_config, and kx132_device_data
 #include "kx132-registers.h"       // to provide KX132_INC1 and similar
 #include "out-of-tree-drivers.h"
+#include "kx132-triggers.h"
 
 
 
