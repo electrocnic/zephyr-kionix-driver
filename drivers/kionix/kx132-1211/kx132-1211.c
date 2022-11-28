@@ -74,7 +74,7 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
 
 static int kx132_configure_output_data_rate(const struct device *dev, const struct sensor_value *val)
 {
-    struct kx132_1211_data *data = dev->data;
+    struct kx132_device_data *data = dev->data;
 
     uint8_t reg_val_to_read = 0x00U;
     uint8_t *read_buffer = &reg_val_to_read;
@@ -290,7 +290,7 @@ static int kx132_1211_channel_get(const struct device *dev,
 // 2021-08-31 - function implementation in progress, TMH.
 
     int routine_status = 0;
-    struct kx132_1211_data *data = dev->data;
+    struct kx132_device_data *data = dev->data;
 
 // Clear memory passed to us by calling code:
     memset(val, 0, sizeof(*val));
@@ -474,7 +474,7 @@ static const struct sensor_driver_api kx132_driver_api = {
 
 
 #define KX132_DEFINE(inst)                                                                    \
-        static struct kx132_1211_data kx132_1211_data_##inst;                                 \
+        static struct kx132_device_data kx132_device_data_##inst;                                 \
                                                                                               \
         static const struct kx132_device_config kx132_device_config_##inst = {                \
                 COND_CODE_1(DT_INST_ON_BUS(inst, i2c), KX132_I2C(inst), ())                   \
@@ -491,7 +491,7 @@ static const struct sensor_driver_api kx132_driver_api = {
                               inst,                                                           \
                               kx132_1211_init,                                                \
                               NULL,                                                           \
-                              &kx132_1211_data_##inst,                                        \
+                              &kx132_device_data_##inst,                                        \
                               &kx132_device_config_##inst,                                    \
                               POST_KERNEL,                                                    \
                               CONFIG_SENSOR_INIT_PRIORITY,                                    \

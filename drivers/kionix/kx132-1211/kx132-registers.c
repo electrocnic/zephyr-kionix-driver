@@ -115,7 +115,7 @@ int kx132_enable_asynchronous_readings(const struct device *dev)
 // Register sequence this routine chosen per AN092-Getting-Started.pdf
 // from Kionix, page 2 of 27:
 
-    struct kx132_1211_data *data = dev->data;
+    struct kx132_device_data *data = dev->data;
 #ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING 
     uint8_t reg_val_to_write = 0x00U;
     uint8_t *write_buffer = &reg_val_to_write;
@@ -176,7 +176,7 @@ int kx132_enable_asynchronous_readings(const struct device *dev)
 int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev)
 {
 
-    struct kx132_1211_data *data = dev->data;
+    struct kx132_device_data *data = dev->data;
 #ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING 
     uint8_t reg_val_to_write = 0x00U;
     uint8_t *write_buffer = &reg_val_to_write;
@@ -252,7 +252,7 @@ int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev)
 
 int kx132_device_id_fetch(const struct device *dev)
 {
-    struct kx132_1211_data *data = dev->data;
+    struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0, 0, 0};
     uint8_t *read_buffer = reg_val_to_read;
     int i = 0;
@@ -289,7 +289,7 @@ printk("%s", lbuf);
 
 int kx132_part_id_fetch(const struct device *dev)
 {
-    struct kx132_1211_data *data = dev->data;
+    struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0};
     uint8_t *read_buffer = reg_val_to_read;
     int i = 0;
@@ -315,7 +315,7 @@ int kx132_part_id_fetch(const struct device *dev)
 
 int kx132_acceleration_x_axis_fetch(const struct device *dev)
 {
-    struct kx132_1211_data *data = dev->data;
+    struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0};
     uint8_t *read_buffer = reg_val_to_read;
     int i = 0;
@@ -348,7 +348,7 @@ int kx132_acceleration_x_axis_fetch(const struct device *dev)
 
 int kx132_acceleration_y_axis_fetch(const struct device *dev)
 {
-    struct kx132_1211_data *data = (struct kx132_1211_data*)dev->data;
+    struct kx132_device_data *data = (struct kx132_device_data*)dev->data;
     uint8_t reg_val_to_read[] = {0, 0};
     uint8_t *read_buffer = reg_val_to_read;
     int i = 0;
@@ -379,7 +379,7 @@ int kx132_acceleration_y_axis_fetch(const struct device *dev)
 
 int kx132_acceleration_z_axis_fetch(const struct device *dev)
 {
-    struct kx132_1211_data *data = dev->data;
+    struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0};
     uint8_t *read_buffer = reg_val_to_read;
     int i = 0;
@@ -410,7 +410,7 @@ int kx132_acceleration_z_axis_fetch(const struct device *dev)
 
 int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
 {
-    struct kx132_1211_data *data = dev->data;
+    struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0, 0, 0, 0, 0};
     uint8_t *read_buffer = reg_val_to_read;
     int i = 0;

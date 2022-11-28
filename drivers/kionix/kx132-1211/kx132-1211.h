@@ -93,7 +93,7 @@ struct iis2dh_data {
 #define BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS (2)
 #define BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES ((BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS) * 3) 
 
-struct kx132_1211_data {
+struct kx132_device_data {
 
 // NEED to review whether this array needed, it is at present
 // and at first KX132 driver draft copied over from IIS2DH

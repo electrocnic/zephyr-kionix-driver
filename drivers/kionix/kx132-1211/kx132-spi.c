@@ -91,7 +91,7 @@ kionix_ctx_t kx132_spi_ctx = {
 
 int kx132_spi_init(const struct device *dev)
 {
-	struct kx132_1211_data *data = dev->data;
+	struct kx132_device_data *data = dev->data;
 	const struct kx132_device_config *config = dev->config;
 
 	if (!spi_is_ready(&config->spi)) {

@@ -16,7 +16,7 @@
 
 LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
-#include "kx132-1211.h"            // to provide structs kx132_device_config, and kx132_1211_data
+#include "kx132-1211.h"            // to provide structs kx132_device_config, and kx132_device_data
 #include "kx132-registers.h"       // to provide KX132_INC1 and similar
 #include "out-of-tree-drivers.h"
 
@@ -39,7 +39,7 @@ static int kx132_enable_drdy(const struct device *dev,
                              enum sensor_trigger_type type,
                              int enable)
 {
-    struct kx132_1211_data *sensor = dev->data;
+    struct kx132_device_data *sensor = dev->data;
     uint8_t register_value = 0; // iis2dh_ctrl_reg3_t reg3;
     uint8_t *read_buffer = &register_value;
     uint32_t rstatus = 0;
@@ -81,7 +81,7 @@ int kx132_trigger_set(const struct device *dev,
 //#if CONFIG_KX132_TRIGGER_NONE
 //    return -ENOTSUP;
 //#else
-	struct kx132_1211_data *kx132 = dev->data;
+	struct kx132_device_data *kx132 = dev->data;
 	const struct kx132_device_config *cfg = dev->config;
 //	int16_t raw[3];  // NEED review this array, needed in IIS2DH to clear interrupt but may not be needed in KX132.
 	int state = (handler != NULL) ? PROPERTY_ENABLE : PROPERTY_DISABLE;
@@ -115,7 +115,7 @@ static int kx132_handle_drdy_int(const struct device *dev)
 //#if CONFIG_KX132_TRIGGER_NONE
 //    return -ENOTSUP;
 //#else
-        struct kx132_1211_data *data = dev->data;
+        struct kx132_device_data *data = dev->data;
 
 #warning "- KX132 triggers - compiling routine kx132_handle_drdy_int()"
         struct sensor_trigger drdy_trig = { 
@@ -159,8 +159,8 @@ static void kx132_gpio_callback(const struct device *dev,
                                  struct gpio_callback *cb, uint32_t pins)
 {
 #warning "- KX132 triggers - compiling routine kx132_gpio_callback()"
-        struct kx132_1211_data *kx132 =
-                CONTAINER_OF(cb, struct kx132_1211_data, gpio_cb);
+        struct kx132_device_data *kx132 =
+                CONTAINER_OF(cb, struct kx132_device_data, gpio_cb);
         const struct kx132_device_config *cfg = kx132->dev->config;
 
         if ((pins & BIT(cfg->int_gpio.pin)) == 0U) {
@@ -177,7 +177,7 @@ static void kx132_gpio_callback(const struct device *dev,
 }
 
 #ifdef CONFIG_KX132_TRIGGER_OWN_THREAD
-static void kx132_thread(struct kx132_1211_data *kx132)
+static void kx132_thread(struct kx132_device_data *kx132)
 {
 #warning "- KX132 triggers - compiling routine kx132_thread()"
         while (1) {
@@ -193,8 +193,8 @@ static void kx132_thread(struct kx132_1211_data *kx132)
 static void kx132_work_cb(struct k_work *work)
 {
 #warning "- KX132 triggers - compiling routine kx132_work_cb()"
-        struct kx132_1211_data *kx132 =
-                CONTAINER_OF(work, struct kx132_1211_data, work);
+        struct kx132_device_data *kx132 =
+                CONTAINER_OF(work, struct kx132_device_data, work);
 
         kx132_handle_interrupt(kx132->dev);
 }
@@ -204,7 +204,7 @@ static void kx132_work_cb(struct k_work *work)
 
 int kx132_init_interrupt(const struct device *dev)
 {
-    struct kx132_1211_data *kx132 = dev->data;
+    struct kx132_device_data *kx132 = dev->data;
     const struct kx132_device_config *cfg = dev->config;
     uint32_t rstatus;
 

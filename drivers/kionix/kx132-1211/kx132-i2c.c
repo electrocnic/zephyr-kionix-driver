@@ -86,7 +86,7 @@ kionix_ctx_t kx132_i2c_ctx = {
 
 int kx132_i2c_init(const struct device *dev)
 {
-	struct kx132_1211_data *data = dev->data;
+	struct kx132_device_data *data = dev->data;
 	const struct kx132_device_config *config = dev->config;
 
 	if (!device_is_ready(config->i2c.bus)) {
