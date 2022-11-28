@@ -8,7 +8,8 @@
 
 
 // 2022-11-24 - stdio.h for debugging only:
-#include <stdio.h>
+#include <stdio.h>                 // to provide printk()
+#include <string.h>                // to provide strlen()
 
 
 #include <zephyr/drivers/sensor.h>
