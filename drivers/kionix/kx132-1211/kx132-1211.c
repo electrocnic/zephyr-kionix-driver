@@ -403,7 +403,7 @@ static int kx132_1211_init(const struct device *dev)
 // Optionally set a default range here:
 
 // - DEV 1128 -
-    data-drdy_port_status = DRDY_PORT_NOT_INITIALIZED;
+    data->drdy_port_status = DRDY_PORT_NOT_INITIALIZED;
 // - DEV 1128 -
 
 #ifdef CONFIG_KX132_TRIGGER
