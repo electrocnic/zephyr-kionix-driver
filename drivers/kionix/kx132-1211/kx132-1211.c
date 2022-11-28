@@ -29,7 +29,7 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
 #include "kx132-registers.h"       // to provide map of KX132 internal registers and bit-wise flags
 #include "out-of-tree-drivers.h"
 //#include "development-defines.h"
-#define "kx132-triggers.h"         // to provide sensor interrupt port reinitialization code
+#include "kx132-triggers.h"        // to provide sensor interrupt port reinitialization code
 
 
 #include <stdio.h>
