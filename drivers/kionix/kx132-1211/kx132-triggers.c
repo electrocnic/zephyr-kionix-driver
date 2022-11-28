@@ -247,7 +247,7 @@ int kx132_init_interrupt(const struct device *dev)
         { printk("- INFO - cfg->int_gpio.port->state not null,\n"); }
     printk("- MARK 4 -\n");
 
-    if ( len(cfg->int_gpio.port->name) < 3 )
+    if ( strlen(cfg->int_gpio.port->name) < 3 )
     {
         return ROUTINE_STATUS__GPIO_DRDY_INTERRUPT_LOOKS_MAL_ASSIGNED;
     }
