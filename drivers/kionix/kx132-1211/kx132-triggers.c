@@ -143,6 +143,7 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
             {
                 rstatus = -ENODEV;
                 printk("- KX132 triggers - after reinitialization device_is_ready() still fails port for drdy interrupt\n");
+                printk("- KX132 triggers - port->name holds '%s'\n", data->int_gpio.port->name);
             }
             else
             {
