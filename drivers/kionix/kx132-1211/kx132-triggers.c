@@ -122,7 +122,7 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 //  string value.
 
 //        data->int_gpio.port = DEVICE_DT_GET(DT_GPIO_CTLR_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
-        data->int_gpio.port = device_get_binding("arduino_header");   // this is a nodelabel in file lpcxpresso55s69.dtsi
+        data->int_gpio.port = device_get_binding("arduino_gpio");   // this is a nodelabel in file lpcxpresso55s69.dtsi
 //        data->int_gpio.pin = DT_GPIO_PIN_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
 //        data->int_gpio.dt_flags = DT_GPIO_FLAGS_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
 
@@ -130,9 +130,9 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 //  this driver code see the device tree overlays that our application sees?
 //  A quick test:
 
-// DT_REG_ADDR(DT_NODELABEL(arduino_header))
+// DT_REG_ADDR(DT_NODELABEL(arduino_gpio))
 
-    printk("- DEV 1129 - device node &gpio1 has register block start address 0x%08X\n", DT_REG_ADDR(DT_NODELABEL(arduino_header)));
+    printk("- DEV 1129 - device node &gpio1 has register block start address 0x%08X\n", DT_REG_ADDR(DT_NODELABEL(arduino_gpio)));
 
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
