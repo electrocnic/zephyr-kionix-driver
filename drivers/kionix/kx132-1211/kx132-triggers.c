@@ -59,7 +59,7 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 
     if ( data->drdy_port_status != DRDY_PORT_INITIALIZED )
     {
-        *cfg->int_gpio = NULL;
+        cfg->int_gpio = NULL;
 #define KX132_1_NODE DT_NODELABEL(kionix_sensor_1)
 //        cfg->int_gpio.port = GPIO_DT_SPEC_GET(DT_NODELABEL(kionix_sensor_1), drdy_gpios);  // zephyr/include/zephyr/drivers/gpio.h:337:2: error: expected expression before '{' token
 //        cfg->int_gpio.port = DT_GPIO_CTLR(KX132_1_NODE, drdy_gpios);               // error: 'DT_N_S_soc_S_peripheral_50000000_S_gpio_1' undeclared
@@ -74,7 +74,7 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 // From spi_bitbang sample app:
 // 131    .gpio = GPIO_DT_SPEC_GET(SPIBB_NODE, cs_gpios),
 
-        *cfg->int_gpio = GPIO_DT_SPEC_GET(KX132_1_NODE, drdy_gpios);
+        cfg->int_gpio = GPIO_DT_SPEC_GET(KX132_1_NODE, drdy_gpios);
 
 
         if ( strlen(cfg->int_gpio.port->name) > MINIMUM_EXPECTED_GPIO_PORT_NAME_LENGTH )
