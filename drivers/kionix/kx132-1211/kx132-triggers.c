@@ -11,21 +11,43 @@
  */
 
 
+
+//----------------------------------------------------------------------
+// C library includes:
+//----------------------------------------------------------------------
+
 // 2022-11-24 - stdio.h for debugging only:
 #include <stdio.h>                 // to provide printk()
 #include <string.h>                // to provide strlen()
 
 
+//----------------------------------------------------------------------
+// Zephyr RTOS includes:
+//----------------------------------------------------------------------
+
 #include <zephyr/device.h>
+
+#ifndef DEVICE_DT_GET
+#warning "AHH! - Somehow didn't pick up DEVICE_DT_GET definition from `zephyr/device.h' header"
+#else
+#warning "YEAH! - got DEVICE_DT_GET definition . . . now are we applying it right? . . ." 
+#endif
+
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/logging/log.h> 
 
 LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
+
+
+//----------------------------------------------------------------------
+// include stanzas for this Kionix sensor driver:
+//----------------------------------------------------------------------
+
 #include "kx132-1211.h"            // to provide structs kx132_device_config, and kx132_device_data
 #include "kx132-registers.h"       // to provide KX132_INC1 and similar
-#include "out-of-tree-drivers.h"
-#include "kx132-triggers.h"
+#include "out-of-tree-drivers.h"   // to provide sensor driver routine return values enum
+#include "kx132-triggers.h"        // to provide prototyps to public API functions
 
 
 
@@ -90,9 +112,12 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
  341         }
 */
 
-        data->int_gpio.port = DEVICE_DT_GET(DT_GPIO_CTLR_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
-        data->int_gpio.pin = DT_GPIO_PIN_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
-        data->int_gpio.dt_flags = DT_GPIO_FLAGS_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
+// - DEV 1129 - New tact, attempt to use device_get_binding():
+
+//        data->int_gpio.port = DEVICE_DT_GET(DT_GPIO_CTLR_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
+        data->int_gpio.port = device_get_binding("arduino_header");   // this is a nodelabel in file lpcxpresso55s69.dtsi
+//        data->int_gpio.pin = DT_GPIO_PIN_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
+//        data->int_gpio.dt_flags = DT_GPIO_FLAGS_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
 
 
 
