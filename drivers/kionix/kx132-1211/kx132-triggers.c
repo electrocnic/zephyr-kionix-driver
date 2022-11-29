@@ -68,7 +68,7 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 
 // ./include/zephyr/devicetree/gpio.h:235: * consider using @c DEVICE_DT_GET(DT_INST_GPIO_CTLR_BY_IDX(node, gpio_pha, idx)).
 
-        cfg->int_gpio.port = DEVICE_DT_GET(DT_INST_GPIO_CTLR_BY_IDX(node, gpio_pha, idx));
+        cfg->int_gpio.port = DEVICE_DT_GET(DT_INST_GPIO_CTLR_BY_IDX(KX132_1_NODE, drdy_gpios, 0));
 
         if ( strlen(cfg->int_gpio.port->name) > MINIMUM_EXPECTED_GPIO_PORT_NAME_LENGTH )
         {
