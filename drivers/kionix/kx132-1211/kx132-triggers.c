@@ -59,8 +59,12 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 
     if ( data->drdy_port_status != DRDY_PORT_INITIALIZED )
     {
-        data->int_gpio = (struct gpio_dt_spec)NULL;
+
+#define DT_DRV_COMPAT kionix_kx132_1211
 #define KX132_1_NODE DT_NODELABEL(kionix_sensor_1)
+
+//        data->int_gpio = (struct gpio_dt_spec)NULL;
+
 //        cfg->int_gpio.port = GPIO_DT_SPEC_GET(DT_NODELABEL(kionix_sensor_1), drdy_gpios);  // zephyr/include/zephyr/drivers/gpio.h:337:2: error: expected expression before '{' token
 //        cfg->int_gpio.port = DT_GPIO_CTLR(KX132_1_NODE, drdy_gpios);               // error: 'DT_N_S_soc_S_peripheral_50000000_S_gpio_1' undeclared
 //        cfg->int_gpio.port = GPIO_DT_SPEC_GET_BY_IDX(KX132_1_NODE, drdy_gpios, 0); // zephyr/include/zephyr/drivers/gpio.h:337:2: error: expected expression before '{' token
@@ -74,8 +78,21 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 // From spi_bitbang sample app:
 // 131    .gpio = GPIO_DT_SPEC_GET(SPIBB_NODE, cs_gpios),
 
-#define DT_DRV_COMPAT kionix_kx132_1211
-        data->int_gpio = GPIO_DT_SPEC_GET(KX132_1_NODE, drdy_gpios);
+//        data->int_gpio = GPIO_DT_SPEC_GET(KX132_1_NODE, drdy_gpios);
+
+/*
+ 336 #define GPIO_DT_SPEC_GET_BY_IDX(node_id, prop, idx)                            \
+ 337         {                                                                      \
+ 338                 .port = DEVICE_DT_GET(DT_GPIO_CTLR_BY_IDX(node_id, prop, idx)),\
+ 339                 .pin = DT_GPIO_PIN_BY_IDX(node_id, prop, idx),                 \
+ 340                 .dt_flags = DT_GPIO_FLAGS_BY_IDX(node_id, prop, idx),          \
+ 341         }
+*/
+
+        data->int_gpio.port = DEVICE_DT_GET(DT_GPIO_CTLR_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
+        data->int_gpio.pin = DT_GPIO_PIN_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
+        data->int_gpio.dt_flags = DT_GPIO_FLAGS_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
+
 
 
         if ( strlen(cfg->int_gpio.port->name) > MINIMUM_EXPECTED_GPIO_PORT_NAME_LENGTH )
