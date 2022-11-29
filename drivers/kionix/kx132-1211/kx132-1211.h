@@ -144,13 +144,12 @@ struct kx132_device_data {
 
     uint32_t drdy_port_status;
 
-// NOTE:  2022-11-18 following two Kconfig symbols Ted has not yet defined
-//  for Kionix driver:
-
 #ifdef CONFIG_KX132_TRIGGER
+#warning "compiling KX132 trigger data members into kx132_device_data structure . . ."
     const struct device *dev;
     struct gpio_callback gpio_cb;
     sensor_trigger_handler_t drdy_handler;
+    struct gpio_dt_spec int_gpio;
 #if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
     K_KERNEL_STACK_MEMBER(thread_stack, CONFIG_KX132_THREAD_STACK_SIZE);
     struct k_thread thread;

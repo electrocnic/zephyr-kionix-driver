@@ -511,7 +511,10 @@ static const struct sensor_driver_api kx132_driver_api = {
 
 
 #define KX132_DEFINE(inst)                                                                    \
-        static struct kx132_device_data kx132_device_data_##inst;                                 \
+        static struct kx132_device_data kx132_device_data_##inst = {                          \
+                IF_ENABLED(CONFIG_KX132_TRIGGER_GLOBAL_THREAD,                                \
+                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
+                          ) };                                                                  \
                                                                                               \
         static const struct kx132_device_config kx132_device_config_##inst = {                \
                 COND_CODE_1(DT_INST_ON_BUS(inst, i2c), KX132_I2C(inst), ())                   \
