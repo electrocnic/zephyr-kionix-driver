@@ -112,7 +112,14 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
  341         }
 */
 
+
 // - DEV 1129 - New tact, attempt to use device_get_binding():
+//
+// Note:  if the following device_get_binding() call works as needed,
+//  we may be looking at finding an amendment to this driver so that
+//  app code may pass string data to it.  Zephyr API device_get_binding()
+//  takes a device::name value as its sole parameter, and this is a
+//  string value.
 
 //        data->int_gpio.port = DEVICE_DT_GET(DT_GPIO_CTLR_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
         data->int_gpio.port = device_get_binding("arduino_header");   // this is a nodelabel in file lpcxpresso55s69.dtsi
@@ -120,22 +127,32 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 //        data->int_gpio.dt_flags = DT_GPIO_FLAGS_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
 
 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// Note:  we would check cfg->int_gpio.port, but Zephyr's convention
+//  with driver code is to place sensor data which does not change at 
+//  run time in the sensor driver's config structure.  The sensor's data
+//  structure is meant for data which we expect to change during
+//  firmware run times.  This said, we're tracing out a GPIO port
+//  initialization error, and are attempting some run time tests to
+//  reinitialize the port after boot time.  These tests are to 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        if ( strlen(cfg->int_gpio.port->name) > MINIMUM_EXPECTED_GPIO_PORT_NAME_LENGTH )
+        if ( strlen(data->int_gpio.port->name) > MINIMUM_EXPECTED_GPIO_PORT_NAME_LENGTH )
         {
-            if (!device_is_ready(cfg->int_gpio.port))
+            if (!device_is_ready(data->int_gpio.port))
             {
                 rstatus = -ENODEV;
-                printk("- KX132 triggers - after drdy port reinitialization port still tests not ready\n");
+                printk("- KX132 triggers - after reinitialization device_is_ready() still fails port for drdy interrupt\n");
             }
             else
             {
                 printk("- KX132 triggers - drdy 'data ready' port reinitialization looks good\n");
+                printk("- KX132 triggers - port->name holds '%s'\n", data->int_gpio.port->name);
             }
         }
         else
         {
-            cfg->int_gpio.port = NULL;
+//            data->int_gpio.port = NULL;
             data->drdy_port_status = DRDY_PORT_NOT_INITIALIZED;
             rstatus = ROUTINE_STATUS__GPIO_DRDY_INTERRUPT_REINIT_FAIL;
             printk("- KX132 triggers - per port name length, drdy 'data ready' port failed to reinitialize\n");
