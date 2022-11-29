@@ -53,7 +53,7 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 {
     struct kx132_device_data *data = dev->data;
 //    const struct kx132_device_config *cfg = dev->config;
-    struct kx132_device_config *cfg = dev->config; // NOTE we are breaking Zephyr device rule that configuration data is read only - TMH
+//    struct kx132_device_config *cfg = dev->config; // NOTE we are breaking Zephyr device rule that configuration data is read only - TMH
     uint32_t rstatus = 0;
 
     (void)option;
