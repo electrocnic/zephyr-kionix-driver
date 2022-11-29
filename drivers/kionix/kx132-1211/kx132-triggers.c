@@ -134,6 +134,15 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 
     printk("- DEV 1129 - device node &gpio1 has register block start address 0x%08X\n", DT_REG_ADDR(DT_NODELABEL(arduino_gpio)));
 
+// Per NXP UM11126.pdf, LPC55S69 user manual page 17 of 1190, above
+// trace statement gives '0x5008000', the secure version of the
+// GPIO port's base address.  This implies our driver can see device
+// tree dtsi and overlay file information, just as our app "is able".
+
+// DT_PROP(DT_NODELABEL(kionix_sensor_1), drdy_gpios)
+
+    printk("- DEV 1129 - Kionix sensor node has drdy_gpios property value of '%s'\n", DT_PROP(DT_NODELABEL(kionix_sensor_1), drdy_gpios));
+
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // Note:  we would check cfg->int_gpio.port, but Zephyr's convention

@@ -15,7 +15,10 @@
 #include <zephyr/device.h>          // 2022-11-10 was <device.h>
 #include <zephyr/drivers/i2c.h>     // 2022-11-10 was <drivers/i2c.h>
 #include <zephyr/drivers/sensor.h>  // 2022-11-10 was <drivers/sensor.h>
-#include <zephyr/sys/util_macro.h>
+
+#include <zephyr/sys/util_macro.h>    // <-- not sure whether this header required by driver - TMH
+
+#include <zephyr/devicetree.h>
 
 #include <zephyr/logging/log.h>     // 2022-11-10 was <logging/log.h>
 
