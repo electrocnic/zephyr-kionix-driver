@@ -63,7 +63,7 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 #define KX132_1_NODE DT_NODELABEL(kionix_sensor_1)
 //        cfg->int_gpio.port = GPIO_DT_SPEC_GET(DT_NODELABEL(kionix_sensor_1), drdy_gpios);  // <-- maybe retest this assignment - TMH
 //        cfg->int_gpio.port = DT_GPIO_CTLR(KX132_1_NODE, drdy_gpios);  // error: 'DT_N_S_soc_S_peripheral_50000000_S_gpio_1' undeclared
-        cfg->int_gpio.port = GPIO_DT_SPEC_GET_BY_IDX(KX132_1_NODE, gpios, 0);
+        cfg->int_gpio.port = GPIO_DT_SPEC_GET_BY_IDX(KX132_1_NODE, drdy_gpios, 0);
 
         if ( strlen(cfg->int_gpio.port->name) > MINIMUM_EXPECTED_GPIO_PORT_NAME_LENGTH )
         {
