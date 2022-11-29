@@ -61,7 +61,7 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
     if ( data->drdy_port_status != DRDY_PORT_INITIALIZED )
     {
 
-#define DT_DRV_COMPAT kionix_kx132_1211
+//#define DT_DRV_COMPAT kionix_kx132_1211
 #define KX132_1_NODE DT_NODELABEL(kionix_sensor_1)
 
 //        data->int_gpio = (struct gpio_dt_spec)NULL;
