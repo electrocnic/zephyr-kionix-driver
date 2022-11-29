@@ -144,7 +144,7 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 //    printk("- DEV 1129 - Kionix sensor node has drdy_gpios property value of '%s'\n", DT_PROP(DT_NODELABEL(kionix_sensor_1), drdy_gpios));
 // build time error, devicetree_generated.h holds symbol that's not defined.
 
-#if DT_NODE_HAS_PROP(DT_NODELABEL(kionix_sensor_1), drdy_gpios))
+#if DT_NODE_HAS_PROP(DT_NODELABEL(kionix_sensor_1), drdy_gpios)
 #warning "- DEV 1129 - Kionix sensor node has 'drdy_gpios' property"
 #endif
 
