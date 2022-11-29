@@ -16,6 +16,7 @@
 #include <string.h>                // to provide strlen()
 
 
+#include <zephyr/device.h>
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/logging/log.h> 
 
