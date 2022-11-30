@@ -544,10 +544,10 @@ static const struct sensor_driver_api kx132_driver_api = {
 //                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, irq_gpios, { 0 }),))
 
 // Instance number way for compile time assingment to gpio_dt_spec sensor 'data' struct  member:
-//                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
+//                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   [backslash]
 //
 // Instance number way for compile time assingment to gpio_dt_spec sensor 'config' struct member:
-//                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
+//                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   [backslash]
 
 
 /* Create the struct device for every status "okay"*/
