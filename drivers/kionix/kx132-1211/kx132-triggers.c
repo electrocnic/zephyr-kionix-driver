@@ -292,6 +292,10 @@ static int kx132_handle_drdy_int(const struct device *dev)
 
 
 
+// Original active config for GPIO interrupt, taken from IIS2DH driver:
+//#define GPIO_INT__KX132_SETTING   GPIO_INT_EDGE_TO_ACTIVE
+#define GPIO_INT__KX132_SETTING   GPIO_INT_LEVEL_LOW
+
 /**
  * Following code taken from iis2dh_trigger.c:
  *
@@ -310,7 +314,7 @@ static void kx132_handle_interrupt(const struct device *dev)
 
         kx132_handle_drdy_int(dev);
 
-        gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT_EDGE_TO_ACTIVE);
+        gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT__KX132_SETTING);
 //#endif
 }
 
@@ -485,8 +489,8 @@ int kx132_init_interrupt(const struct device *dev)
 
 // # REF https://docs.zephyrproject.org/latest/hardware/peripherals/gpio.html#c.GPIO_INT_EDGE_TO_ACTIVE
 //    printk("- kx132 triggers - configuring GPIO pin with flag(s) GPIO_INT_EDGE_TO_ACTIVE . . .\n");
-    printk("- kx132 triggers - configuring GPIO pin with flag(s) GPIO_INT_EDGE_RISING . . .\n");
-    rstatus = gpio_pin_interrupt_configure_dt(&kx132_data->int_gpio, GPIO_INT_EDGE_RISING);
+    printk("- kx132 triggers - configuring GPIO pin with flag(s) GPIO_INT__KX132_SETTING . . .\n");
+    rstatus = gpio_pin_interrupt_configure_dt(&kx132_data->int_gpio, GPIO_INT__KX132_SETTING);
     return rstatus;
 }
 
