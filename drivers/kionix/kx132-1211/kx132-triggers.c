@@ -430,6 +430,10 @@ int kx132_init_interrupt(const struct device *dev)
         LOG_ERR("%s: device %s is not ready", dev->name, cfg->int_gpio.port->name);
         return -ENODEV;
     }
+    else
+    {
+        kx132_data->drdy_port_status = DRDY_PORT_INITIALIZED;
+    }
 
 // QUESTION:  is following a cyclic assignment, where above *kx132 points to dev->data,
 //  and now here kx132->dev points to dev?  Is this saying:
