@@ -306,6 +306,8 @@ static void kx132_handle_interrupt(const struct device *dev)
 #warning "- KX132 triggers - compiling routine kx132_handle_interrupt()"
         const struct kx132_device_config *cfg = dev->config;
 
+    printk("- DIAG 1130 - kx132_handle_interrupt() in driver called\n");
+
         kx132_handle_drdy_int(dev);
 
         gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT_EDGE_TO_ACTIVE);
