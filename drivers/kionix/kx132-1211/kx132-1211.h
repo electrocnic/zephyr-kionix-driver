@@ -34,6 +34,13 @@ union string_union_type__part_id
 
 
 
+// # https://gcc.gnu.org/onlinedocs/gcc-3.4.6/cpp/Stringification.html . . . stringification via C macros
+#define xstr(s) str(s)
+#define str(s) #s
+// Ejemplo:   printk("- DEV 1028 - symbol ST_IIS2DH got assigned '%s'\n", xstr(ST_IIS2DH));
+
+
+
 /**
  * struct kx132_device_config - Kionix KX132-1211 hardware configuration
  * @spi: SPI bus spec.
@@ -62,6 +69,21 @@ struct kx132_device_config {
 	struct gpio_dt_spec int_gpio;
 #endif /* CONFIG_KX132_TRIGGER */
 };
+
+
+// - DEV 1130 -
+// Effort to identify `drdy-gpios` compatible node with okay status,
+// though all we've seen and written in our device tree overly is
+// a sensor node attached to a bus, and this sensor node contains
+// a `drdy-gpios` property to express the sensor's hardware interrupt
+// line coming to the MCU.  And our driver based on STMicro IIS2DH
+// driver is not picking up a value gpio_dt_spec type port device
+// handle, so we're thus far not enabling an interrupt for this
+// sensor . . .
+
+#define DRDY_GPIOS_NODE DT_COMPAT_GET_ANY_STATUS_OKAY(drdy_gpios)
+#define DRDY_GPIO_DEVICETREE_PATH DT_NODE_PATH(DRDY_GPIOS_NODE)
+
 
 
 /* sensor data */
@@ -149,7 +171,9 @@ struct kx132_device_data {
     const struct device *dev;
     struct gpio_callback gpio_cb;
     sensor_trigger_handler_t drdy_handler;
+
     struct gpio_dt_spec int_gpio;
+
 #if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
     K_KERNEL_STACK_MEMBER(thread_stack, CONFIG_KX132_THREAD_STACK_SIZE);
     struct k_thread thread;

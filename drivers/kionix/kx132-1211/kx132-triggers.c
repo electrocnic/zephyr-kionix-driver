@@ -363,7 +363,7 @@ static void kx132_work_cb(struct k_work *work)
 
 int kx132_init_interrupt(const struct device *dev)
 {
-    struct kx132_device_data *kx132 = dev->data;
+    struct kx132_device_data *kx132_data = dev->data;
     const struct kx132_device_config *cfg = dev->config;
     uint32_t rstatus;
 
@@ -382,18 +382,18 @@ int kx132_init_interrupt(const struct device *dev)
 //    else
 //        { printk("- INFO - sensor config.int_gpio data structure not null,\n"); }
 
-    if ( cfg->int_gpio.port == NULL )
-        { printk("- WARNING - sensor config->int_gpio.port data structure found null!\n"); }
+    if ( kx132_data->int_gpio.port == NULL )
+        { printk("- WARNING - sensor data->int_gpio.port data structure found null!\n"); }
     else
-        { printk("- INFO - sensor config->int_gpio.port data structure not null,\n"); }
+        { printk("- INFO - sensor data->int_gpio.port data structure not null,\n"); }
 
-    printk("- INFO - cfg->int_gpio.port->name holds '%s'\n", cfg->int_gpio.port->name);
+    printk("- INFO - data->int_gpio.port->name holds '%s'\n", kx132_data->int_gpio.port->name);
 
-// Are we able to successfully call `device_is_ready()` from here?
+// QUESTION:  Are we able to successfully call `device_is_ready()` from here?  ANSWER:  yes
     if ( device_is_ready(dev) )
-        { printk("- INFO - KX132-1211 device ready,\n"); }
+        { printk("- INFO - Zephyr says KX132-1211 sensor is ready,\n"); }
     else
-        { printk("- INFO - KX132-1211 device not ready!\n"); }
+        { printk("- INFO - Zephyr says KX132-1211 sensor not ready!\n"); }
 
 // 'port' is of type Zephyr device, whose struct entails? . . . :
 //
@@ -401,11 +401,11 @@ int kx132_init_interrupt(const struct device *dev)
 //        { printk("\n"); }
 
     printk("- MARK 3 -\n");
-    if ( cfg->int_gpio.port->state != NULL )
-        { printk("- INFO - cfg->int_gpio.port->state not null,\n"); }
+    if ( kx132_data->int_gpio.port->state != NULL )
+        { printk("- INFO - data->int_gpio.port->state not null,\n"); }
     printk("- MARK 4 -\n");
 
-    if ( strlen(cfg->int_gpio.port->name) < 3 )
+    if ( strlen(kx132_data->int_gpio.port->name) < 3 )
     {
         printk("- kx132-triggers.c - drdy port looks mal-assigned, deferring further port checks for now . . .\n");
         kx132->drdy_port_status = DRDY_PORT_MAL_INITIALIZED;
@@ -415,8 +415,8 @@ int kx132_init_interrupt(const struct device *dev)
 //  allow this driver to introspect and possibly retry gpio_dt_spec member type
 //  assignment later in or after boot times . . .
 
-    printk("- INFO - cfg->int_gpio.port->state->initialized holds %u,\n", (uint8_t)cfg->int_gpio.port->state->initialized);
-    printk("- INFO - cfg->int_gpio.port->state->init_res holds %u,\n", cfg->int_gpio.port->state->init_res);
+    printk("- INFO - data->int_gpio.port->state->initialized holds %u,\n", (uint8_t)kx132_data->int_gpio.port->state->initialized);
+    printk("- INFO - data->int_gpio.port->state->init_res holds %u,\n", kx132_data->int_gpio.port->state->init_res);
     printk("- MARK 5 -\n");
 
 
@@ -424,7 +424,7 @@ int kx132_init_interrupt(const struct device *dev)
 
 
 // # REF https://github.com/zephyrproject-rtos/zephyr/blob/main/include/zephyr/drivers/gpio.h#L271
-    if (!device_is_ready(cfg->int_gpio.port))
+    if (!device_is_ready(kx132_data->int_gpio.port))
     {
         printk("- MARK 3 - kx132 triggers, GPIO interrupt port not ready!\n");
         LOG_ERR("%s: device %s is not ready", dev->name, cfg->int_gpio.port->name);
@@ -438,33 +438,33 @@ int kx132_init_interrupt(const struct device *dev)
 //     dev -> data -> dev
 
     printk("- MARK 4 - kx132 triggers, pointing sensor->data->dev back to 'sensor',\n");
-    kx132->dev = dev;
+    kx132_data->dev = dev;
 
 #if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
-    k_sem_init(&kx132->gpio_sem, 0, K_SEM_MAX_LIMIT);
+    k_sem_init(&kx132_data->gpio_sem, 0, K_SEM_MAX_LIMIT);
 
-    k_thread_create(&kx132->thread, kx132->thread_stack,
+    k_thread_create(&kx132_data->thread, kx132_data->thread_stack,
                     CONFIG_KX132_THREAD_STACK_SIZE,
-                    (k_thread_entry_t)kx132_thread, kx132,
+                    (k_thread_entry_t)kx132_thread, kx132_data,
                     0, NULL, K_PRIO_COOP(CONFIG_KX132_THREAD_PRIORITY),
                     0, K_NO_WAIT);
 #elif defined(CONFIG_KX132_TRIGGER_GLOBAL_THREAD)
     printk("- MARK 4 - kx132 triggers, assigning sensor->data->work.handler 'kx132_work_cb',\n");
-    kx132->work.handler = kx132_work_cb;
+    kx132_data->work.handler = kx132_work_cb;
 #endif /* CONFIG_KX132_TRIGGER_OWN_THREAD */
 
-    rstatus = gpio_pin_configure_dt(&cfg->int_gpio, GPIO_INPUT);
+    rstatus = gpio_pin_configure_dt(&kx132_data->int_gpio, GPIO_INPUT);
     if ( rstatus < 0 )
     {
         LOG_DBG("KX132:  Could not configure gpio");
         return rstatus;
     }
 
-    gpio_init_callback(&kx132->gpio_cb,
+    gpio_init_callback(&kx132_data->gpio_cb,
                        kx132_gpio_callback,
-                       BIT(cfg->int_gpio.pin));
+                       BIT(kx132_data->int_gpio.pin));
 
-    if ( gpio_add_callback(cfg->int_gpio.port, &kx132->gpio_cb) < 0 )
+    if ( gpio_add_callback(kx132_data->int_gpio.port, &kx132_data->gpio_cb) < 0 )
     {
         LOG_DBG("Could not set gpio callback");
         return -EIO;
@@ -476,7 +476,7 @@ int kx132_init_interrupt(const struct device *dev)
 		return -EIO;
 	}
 #endif
-	return gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT_EDGE_TO_ACTIVE);
+	return gpio_pin_interrupt_configure_dt(&kx132_data->int_gpio, GPIO_INT_EDGE_TO_ACTIVE);
 }
 
 #endif // CONFIG_KX132_TRIGGER_NONE

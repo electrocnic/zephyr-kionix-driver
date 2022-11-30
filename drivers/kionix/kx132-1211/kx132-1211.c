@@ -467,6 +467,10 @@ static int kx132_1211_init(const struct device *dev)
         }
 #endif // CONFIG_KX132_TRIGGER
 
+// - DEV 1130 -
+printk("- DEV 1028 - devicetree API finds drdy-gpios compatible node with path '%s'\n", xstr(DRDY_GPIO_DEVICETREE_PATH));
+
+
     return 0;
 }
 
@@ -491,14 +495,7 @@ static const struct sensor_driver_api kx132_driver_api = {
 
 
 
-// # https://gcc.gnu.org/onlinedocs/gcc-3.4.6/cpp/Stringification.html . . . stringification via C macros
-#define xstr(s) str(s)
-#define str(s) #s
-// Ejemplo:   printk("- DEV 1028 - symbol ST_IIS2DH got assigned '%s'\n", xstr(ST_IIS2DH));
-
-
-
-// Note:  Zephyr 3.2.0 STMicro IIS2DH driver way:
+// Note:  Zephyr 3.2.0 STMicro IIS2DH driver way, uses devicetree instance numbers:
 
 #define KX132_SPI(inst)                                                                       \
         (.spi = SPI_DT_SPEC_INST_GET(                                                         \
@@ -516,7 +513,7 @@ static const struct sensor_driver_api kx132_driver_api = {
 #define KX132_DEFINE(inst)                                                                    \
         static struct kx132_device_data kx132_device_data_##inst = {                          \
                 IF_ENABLED(CONFIG_KX132_TRIGGER_GLOBAL_THREAD,                                \
-                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
+			   (.int_gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(kionix_sensor_1), drdy_gpios, 0),)   \
                           ) };                                                                  \
                                                                                               \
         static const struct kx132_device_config kx132_device_config_##inst = {                \
@@ -545,7 +542,11 @@ static const struct sensor_driver_api kx132_driver_api = {
 // - DEV 1125 - trying alternate interrupt bindings types, in multi-line macro about fifteen lines above here:
 //                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),))
 //                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, irq_gpios, { 0 }),))
+
+// Instance number way for compile time assingment to gpio_dt_spec sensor 'data' struct  member:
+//                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
 //
+// Instance number way for compile time assingment to gpio_dt_spec sensor 'config' struct member:
 //                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
 
 
