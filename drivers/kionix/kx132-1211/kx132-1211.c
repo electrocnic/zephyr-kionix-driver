@@ -525,7 +525,7 @@ static const struct sensor_driver_api kx132_driver_api = {
                 .pm = CONFIG_KX132_POWER_MODE,                                                \
 \
                 IF_ENABLED(CONFIG_KX132_TRIGGER_GLOBAL_THREAD,                                \
-                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
+                           (.int_gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(kionix_sensor_1), drdy_gpios, 0),)   \
                           )                                                                   \
 \
         };                                                                                    \
@@ -545,6 +545,8 @@ static const struct sensor_driver_api kx132_driver_api = {
 // - DEV 1125 - trying alternate interrupt bindings types, in multi-line macro about fifteen lines above here:
 //                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),))
 //                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, irq_gpios, { 0 }),))
+//
+//                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
 
 
 /* Create the struct device for every status "okay"*/
