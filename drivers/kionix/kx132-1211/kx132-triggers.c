@@ -294,7 +294,7 @@ static int kx132_handle_drdy_int(const struct device *dev)
 
 // Original active config for GPIO interrupt, taken from IIS2DH driver:
 //#define GPIO_INT__KX132_SETTING   GPIO_INT_EDGE_TO_ACTIVE
-#define GPIO_INT__KX132_SETTING   GPIO_INT_LEVEL_LOW
+#define GPIO_INT__KX132_SETTING   GPIO_INT_EDGE_RISING
 
 /**
  * Following code taken from iis2dh_trigger.c:
