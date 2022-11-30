@@ -362,6 +362,8 @@ static void kx132_work_cb(struct k_work *work)
                 CONTAINER_OF(work, struct kx132_device_data, work);
 
         kx132_handle_interrupt(kx132->dev);
+
+printk("A5A5\n");
 }
 #endif /* CONFIG_KX132_TRIGGER_GLOBAL_THREAD */
 
