@@ -221,11 +221,13 @@ static int kx132_1211_attr_set(const struct device *dev,
                             break;
                         }
 
+#ifdef CONFIG_KX132_TRIGGER
                         case KX132_REINITIALIZE_DRDY_GPIO_PORT:
                         {
                             kx132_reinitialize_interrupt_port(dev, DEFAULT_INTERAL_OPTION_OF_ZERO);
                             break;
                         }
+#endif
 
                         default: // ...action to take when requested config not supported
                         {
