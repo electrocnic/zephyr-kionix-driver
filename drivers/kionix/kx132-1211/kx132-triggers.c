@@ -393,7 +393,8 @@ int kx132_init_interrupt(const struct device *dev)
     else
         { printk("- INFO - sensor data->int_gpio.port data structure not null,\n"); }
 
-    printk("- INFO - data->int_gpio.port->name holds '%s'\n", kx132_data->int_gpio.port->name);
+    printk("- INFO - data->int_gpio.port->name holds '%s' and int_gpio pin set to pin no %u\n",
+      kx132_data->int_gpio.port->name, kx132_data->int_gpio.pin);
 
 // QUESTION:  Are we able to successfully call `device_is_ready()` from here?  ANSWER:  yes
     if ( device_is_ready(dev) )
