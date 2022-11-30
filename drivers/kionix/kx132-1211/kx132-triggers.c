@@ -480,7 +480,12 @@ int kx132_init_interrupt(const struct device *dev)
 		return -EIO;
 	}
 #endif
-	return gpio_pin_interrupt_configure_dt(&kx132_data->int_gpio, GPIO_INT_EDGE_TO_ACTIVE);
+
+// # REF https://docs.zephyrproject.org/latest/hardware/peripherals/gpio.html#c.GPIO_INT_EDGE_TO_ACTIVE
+//    printk("- kx132 triggers - configuring GPIO pin with flag(s) GPIO_INT_EDGE_TO_ACTIVE . . .\n");
+    printk("- kx132 triggers - configuring GPIO pin with flag(s) GPIO_INT_EDGE_RISING . . .\n");
+    rstatus = gpio_pin_interrupt_configure_dt(&kx132_data->int_gpio, GPIO_INT_EDGE_RISING);
+    return rstatus;
 }
 
 #endif // CONFIG_KX132_TRIGGER_NONE
