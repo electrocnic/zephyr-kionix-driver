@@ -536,7 +536,7 @@ static const struct sensor_driver_api kx132_driver_api = {
                               NULL,                                                           \
                               &kx132_device_data_##inst,                                        \
                               &kx132_device_config_##inst,                                    \
-                              POST_KERNEL,                                                    \
+                              APPLICATION,                                                    \
                               CONFIG_SENSOR_INIT_PRIORITY,                                    \
                               &kx132_driver_api                                               \
                              );
