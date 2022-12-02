@@ -469,6 +469,10 @@ static int kx132_1211_init(const struct device *dev)
         }
 #endif // CONFIG_KX132_TRIGGER
 
+#ifdef CONFIG_KX132_TRIGGER_OWN_THREAD
+#warning "zztop - KX132 driver compiled with dedicated thread support"
+#endif
+
 // - DEV 1130 -
 printk("- DEV 1028 - devicetree API finds drdy-gpios compatible node with path '%s'\n", xstr(DRDY_GPIO_DEVICETREE_PATH));
 
