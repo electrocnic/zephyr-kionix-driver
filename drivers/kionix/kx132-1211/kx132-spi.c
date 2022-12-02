@@ -16,6 +16,11 @@
 #include "kx132-1211.h"
 #include <zephyr/logging/log.h>
 
+// For development only:
+#include <stdio.h>
+
+
+
 #if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
 
 #define KX132_SPI_READM   (3 << 6) /* 0xC0 */
