@@ -518,7 +518,7 @@ BUILD_ASSERT(DT_NODE_EXISTS(DT_DRV_INST(inst))); \
 /* make sure KX132 node has drdy-gpios property */ \
 BUILD_ASSERT(DT_NODE_HAS_PROP(DT_DRV_INST(inst), drdy_gpios)); \
 /* check that first drdy-gpios pin is on GPIO port 1 (gpio1) */ \
-BUILD_ASSERT(DT_SAME_NODE(DT_GPIO_CTRL_BY_IDX(DT_DRV_INST(inst), drdy_gpios, 0), DT_NODELABEL(gpio1))) \
+/* BUILD_ASSERT(DT_SAME_NODE(DT_GPIO_CTRL_BY_IDX(DT_DRV_INST(inst), drdy_gpios, 0), DT_NODELABEL(gpio1))) */ \
                                                                                               \
         static struct kx132_device_data kx132_device_data_##inst = {                          \
                 IF_ENABLED(CONFIG_KX132_TRIGGER_GLOBAL_THREAD,                                \
