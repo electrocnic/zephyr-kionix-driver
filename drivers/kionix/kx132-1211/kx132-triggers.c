@@ -335,12 +335,14 @@ static void kx132_gpio_callback(const struct device *dev,
                 CONTAINER_OF(cb, struct kx132_device_data, gpio_cb);
 //    const struct kx132_device_config *cfg = kx132->dev->config;
     const struct kx132_device_config *cfg = dev->config;
+    const struct kx132_device_data *data = dev->data;
 
 // zephyr/include/zephyr/sys/util_macro.h:38:#define BIT(n)  (1 << (n))
 // zephyr/include/zephyr/sys/util_macro.h:44:#define BIT(n)  (1UL << (n))
 
 //    printk(DEV_1201_INTERRUPT_STRING);
-    printk("kx132_gpio_callback - pins, BIT(cfg->int_gpio.pin) hold %lu, %lu\n", pins, BIT(cfg->int_gpio.pin));
+    printk("kx132_gpio_callback - cfg pins, BIT(cfg->int_gpio.pin) hold %u, %lu\n", pins, BIT(cfg->int_gpio.pin));
+    printk("kx132_gpio_callback - data pins, BIT(data->int_gpio.pin) hold %u, %lu\n", pins, BIT(data->int_gpio.pin));
 
     if ((pins & BIT(cfg->int_gpio.pin)) == 0U) {
         return;
@@ -421,7 +423,7 @@ int kx132_init_interrupt(const struct device *dev)
 
     printk("- INFO - data->int_gpio.port->name holds '%s' and int_gpio pin set to pin no %u\n",
       kx132_data->int_gpio.port->name, kx132_data->int_gpio.pin);
-    printk("- INFO - two to the power of 'pin' holds %u\n",
+    printk("- INFO - two to the power of 'pin' holds %lu\n",
       BIT(kx132_data->int_gpio.pin));
 
 // QUESTION:  Are we able to successfully call `device_is_ready()` from here?  ANSWER:  yes
