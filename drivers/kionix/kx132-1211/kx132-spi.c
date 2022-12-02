@@ -26,6 +26,15 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 static int kx132_spi_read(const struct device *dev, uint8_t reg, uint8_t *data, uint16_t len)
 {
 	const struct kx132_device_config *config = dev->config;
+
+#if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
+#warning "--- DEV 1120 --- compiling kx132_spi_read() function . . ."
+    char lbuf[240];
+    snprintf(lbuf, sizeof(lbuf), "- DEV 1202 - in KX132 driver, SPI called with first byte %u out of %u bytes read\n",
+      data[0], len);
+    printk("%s", lbuf);
+#endif
+
 	uint8_t buffer_tx[2] = { reg | KX132_SPI_READM, 0 };
 	const struct spi_buf tx_buf = {
 			.buf = buffer_tx,
@@ -104,4 +113,28 @@ int kx132_spi_init(const struct device *dev)
 
 	return 0;
 }
+
 #endif /* DT_ANY_INST_ON_BUS_STATUS_OKAY(spi) */
+
+
+
+
+#if 0
+
+// diag 1
+.........................
+snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - about to read kx132 internal register 0x%02x, requesting %u bytes . . .\n",
+  reg_addr, len);
+printk("%s", lbuf);
+.........................
+
+
+// diag 2
+.........................
+#warning "--- DEV 1120 --- compiling kx132_12c_read() function . . ."
+snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - in KX132 driver, I2C part got first byte %u out of %u bytes read\n",
+  value[0], len);
+printk("%s", lbuf);
+.........................
+
+#endif // 0
