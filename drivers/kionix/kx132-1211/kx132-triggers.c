@@ -340,7 +340,7 @@ static void kx132_gpio_callback(const struct device *dev,
 // zephyr/include/zephyr/sys/util_macro.h:44:#define BIT(n)  (1UL << (n))
 
 //    printk(DEV_1201_INTERRUPT_STRING);
-//    printk("kx132_gpio_callback - pins, BIT(cfg->int_gpio.pin) hold %lu, %lu\n", pins, BIT(cfg->int_gpio.pin));
+    printk("kx132_gpio_callback - pins, BIT(cfg->int_gpio.pin) hold %lu, %lu\n", pins, BIT(cfg->int_gpio.pin));
 
     if ((pins & BIT(cfg->int_gpio.pin)) == 0U) {
         return;
@@ -421,6 +421,8 @@ int kx132_init_interrupt(const struct device *dev)
 
     printk("- INFO - data->int_gpio.port->name holds '%s' and int_gpio pin set to pin no %u\n",
       kx132_data->int_gpio.port->name, kx132_data->int_gpio.pin);
+    printk("- INFO - two to the power of 'pin' holds %u\n",
+      BIT(kx132_data->int_gpio.pin));
 
 // QUESTION:  Are we able to successfully call `device_is_ready()` from here?  ANSWER:  yes
     if ( device_is_ready(dev) )
