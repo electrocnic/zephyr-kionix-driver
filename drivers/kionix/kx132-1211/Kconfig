@@ -90,10 +90,10 @@ config KX132_TRIGGER_GLOBAL_THREAD
         depends on GPIO
         select KX132_TRIGGER
 
-#config KX132_TRIGGER_OWN_THREAD
-#        bool "Use own thread"
-#        depends on GPIO
-#        select KX132_TRIGGER
+config KX132_TRIGGER_OWN_THREAD
+        bool "Use own thread"
+        depends on GPIO
+        select KX132_TRIGGER
 
 endchoice
 
