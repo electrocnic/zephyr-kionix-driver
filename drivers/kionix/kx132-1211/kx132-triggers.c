@@ -12,6 +12,10 @@
 
 
 
+#define DEV_1201_INTERRUPT_STRING "A5A5A5A5  A5A5A5A5  A5A5A5A5\n"
+
+
+
 //----------------------------------------------------------------------
 // C library includes:
 //----------------------------------------------------------------------
@@ -282,6 +286,8 @@ static int kx132_handle_drdy_int(const struct device *dev)
                 .chan = SENSOR_CHAN_ALL,
         };
 
+    printk(DEV_1201_INTERRUPT_STRING);
+
         if (data->drdy_handler) {
                 data->drdy_handler(dev, &drdy_trig);
         }
@@ -308,13 +314,14 @@ static void kx132_handle_interrupt(const struct device *dev)
 //    return;
 //#else
 #warning "- KX132 triggers - compiling routine kx132_handle_interrupt()"
-        const struct kx132_device_config *cfg = dev->config;
+    const struct kx132_device_config *cfg = dev->config;
 
+    printk(DEV_1201_INTERRUPT_STRING);
     printk("- DIAG 1130 - kx132_handle_interrupt() in driver called\n");
 
-        kx132_handle_drdy_int(dev);
+    kx132_handle_drdy_int(dev);
 
-        gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT__KX132_SETTING);
+    gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT__KX132_SETTING);
 //#endif
 }
 
@@ -324,20 +331,23 @@ static void kx132_gpio_callback(const struct device *dev,
                                  struct gpio_callback *cb, uint32_t pins)
 {
 #warning "- KX132 triggers - compiling routine kx132_gpio_callback()"
-        struct kx132_device_data *kx132 =
+    struct kx132_device_data *kx132 =
                 CONTAINER_OF(cb, struct kx132_device_data, gpio_cb);
-        const struct kx132_device_config *cfg = kx132->dev->config;
+    const struct kx132_device_config *cfg = kx132->dev->config;
 
-        if ((pins & BIT(cfg->int_gpio.pin)) == 0U) {
-                return;
-        }
+    if ((pins & BIT(cfg->int_gpio.pin)) == 0U) {
+        return;
+    }
 
-        gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT_DISABLE);
+    gpio_pin_interrupt_configure_dt(&cfg->int_gpio, GPIO_INT_DISABLE);
+    printk("zzz\n");
+    printk(DEV_1201_INTERRUPT_STRING);
+    printk("zzz\n");
 
 #if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
-        k_sem_give(&kx132->gpio_sem);
+    k_sem_give(&kx132->gpio_sem);
 #elif defined(CONFIG_KX132_TRIGGER_GLOBAL_THREAD)
-        k_work_submit(&kx132->work);
+    k_work_submit(&kx132->work);
 #endif /* CONFIG_KX132_TRIGGER_OWN_THREAD */
 }
 
@@ -345,10 +355,10 @@ static void kx132_gpio_callback(const struct device *dev,
 static void kx132_thread(struct kx132_device_data *kx132)
 {
 #warning "- KX132 triggers - compiling routine kx132_thread()"
-        while (1) {
-                k_sem_take(&kx132->gpio_sem, K_FOREVER);
-                kx132_handle_interrupt(kx132->dev);
-        }
+    while (1) {
+        k_sem_take(&kx132->gpio_sem, K_FOREVER);
+        kx132_handle_interrupt(kx132->dev);
+    }
 }
 #endif /* CONFIG_KX132_TRIGGER_OWN_THREAD */
 
@@ -358,12 +368,11 @@ static void kx132_thread(struct kx132_device_data *kx132)
 static void kx132_work_cb(struct k_work *work)
 {
 #warning "- KX132 triggers - compiling routine kx132_work_cb()"
-        struct kx132_device_data *kx132 =
-                CONTAINER_OF(work, struct kx132_device_data, work);
+    struct kx132_device_data *kx132 = CONTAINER_OF(work, struct kx132_device_data, work);
 
-        kx132_handle_interrupt(kx132->dev);
+    kx132_handle_interrupt(kx132->dev);
 
-printk("A5A5\n");
+    printk(DEV_1201_INTERRUPT_STRING);
 }
 #endif /* CONFIG_KX132_TRIGGER_GLOBAL_THREAD */
 
