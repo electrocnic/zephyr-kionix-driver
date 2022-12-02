@@ -95,6 +95,13 @@ config KX132_TRIGGER_OWN_THREAD
         depends on GPIO
         select KX132_TRIGGER
 
+config KX132_THREAD_STACK_SIZE
+        int "Sensor interrupt handling thread stack size"
+        depends on KX132_TRIGGER_OWN_THREAD
+        default 1024
+	help
+          Select a sufficient statis RAM allocation for KX132 thread
+
 endchoice
 
 
