@@ -517,13 +517,14 @@ static const struct sensor_driver_api kx132_driver_api = {
 
 
 #define KX132_DEFINE(inst)                                                                    \
+\
 /* make sure KX132 node exists */ \
-BUILD_ASSERT(DT_NODE_EXISTS(DT_DRV_INST(inst))); \
+/* BUILD_ASSERT(DT_NODE_EXISTS(DT_DRV_INST(inst))); */ \
 /* make sure KX132 node has drdy-gpios property */ \
-BUILD_ASSERT(DT_NODE_HAS_PROP(DT_DRV_INST(inst), drdy_gpios)); \
+/* BUILD_ASSERT(DT_NODE_HAS_PROP(DT_DRV_INST(inst), drdy_gpios)); */ \
 /* check that first drdy-gpios pin is on GPIO port 1 (gpio1) */ \
 /* BUILD_ASSERT(DT_SAME_NODE(DT_GPIO_CTRL_BY_IDX(DT_DRV_INST(inst), drdy_gpios, 0), DT_NODELABEL(gpio1))) */ \
-                                                                                              \
+\
         static struct kx132_device_data kx132_device_data_##inst = {                          \
                 IF_ENABLED(CONFIG_KX132_TRIGGER,                                             \
                            (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
