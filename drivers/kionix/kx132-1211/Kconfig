@@ -72,10 +72,10 @@ config DEFINE_DEVICE_KX132_VIA_DEVICE_DT_INST_DEFINE
 
 endchoice
 
+endif # KX132_1211
 
 
-config KX132_TRIGGER
-        bool
+if KX132_1211
 
 choice KX132_TRIGGER_MODE
         prompt "Trigger mode"
@@ -95,6 +95,14 @@ config KX132_TRIGGER_OWN_THREAD
         depends on GPIO
         select KX132_TRIGGER
 
+endchoice
+
+
+config KX132_TRIGGER
+        bool
+
+if KX132_TRIGGER
+
 config KX132_THREAD_PRIORITY
         int "KX132 thread priority"
         depends on IIS2DH_TRIGGER_OWN_THREAD
@@ -109,7 +117,7 @@ config KX132_THREAD_STACK_SIZE
 	help
           Select a sufficient statis RAM allocation for KX132 thread
 
-endchoice
+endif # KX132_TRIGGER
 
 
 endif # KX132_1211
