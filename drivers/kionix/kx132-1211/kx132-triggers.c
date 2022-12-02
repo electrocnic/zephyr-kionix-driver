@@ -341,8 +341,8 @@ static void kx132_gpio_callback(const struct device *dev,
 // zephyr/include/zephyr/sys/util_macro.h:44:#define BIT(n)  (1UL << (n))
 
 //    printk(DEV_1201_INTERRUPT_STRING);
-    printk("kx132_gpio_callback - cfg pins, BIT(cfg->int_gpio.pin) hold %u, %lu\n", pins, BIT(cfg->int_gpio.pin));
-    printk("kx132_gpio_callback - data pins, BIT(data->int_gpio.pin) hold %u, %lu\n", pins, BIT(data->int_gpio.pin));
+//    printk("kx132_gpio_callback - cfg pins, BIT(cfg->int_gpio.pin) hold %u, %lu\n", pins, BIT(cfg->int_gpio.pin));
+//    printk("kx132_gpio_callback - data pins, BIT(data->int_gpio.pin) hold %u, %lu\n", pins, BIT(data->int_gpio.pin));
 
     if ((pins & BIT(cfg->int_gpio.pin)) == 0U) {
         return;
