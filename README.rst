@@ -1,4 +1,5 @@
-## 2022-11-22
+2022-11-22
+**********
 
 This project a Zephyr based sensor driver for Kionix KX132-1211 accelerometer.  As of this November this driver is a work in progress.  There is I2C communications with sensor tested and working.  A small subset of the roughly ninety eight config and data registers are configurable by this driver.  Enough registers are configurable to enable x,y,z continuous, asynchronous acceleration readings.
 
@@ -9,10 +10,18 @@ Sources in `kionix_driver_demo/src`, the top directory of that just mentioned dr
 KX132 interrupt support in this driver is not yet implemented.  Work underway on this important feature.
 
 
-## Supported boards
+Supported boards
+****************
 
 NXP's lpcxpresso55s69 presently tested.
 
 Most any board with an MCU for which Zephyr RTOS includes SoC level device tree sources, and in which MXU has at least one I2C and or SPI interface can be used to run this demo.  An appropriate device tree overlay file named `boards/[target_board_name].overlay` at the root of the project will normally suffice to inform Zephyr at compile time of which on-micro-controller peripheral(s) to enable to talk to the KX132 accelerometer.
 
 https://github.com/tedhavelka/zephyr-driver-work-v2/pull/new/sensor-trigger-support
+
+
+Commits of Note
+***************
+
+* commit 71363c16f8923be80ce9a72c3489adad42c975bb
+  This commit shows KX132 trigger callback code responding, a routine in kx132-triggers.c, but seemingly too frequently.  Next step work involves careful review of KX132 datasheet document 'KX132-1211-Technical-Reference-Manual-Rev-5.0.pdf'.
