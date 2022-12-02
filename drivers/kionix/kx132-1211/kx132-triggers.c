@@ -12,7 +12,7 @@
 
 
 
-#define DEV_1201_INTERRUPT_STRING "A5A5A5A5  A5A5A5A5  A5A5A5A5\n"
+#define DEV_1201_INTERRUPT_STRING "A5A5A5A5\n"
 
 
 
@@ -336,7 +336,7 @@ static void kx132_gpio_callback(const struct device *dev,
     const struct kx132_device_config *cfg = kx132->dev->config;
 
     printk(DEV_1201_INTERRUPT_STRING);
-    printk("kx132_gpio_callback - before check of passed 'pins' against int_gpio.pin,\n");
+    printk("kx132_gpio_callback - pins & BIT(cfg->int_gpio.pin) holds %u\n", (pins & BIT(cfg->int_gpio.pin)));
 
     if ((pins & BIT(cfg->int_gpio.pin)) == 0U) {
         return;
