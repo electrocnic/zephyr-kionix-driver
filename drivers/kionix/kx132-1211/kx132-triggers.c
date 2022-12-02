@@ -335,6 +335,9 @@ static void kx132_gpio_callback(const struct device *dev,
                 CONTAINER_OF(cb, struct kx132_device_data, gpio_cb);
     const struct kx132_device_config *cfg = kx132->dev->config;
 
+    printk(DEV_1201_INTERRUPT_STRING);
+    printk("kx132_gpio_callback - before check of passed 'pins' against int_gpio.pin,\n");
+
     if ((pins & BIT(cfg->int_gpio.pin)) == 0U) {
         return;
     }
@@ -452,7 +455,7 @@ int kx132_init_interrupt(const struct device *dev)
 // # REF https://github.com/zephyrproject-rtos/zephyr/blob/main/include/zephyr/drivers/gpio.h#L271
     if (!device_is_ready(kx132_data->int_gpio.port))
     {
-        printk("- MARK 3 - kx132 triggers, GPIO interrupt port not ready!\n");
+        printk("- MARK 6 - kx132 triggers, GPIO interrupt port not ready!\n");
         LOG_ERR("%s: device %s is not ready", dev->name, cfg->int_gpio.port->name);
         return -ENODEV;
     }
@@ -467,10 +470,11 @@ int kx132_init_interrupt(const struct device *dev)
 //      V              |
 //     dev -> data -> dev
 
-    printk("- MARK 4 - kx132 triggers, pointing sensor->data->dev back to 'sensor',\n");
+    printk("- MARK 7 - kx132 triggers, pointing sensor->data->dev back to 'sensor',\n");
     kx132_data->dev = dev;
 
 #if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
+    printk("- MARK 8 - kx132 setting up dedicated thread which involves semaphore . . .\n");
     k_sem_init(&kx132_data->gpio_sem, 0, K_SEM_MAX_LIMIT);
 
     k_thread_create(&kx132_data->thread, kx132_data->thread_stack,
@@ -479,7 +483,7 @@ int kx132_init_interrupt(const struct device *dev)
                     0, NULL, K_PRIO_COOP(CONFIG_KX132_THREAD_PRIORITY),
                     0, K_NO_WAIT);
 #elif defined(CONFIG_KX132_TRIGGER_GLOBAL_THREAD)
-    printk("- MARK 4 - kx132 triggers, assigning sensor->data->work.handler 'kx132_work_cb',\n");
+    printk("- MARK 8 - kx132 setting up global thread, assigning sensor->data->work.handler 'kx132_work_cb',\n");
     kx132_data->work.handler = kx132_work_cb;
 #endif /* CONFIG_KX132_TRIGGER_OWN_THREAD */
 
