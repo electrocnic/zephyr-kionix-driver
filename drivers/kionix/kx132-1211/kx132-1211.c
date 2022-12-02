@@ -513,27 +513,34 @@ static const struct sensor_driver_api kx132_driver_api = {
 
 
 #define KX132_DEFINE(inst)                                                                    \
+/* make sure KX132 node exists */ \
+BUILD_ASSERT(DT_NODE_EXISTS(DT_DRV_INST(inst))); \
+/* make sure KX132 node has drdy-gpios property */ \
+BUILD_ASSERT(DT_NODE_HAS_PROP(DT_DRV_INST(inst), drdy_gpios)); \
+/* check that first drdy-gpios pin is on GPIO port 1 (gpio1) */ \
+BUILD_ASSERT(DT_SAME_NODE(DT_GPIO_CTRL_BY_IDX(DT_DRV_INST(inst), drdy_gpios, 0), DT_NODELABEL(gpio1))) \
+                                                                                              \
         static struct kx132_device_data kx132_device_data_##inst = {                          \
                 IF_ENABLED(CONFIG_KX132_TRIGGER_GLOBAL_THREAD,                                \
-			   (.int_gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(kionix_sensor_1), drdy_gpios, 0),)   \
-                          ) };                                                                  \
+                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
+                          ) };                                                                \
                                                                                               \
         static const struct kx132_device_config kx132_device_config_##inst = {                \
                 COND_CODE_1(DT_INST_ON_BUS(inst, i2c), KX132_I2C(inst), ())                   \
                 COND_CODE_1(DT_INST_ON_BUS(inst, spi), KX132_SPI(inst), ())                   \
                 .pm = CONFIG_KX132_POWER_MODE,                                                \
-\
+                                                                                              \
                 IF_ENABLED(CONFIG_KX132_TRIGGER_GLOBAL_THREAD,                                \
-                           (.int_gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(kionix_sensor_1), drdy_gpios, 0),)   \
+                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
                           )                                                                   \
-\
+                                                                                              \
         };                                                                                    \
                                                                                               \
         DEVICE_DT_INST_DEFINE(                                                                \
                               inst,                                                           \
                               kx132_1211_init,                                                \
                               NULL,                                                           \
-                              &kx132_device_data_##inst,                                        \
+                              &kx132_device_data_##inst,                                      \
                               &kx132_device_config_##inst,                                    \
                               APPLICATION,                                                    \
                               CONFIG_SENSOR_INIT_PRIORITY,                                    \
@@ -547,9 +554,12 @@ static const struct sensor_driver_api kx132_driver_api = {
 
 // Instance number way for compile time assingment to gpio_dt_spec sensor 'data' struct  member:
 //                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   [backslash]
+//			   (.int_gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(kionix_sensor_1), drdy_gpios, 0),)   [backslash]
+
 //
 // Instance number way for compile time assingment to gpio_dt_spec sensor 'config' struct member:
 //                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   [backslash]
+//			   (.int_gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(kionix_sensor_1), drdy_gpios, 0),)   [backslash]
 
 
 /* Create the struct device for every status "okay"*/

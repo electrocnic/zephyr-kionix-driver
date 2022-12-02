@@ -378,12 +378,18 @@ int kx132_init_interrupt(const struct device *dev)
 #warning "- KX132 triggers - compiling routine kx132_init_interrupt()"
 
 // DEBUG 1124 BEGIN
-    printk("- MARK 2 - kx132 triggers driver sub-part\n");
+    printk("- MARK 2 - kx132 triggers driver, ");
     printk("- sensor device name is '%s'\n", dev->name);
-    if ( cfg == NULL )
-        { printk("- WARNING - sensor config data structure found null!\n"); }
+
+    if ( cfg->int_gpio == NULL )
+    {
+        printk("- WARNING - kx132's cfg->int_gpio pointer found null!\n");
+        printk("- WARNING - kx132's cfg->int_gpio pointer found null!\n");
+        kx132_data->drdy_port_status = DRDY_CFG_INT_GPIO_FOUND_NULL;
+        return ROUTINE_STATUS__CFG_INT_GPIO_NULL;
+    }
     else
-        { printk("- INFO - sensor config data structure not null,\n"); }
+        { printk("- INFO - cfg->int_gpio structure not null,\n"); }
 
 //    if ( cfg.int_gpio == NULL )
 //        { printk("- WARNING - sensor config.int_gpio data structure found null!\n"); }
