@@ -10,7 +10,7 @@
  *    Datasheet:  https://www.st.com/resource/en/datasheet/iis2dh.pdf
  */
 
-#define DT_DRV_COMPAT kionix_kx132
+#define DT_DRV_COMPAT kionix_kx132_1211
 
 #include <string.h>
 #include "kx132-1211.h"
