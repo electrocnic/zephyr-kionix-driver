@@ -521,7 +521,7 @@ BUILD_ASSERT(DT_NODE_HAS_PROP(DT_DRV_INST(inst), drdy_gpios)); \
 /* BUILD_ASSERT(DT_SAME_NODE(DT_GPIO_CTRL_BY_IDX(DT_DRV_INST(inst), drdy_gpios, 0), DT_NODELABEL(gpio1))) */ \
                                                                                               \
         static struct kx132_device_data kx132_device_data_##inst = {                          \
-                IF_ENABLED(CONFIG_KX132_TRIGGER_GLOBAL_THREAD,                                \
+                IF_ENABLED(CONFIG_KX132_TRIGGER,                                             \
                            (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
                           ) };                                                                \
                                                                                               \
@@ -530,7 +530,7 @@ BUILD_ASSERT(DT_NODE_HAS_PROP(DT_DRV_INST(inst), drdy_gpios)); \
                 COND_CODE_1(DT_INST_ON_BUS(inst, spi), KX132_SPI(inst), ())                   \
                 .pm = CONFIG_KX132_POWER_MODE,                                                \
                                                                                               \
-                IF_ENABLED(CONFIG_KX132_TRIGGER_GLOBAL_THREAD,                                \
+                IF_ENABLED(CONFIG_KX132_TRIGGER,                                             \
                            (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   \
                           )                                                                   \
                                                                                               \
@@ -553,11 +553,13 @@ BUILD_ASSERT(DT_NODE_HAS_PROP(DT_DRV_INST(inst), drdy_gpios)); \
 //                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, irq_gpios, { 0 }),))
 
 // Instance number way for compile time assingment to gpio_dt_spec sensor 'data' struct  member:
+//                IF_ENABLED(CONFIG_KX132_TRIGGER_GLOBAL_THREAD,                              [backslash] 
 //                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   [backslash]
 //			   (.int_gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(kionix_sensor_1), drdy_gpios, 0),)   [backslash]
 
 //
 // Instance number way for compile time assingment to gpio_dt_spec sensor 'config' struct member:
+//                IF_ENABLED(CONFIG_KX132_TRIGGER_GLOBAL_THREAD,                              [backslash] 
 //                           (.int_gpio = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 }),)   [backslash]
 //			   (.int_gpio = GPIO_DT_SPEC_GET_BY_IDX(DT_NODELABEL(kionix_sensor_1), drdy_gpios, 0),)   [backslash]
 
