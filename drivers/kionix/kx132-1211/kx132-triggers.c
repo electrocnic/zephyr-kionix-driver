@@ -333,10 +333,14 @@ static void kx132_gpio_callback(const struct device *dev,
 #warning "- KX132 triggers - compiling routine kx132_gpio_callback()"
     struct kx132_device_data *kx132 =
                 CONTAINER_OF(cb, struct kx132_device_data, gpio_cb);
-    const struct kx132_device_config *cfg = kx132->dev->config;
+//    const struct kx132_device_config *cfg = kx132->dev->config;
+    const struct kx132_device_config *cfg = dev->config;
 
-    printk(DEV_1201_INTERRUPT_STRING);
-    printk("kx132_gpio_callback - pins, BIT(cfg->int_gpio.pin) hold %lu, %lu\n", pins, BIT(cfg->int_gpio.pin));
+// zephyr/include/zephyr/sys/util_macro.h:38:#define BIT(n)  (1 << (n))
+// zephyr/include/zephyr/sys/util_macro.h:44:#define BIT(n)  (1UL << (n))
+
+//    printk(DEV_1201_INTERRUPT_STRING);
+//    printk("kx132_gpio_callback - pins, BIT(cfg->int_gpio.pin) hold %lu, %lu\n", pins, BIT(cfg->int_gpio.pin));
 
     if ((pins & BIT(cfg->int_gpio.pin)) == 0U) {
         return;
