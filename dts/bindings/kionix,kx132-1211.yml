@@ -13,6 +13,7 @@ properties:
       type: phandle-array
       required: false
       description: DRDY pin, `Data Ready' interrupt pin.
+
         See Kionix' documents
         KX132-1211-Technical-Reference-Manual-Rev-5.0.pdf and AN092-Getting-Started.pdf
         for more information.
