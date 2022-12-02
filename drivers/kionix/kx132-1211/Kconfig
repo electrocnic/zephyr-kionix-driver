@@ -95,6 +95,13 @@ config KX132_TRIGGER_OWN_THREAD
         depends on GPIO
         select KX132_TRIGGER
 
+config KX132_THREAD_PRIORITY
+        int "KX132 thread priority"
+        depends on IIS2DH_TRIGGER_OWN_THREAD
+        default 10
+        help
+          Priority of thread used by KX132-1211 driver to handle interrupts.
+
 config KX132_THREAD_STACK_SIZE
         int "Sensor interrupt handling thread stack size"
         depends on KX132_TRIGGER_OWN_THREAD
