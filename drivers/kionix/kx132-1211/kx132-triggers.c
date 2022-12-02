@@ -12,6 +12,10 @@
 
 
 
+// Original active config for GPIO interrupt, taken from IIS2DH driver:
+#define GPIO_INT__KX132_SETTING   GPIO_INT_EDGE_TO_ACTIVE
+//#define GPIO_INT__KX132_SETTING   GPIO_INT_EDGE_RISING
+
 #define DEV_1201_INTERRUPT_STRING "A5A5A5A5\n"
 
 
@@ -136,7 +140,7 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 
 // DT_REG_ADDR(DT_NODELABEL(arduino_gpio))
 
-    printk("- DEV 1129 - device node &gpio1 has register block start address 0x%08X\n", DT_REG_ADDR(DT_NODELABEL(arduino_gpio)));
+    printk("- DEV 1129 - device node for gpio controller has register block start address 0x%08X\n", DT_REG_ADDR(DT_NODELABEL(arduino_gpio)));
 
 // Per NXP UM11126.pdf, LPC55S69 user manual page 17 of 1190, above
 // trace statement gives '0x5008000', the secure version of the
@@ -297,10 +301,6 @@ static int kx132_handle_drdy_int(const struct device *dev)
 }
 
 
-
-// Original active config for GPIO interrupt, taken from IIS2DH driver:
-//#define GPIO_INT__KX132_SETTING   GPIO_INT_EDGE_TO_ACTIVE
-#define GPIO_INT__KX132_SETTING   GPIO_INT_EDGE_RISING
 
 /**
  * Following code taken from iis2dh_trigger.c:
