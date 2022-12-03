@@ -82,8 +82,7 @@ static int kx132_spi_write(const struct device *dev, uint8_t reg, uint8_t *data,
 #if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
 #warning "--- DEV 1120 --- compiling kx132_spi_write() function . . ."
     char lbuf[240];
-    snprintf(lbuf, sizeof(lbuf), "- DEV 1202 - SPI write called with reg %u, to write %u bytes,\n",
-      reg, len);
+    snprintf(lbuf, sizeof(lbuf), "- DEV 1202 - SPI write called with reg %u, to write %u bytes,\n", reg, len);
     printk("%s", lbuf);
     snprintf(lbuf, sizeof(lbuf), "- DEV 1202 - first data byte to write is %u.\n", data[1]);
     printk("%s", lbuf)
