@@ -23,10 +23,12 @@
 
 #if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
 
-#define KX132_SPI_READM   (3 << 6) /* 0xC0  . . . bits to read multiple registers, whose addrs auto-increment */
-#define KX132_SPI_WRITEM  (1 << 6) /* 0x40 */
+#define KX132_SPI_READM   (3 << 6) /* 0xC0  . . . set bit 7 to read, set bit 6 to auto-increment peripheral register addr */
+#define KX132_SPI_WRITEM  (1 << 6) /* 0x40  . . . set bit 6 to auto-increment peripheral register addr */
 
 LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
+
+
 
 static int kx132_spi_read(const struct device *dev, uint8_t reg, uint8_t *data, uint16_t len)
 {
@@ -71,6 +73,8 @@ static int kx132_spi_read(const struct device *dev, uint8_t reg, uint8_t *data, 
 	return 0;
 }
 
+
+
 static int kx132_spi_write(const struct device *dev, uint8_t reg, uint8_t *data, uint16_t len)
 {
 	const struct kx132_device_config *config = dev->config;
@@ -78,8 +82,8 @@ static int kx132_spi_write(const struct device *dev, uint8_t reg, uint8_t *data,
 #if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
 #warning "--- DEV 1120 --- compiling kx132_spi_write() function . . ."
     char lbuf[240];
-    snprintf(lbuf, sizeof(lbuf), "- DEV 1202 - SPI write called with reg %u, first write data of %u . . .\n",
-      reg, data[0]);
+    snprintf(lbuf, sizeof(lbuf), "- DEV 1202 - SPI write called with reg %u, first data byte to write %u . . .\n",
+      reg, data[1]);
     printk("%s", lbuf);
 #endif
 
