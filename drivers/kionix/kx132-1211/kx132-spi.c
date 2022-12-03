@@ -85,7 +85,7 @@ static int kx132_spi_write(const struct device *dev, uint8_t reg, uint8_t *data,
     snprintf(lbuf, sizeof(lbuf), "- DEV 1202 - SPI write called with reg %u, to write %u bytes,\n", reg, len);
     printk("%s", lbuf);
     snprintf(lbuf, sizeof(lbuf), "- DEV 1202 - first data byte to write is %u.\n", data[1]);
-    printk("%s", lbuf)
+    printk("%s", lbuf);
 #endif
 
 	uint8_t buffer_tx[1] = { reg | KX132_SPI_WRITEM };
