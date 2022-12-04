@@ -14,6 +14,9 @@
 
 
 
+#define DT_DRV_COMPAT kionix_kx132_1211
+
+
 
 #define SIZE_MANUFACT_ID_STRING (4)
 #define SIZE_PART_ID_STRING (2)
