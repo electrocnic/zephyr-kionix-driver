@@ -23,7 +23,8 @@
 
 #if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
 
-#define KX132_SPI_READM   (3 << 6) /* 0xC0  . . . set bit 7 to read, set bit 6 to auto-increment peripheral register addr */
+//#define KX132_SPI_READM   (3 << 6) /* 0xC0  . . . set bit 7 to read, set bit 6 to auto-increment peripheral register addr */
+#define KX132_SPI_READM   (2 << 6) /* 0x80  . . . set bit 7 to read, unset bit 6 to hold peripheral register addr steady*/
 #define KX132_SPI_WRITEM  (1 << 6) /* 0x40  . . . set bit 6 to auto-increment peripheral register addr */
 
 LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
