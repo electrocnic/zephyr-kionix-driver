@@ -89,7 +89,8 @@ static int kx132_spi_write(const struct device *dev, uint8_t reg, uint8_t *data,
     printk("%s", lbuf);
 #endif
 
-	uint8_t buffer_tx[1] = { reg | KX132_SPI_WRITEM };
+//	uint8_t buffer_tx[1] = { reg | KX132_SPI_WRITEM };  // <-- this OR'ing of 0b01000000 may break comm's with KX132 sensor
+	uint8_t buffer_tx[1] = { reg };
 	const struct spi_buf tx_buf[2] = {
 		{
 			.buf = buffer_tx,
