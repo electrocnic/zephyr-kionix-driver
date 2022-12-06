@@ -72,7 +72,7 @@ static int kx132_i2c_read(const struct device *dev, uint8_t reg_addr, uint8_t *v
 //  to successive elements, so that calls to this functions `ctx`
 //  structure of function pointers can be of one form - TMH
 
-static int kx132_i2c_write(const struct device *dev, uint8_t reg_addr, uint8_t *value, uint16_t len)
+static int kx132_i2c_write(const struct device *dev, uint8_t reg_addr, uint8_t *data, uint16_t len)
 {
     int rstatus = 0;
     const struct kx132_device_config *config = dev->config;
@@ -81,19 +81,55 @@ static int kx132_i2c_write(const struct device *dev, uint8_t reg_addr, uint8_t *
 // NOTE 2022-11-22, trouble getting Zephyr I2C burst reads and writes
 //  to work.  Alternate I2C API selection here unfortunately compells a
 //  change in how calling code sets up and passes sensor internal
-//  register address:
+//  register address.
+//
+//  The change around the first week of 2022 December, up to Dec' 6
+//  is that this routine ignored parameter two 'reg_addr' and requires
+//  calling code to put given I2C peripheral register address as first
+//  data byte in buffer of data bytes to write.
+//
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-#if 1 // - DEV 1122 --
     char lbuf[128] = {0};
+#if 0 // - DEV 1122, DEV 1206  --
     snprintf(lbuf, sizeof(lbuf), "- kx132-i2c.c - writing internal reg 0x%02X with 0x%02X . . .\n",
-      value[0], value[1]);
+      data[0], data[1]);
+    printk("%s", lbuf);
+#else
+    snprintf(lbuf, sizeof(lbuf), "- kx132-i2c.c - writing internal reg 0x%02X with 0x%02X . . .\n",
+      reg_addr, data[0]);
     printk("%s", lbuf);
 #endif
 
-// Following Zephyr i2c burst write API implemented in STMicro IIS2DH driver:
+// - DEV 1206 - 
+// Given our driver is for KX132-1211 sensor only, and we knwo from
+// sensor datasheet that we'll only ever write one byte at a time,
+// we'll declare a small, local write buffer to build an I2C data
+// packet whose first byte is sensor's internal register address.
+// This packet is how API function i2c_write_dt() expects to receive
+// data to write to given sensor or peripheral - TMH
+
+    uint8_t data_to_write[CONFIG_KX132_I2C_WRITE_BUFFER_SIZE];
+
+    if ( len >= CONFIG_KX132_I2C_WRITE_BUFFER_SIZE )
+    {
+        return ROUTINE_STATUS__REQUESTED_I2C_WRITE_DATA_BUFFER_TOO_LARGE;
+    }
+
+    data_to_write[0] = reg_addr;
+    for ( uint32_t i = 1; i <= len; i++ )
+    {
+        data_to_write[i] = data[(i - 1)];
+#if 1
+        printk("- kx132 reg write via i2c - copying 0x%02x to data_to_write[%u],\n", data_to_write[i], i);
+#endif
+    }
+
+// Following Zephyr i2c burst write API implemented in STMicro IIS2DH driver,
+// fails with either Kionix KX132 sensor or NXP LPC55S69 flexcomm serial
+// peripheral:
 //    return i2c_burst_write_dt(&config->i2c, reg_addr | 0x80, value, len);
-    rstatus = i2c_write_dt(&config->i2c, value, len);
+    rstatus = i2c_write_dt(&config->i2c, data_to_write, len);
 
     return rstatus;
 }
