@@ -50,6 +50,28 @@ static int kx132_i2c_read(const struct device *dev, uint8_t reg_addr, uint8_t *v
 
 // REF https://github.com/zephyrproject-rtos/zephyr/blob/main/include/zephyr/drivers/i2c.h#L77  <-- i2c_dt_spec definition here
 
+// NOTE:  with KX132 sensor on NXP lpcxpresso55s69 developemnt board,
+//  i2c burst write API call produces erroneous data.  Zephyr API
+//  `i2c_write_dt()` produces correct data, but requires the peripheral
+//  register address to be first element in the buffer of data to
+//  write to the given peripheral.  At compile time 'len' or length of
+//  data to write is not known, so we would need to call calloc()
+//  or similar to allocate memory at run time, greatly complicating
+//  what should be a short and fast running bus transaction routine.
+//
+//  The parameter list here as found in STMicro IIS2DH Zephry driver,
+//  is chosen in a way to support calls to both I2C and SPI Zephyr
+//  APIs.  This helps decouple sensor level driver code from the
+//  communications bus of choice.  But the KX132 sensor compels us to
+//  bend the otherwise I2C + SPI interchangeable parameter list.
+//
+// 2022-12-05 - Given that writes to sensor registers are usually
+//  low in byte count, often one byte, we may have good reason to
+//  implement a fixed size array for data to write, and copy peripheral
+//  register to its first element, and data from *value parameter
+//  to successive elements, so that calls to this functions `ctx`
+//  structure of function pointers can be of one form - TMH
+
 static int kx132_i2c_write(const struct device *dev, uint8_t reg_addr, uint8_t *value, uint16_t len)
 {
     int rstatus = 0;
@@ -69,6 +91,7 @@ static int kx132_i2c_write(const struct device *dev, uint8_t reg_addr, uint8_t *
     printk("%s", lbuf);
 #endif
 
+// Following Zephyr i2c burst write API implemented in STMicro IIS2DH driver:
 //    return i2c_burst_write_dt(&config->i2c, reg_addr | 0x80, value, len);
     rstatus = i2c_write_dt(&config->i2c, value, len);
 

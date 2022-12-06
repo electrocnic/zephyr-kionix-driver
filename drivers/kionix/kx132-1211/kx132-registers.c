@@ -109,26 +109,8 @@ int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t 
 // - SECTION - Kionix sensor specific configuration routines
 //----------------------------------------------------------------------
 
-int kx132_enable_asynchronous_readings(const struct device *dev)
-{
-// Register sequence this routine chosen per AN092-Getting-Started.pdf
-// from Kionix, page 2 of 27:
-
-    struct kx132_device_data *data = dev->data;
-#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING 
-    uint8_t reg_val_to_write = 0x00U;
-    uint8_t *write_buffer = &reg_val_to_write;
-    uint32_t len = 1;
-#else
-    uint8_t reg_addr_and_value_to_write[] = { KX132_CNTL1, 0x00U };
-    uint8_t *write_buffer = reg_addr_and_value_to_write;
-    uint32_t len = 2;
-#endif
-    int rstatus = ROUTINE_OK;
-
-//
+//**********************************************************************
 // Notes on register read, write wrappers . . .
-//
 //
 //                                      I2C ctrlr, regaddr, data buffer, length data to write
 //                                           |       |          |                |
@@ -140,32 +122,25 @@ int kx132_enable_asynchronous_readings(const struct device *dev)
 // IIS2dh example call
 //
 //    ret = iis2dh_read_reg(ctx, IIS2DH_WHO_AM_I, buff, 1);
+//
+//**********************************************************************
 
-    rstatus = kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
+int kx132_enable_asynchronous_readings(const struct device *dev)
+{
+// Register sequence this routine chosen per AN092-Getting-Started.pdf
+// from Kionix, page 2 of 27:
 
-    if ( rstatus != 0 )
-    {
-        LOG_WRN("- ERROR - unable to write CNTL register, got bus error:  %i", rstatus);
-        return rstatus;
-    }
+    struct kx132_device_data *data = dev->data;
+    uint8_t reg_val_to_write = 0x00U;
+    uint8_t *write_buffer = &reg_val_to_write;
+    uint32_t len = 1;
+    int rstatus = ROUTINE_OK;
 
-// KX132-1211 Register ODCTRL:
-#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING 
-    reg_val_to_write = 0x06U;
-#else
-    write_buffer[0] = KX132_ODCNTL;
-    write_buffer[1] = 0x06U;
-#endif
-    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
+    rstatus  = kx132_write_reg(data->ctx, KX132_CNTL1, 0x00U, len);
 
-// KX132-1211 Register CNTL1:
-#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING 
-    reg_val_to_write = 0xC0U;
-#else
-    write_buffer[0] = KX132_CNTL1;
-    write_buffer[1] = 0xC0U;
-#endif
-    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
+    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, 0x06U, len);
+
+    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, 0xC0U, len);
 
     return rstatus;
 }
@@ -174,19 +149,11 @@ int kx132_enable_asynchronous_readings(const struct device *dev)
 
 int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev)
 {
-
     struct kx132_device_data *data = dev->data;
-#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING 
     uint8_t reg_val_to_write = 0x00U;
     uint8_t *write_buffer = &reg_val_to_write;
     uint32_t len = 1;
-#else
-    uint8_t reg_addr_and_value_to_write[] = { KX132_CNTL1, 0x00U };
-    uint8_t *write_buffer = reg_addr_and_value_to_write;
-    uint32_t len = 2;
-#endif
     int rstatus = ROUTINE_OK;
-
 
 // From AN092-Getting-Started.pdf:
 //
@@ -196,47 +163,15 @@ int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev)
 // ODCNTL 0x06
 // CNTL1  0xE0
 
+    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, 0x00U, len);
 
-#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING
-    reg_val_to_write = 0x00U;
-#else
-    write_buffer[0] = KX132_CNTL1; write_buffer[1] = 0x00U;
-#endif
-    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
+    rstatus |= kx132_write_reg(data->ctx, KX132_INC1, 0x30U, len);
 
-#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING
-    reg_val_to_write = 0x30U;
-#else
-    write_buffer[0] = KX132_INC1; write_buffer[1] = 0x30U;
-#endif
-    rstatus |= kx132_write_reg(data->ctx, KX132_INC1, write_buffer, len);
+    rstatus |= kx132_write_reg(data->ctx, KX132_INC4, 0x10U, len);
 
-#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING
-    reg_val_to_write = 0x10U;
-#else
-    write_buffer[0] = KX132_INC4; write_buffer[1] = 0x10U;
-#endif
-    rstatus |= kx132_write_reg(data->ctx, KX132_INC4, write_buffer, len);
+    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, 0x06U, len);
 
-#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING
-    reg_val_to_write = 0x06U;
-#else
-    write_buffer[0] = KX132_ODCNTL; write_buffer[1] = 0x06U;
-#endif
-    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
-
-#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING
-    reg_val_to_write = 0xE0U;
-#else
-    write_buffer[0] = KX132_CNTL1; write_buffer[1] = 0xE0U;
-#endif
-    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
-
-#if 0
-#ifdef DEV_1121__KX132_I2C_BURST_WRITES_WORKING reg_val_to_write = 0xE0U;
-#else write_buffer[0] = KX132_CNTL1; write_buffer[1] = 0xE0U;
-#endif rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
-#endif
+    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, 0xE0U, len);
 
     return rstatus;
 }
@@ -270,16 +205,7 @@ int kx132_device_id_fetch(const struct device *dev)
         data->manufacturer_id.as_bytes[i] = read_buffer[i];
     }
 
-#if 0
-char lbuf[240];
-snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - in KX132 driver, manufacturer ID '%c %c %c %c'\n",
-  read_buffer[0],
-  read_buffer[1],
-  read_buffer[2],
-  read_buffer[3]
-  );
-printk("%s", lbuf);
-#endif
+// Diag 1 here - 2022-12-05
 
     return rstatus;
 }
@@ -446,6 +372,36 @@ int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
 }
 
 
+
+
+//----------------------------------------------------------------------
+// - SECTION - notes
+//----------------------------------------------------------------------
+
+#if 0
+    if ( rstatus != 0 )
+    {
+        LOG_WRN("- ERROR - unable to write CNTL register, got bus error:  %i", rstatus);
+        return rstatus;
+    }
+#endif
+
+
+#if 0
+
+// Diag 1 here - 2022-12-05
+#if 0
+char lbuf[240];
+snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - in KX132 driver, manufacturer ID '%c %c %c %c'\n",
+  read_buffer[0],
+  read_buffer[1],
+  read_buffer[2],
+  read_buffer[3]
+  );
+printk("%s", lbuf);
+#endif
+
+#endif
 
 
 
