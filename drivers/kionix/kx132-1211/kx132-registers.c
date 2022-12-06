@@ -167,15 +167,20 @@ int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev)
 // ODCNTL 0x06
 // CNTL1  0xE0
 
-    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, 0x00U, len);
+    reg_val_to_write = 0x00U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
 
-    rstatus |= kx132_write_reg(data->ctx, KX132_INC1, 0x30U, len);
+    reg_val_to_write = 0x30U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_INC1, write_buffer, len);
 
-    rstatus |= kx132_write_reg(data->ctx, KX132_INC4, 0x10U, len);
+    reg_val_to_write = 0x10U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_INC4, write_buffer, len);
 
-    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, 0x06U, len);
+    reg_val_to_write = 0x06U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
 
-    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, 0xE0U, len);
+    reg_val_to_write = 0xE0U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
 
     return rstatus;
 }
