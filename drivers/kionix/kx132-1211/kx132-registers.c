@@ -110,6 +110,7 @@ int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t 
 //----------------------------------------------------------------------
 
 //**********************************************************************
+//
 // Notes on register read, write wrappers . . .
 //
 //                                      I2C ctrlr, regaddr, data buffer, length data to write
@@ -136,11 +137,14 @@ int kx132_enable_asynchronous_readings(const struct device *dev)
     uint32_t len = 1;
     int rstatus = ROUTINE_OK;
 
-    rstatus  = kx132_write_reg(data->ctx, KX132_CNTL1, 0x00U, len);
+    reg_val_to_write = 0x00U;
+    rstatus  = kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
 
-    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, 0x06U, len);
+    reg_val_to_write = 0x06U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
 
-    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, 0xC0U, len);
+    reg_val_to_write = 0xC0U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
 
     return rstatus;
 }
