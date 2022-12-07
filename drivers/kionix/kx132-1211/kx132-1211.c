@@ -266,27 +266,27 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
     switch (channel)
     {
         case SENSOR_CHAN_KIONIX_MANUFACTURER_ID:  // a four byte value
-            kx132_device_id_fetch(dev);
+            kx132_fetch_device_id(dev);
             break;
 
         case SENSOR_CHAN_KIONIX_PART_ID:          // a two byte value
-            kx132_part_id_fetch(dev);
+            kx132_fetch_part_id(dev);
             break;
 
         case SENSOR_CHAN_ACCEL_X:                 // one or two byte value, depending on KX132-1211 configuration
-            kx132_acceleration_x_axis_fetch(dev);
+            kx132_fetch_acceleration_x_axis(dev);
             break;
 
         case SENSOR_CHAN_ACCEL_Y:                 // one or two byte value, depending on KX132-1211 configuration
-            kx132_acceleration_y_axis_fetch(dev);
+            kx132_fetch_acceleration_y_axis(dev);
             break;
 
         case SENSOR_CHAN_ACCEL_Z:                 // one or two byte value, depending on KX132-1211 configuration
-            kx132_acceleration_z_axis_fetch(dev);
+            kx132_fetch_acceleration_z_axis(dev);
             break;
 
         case SENSOR_CHAN_ACCEL_XYZ:               // read of prior three pairs of registers in sequence
-            kx132_acceleration_xyz_axis_fetch(dev);
+            kx132_fetch_acceleration_xyz_axis(dev);
             break;
 
         default:

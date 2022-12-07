@@ -17,8 +17,42 @@
 
 
 
+
 //----------------------------------------------------------------------
-// - SECTION - defines
+// - SECTION - enums and non-register-address defines
+//----------------------------------------------------------------------
+
+// REF Kionix document KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf
+// ODCNTL (0x21) control register, pages 25..26 of 75. 
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+enum kx132_1211_output_data_rates_e
+{
+    KX132_ODR__0P781_HZ,
+    KX132_ODR__1P563_HZ,
+    KX132_ODR__3P125_HZ,
+    KX132_ODR__6P25_HZ,
+
+    KX132_ODR_12P5_HZ,
+    KX132_ODR_25_HZ,
+    KX132_ODR_50_HZ,
+    KX132_ODR_100_HZ,
+
+    KX132_ODR_200_HZ,
+    KX132_ODR_400_HZ,
+    KX132_ODR_800_HZ,
+    KX132_ODR_1600_HZ,
+
+    KX132_ODR_3200_HZ,
+    KX132_ODR_6400_HZ,
+    KX132_ODR_12800_HZ,
+    KX132_ODR_25600_HZ,
+};
+
+
+
+//----------------------------------------------------------------------
+// - SECTION - defines register addresses
 //----------------------------------------------------------------------
 
 // For following defines see Kionix document
@@ -46,7 +80,7 @@
 
 
 //----------------------------------------------------------------------
-// - SECTION -
+// - SECTION - prototypes
 //----------------------------------------------------------------------
 
 // Important wrapper functions to read registers, write registers:
@@ -59,17 +93,18 @@ int kx132_enable_asynchronous_readings(const struct device *dev);
 
 int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev);
 
-int kx132_device_id_fetch(const struct device *dev);
 
-int kx132_part_id_fetch(const struct device *dev);
+int kx132_fetch_device_id(const struct device *dev);
 
-int kx132_acceleration_x_axis_fetch(const struct device *dev);
+int kx132_fetch_part_id(const struct device *dev);
 
-int kx132_acceleration_y_axis_fetch(const struct device *dev);
+int kx132_fetch_acceleration_x_axis(const struct device *dev);
 
-int kx132_acceleration_z_axis_fetch(const struct device *dev);
+int kx132_fetch_acceleration_y_axis(const struct device *dev);
 
-int kx132_acceleration_xyz_axis_fetch(const struct device *dev);
+int kx132_fetch_acceleration_z_axis(const struct device *dev);
+
+int kx132_fetch_acceleration_xyz_axis(const struct device *dev);
 
 
 

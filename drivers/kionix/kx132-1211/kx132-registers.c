@@ -193,7 +193,7 @@ int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev)
 
 // Note this routine fetches Kionix KX132-1211 Manufacturer ID string.
 
-int kx132_device_id_fetch(const struct device *dev)
+int kx132_fetch_device_id(const struct device *dev)
 {
     struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0, 0, 0};
@@ -221,7 +221,7 @@ int kx132_device_id_fetch(const struct device *dev)
 
 
 
-int kx132_part_id_fetch(const struct device *dev)
+int kx132_fetch_part_id(const struct device *dev)
 {
     struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0};
@@ -247,7 +247,7 @@ int kx132_part_id_fetch(const struct device *dev)
  
 
 
-int kx132_acceleration_x_axis_fetch(const struct device *dev)
+int kx132_fetch_acceleration_x_axis(const struct device *dev)
 {
     struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0};
@@ -280,7 +280,7 @@ int kx132_acceleration_x_axis_fetch(const struct device *dev)
 
 
 
-int kx132_acceleration_y_axis_fetch(const struct device *dev)
+int kx132_fetch_acceleration_y_axis(const struct device *dev)
 {
     struct kx132_device_data *data = (struct kx132_device_data*)dev->data;
     uint8_t reg_val_to_read[] = {0, 0};
@@ -311,7 +311,7 @@ int kx132_acceleration_y_axis_fetch(const struct device *dev)
 
 
 
-int kx132_acceleration_z_axis_fetch(const struct device *dev)
+int kx132_fetch_acceleration_z_axis(const struct device *dev)
 {
     struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0};
@@ -342,7 +342,7 @@ int kx132_acceleration_z_axis_fetch(const struct device *dev)
 
 
 
-int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
+int kx132_fetch_acceleration_xyz_axis(const struct device *dev)
 {
     struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0, 0, 0, 0, 0};
@@ -360,12 +360,17 @@ int kx132_acceleration_xyz_axis_fetch(const struct device *dev)
         return rstatus;
     }
 
+#if 1
+// This block of FOR loops hard to read - TMH
     for (i = 0; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 0); i++)
         { data->accel_axis_x[i - 0] = read_buffer[i]; }
     for (i = 2; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 2); i++)
         { data->accel_axis_y[i - 2] = read_buffer[i]; }
     for (i = 4; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 4); i++)
         { data->accel_axis_z[i - 4] = read_buffer[i]; }
+#else
+    
+#endif
 
 #ifdef _DEV_ENABLE_PRINTK
     printk("- DEV - X, Y and Z accelerations are %d, %d, %d   - DEV -\n",

@@ -263,35 +263,6 @@ enum kx132_1211_config_setting_e
 };
 
 
-// REF Kionix document KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf
-// ODCNTL (0x21) control register, pages 25..26 of 75. 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-enum kx132_1211_output_data_rates_e
-{
-    KX132_ODR__0P781_HZ,
-    KX132_ODR__1P563_HZ,
-    KX132_ODR__3P125_HZ,
-    KX132_ODR__6P25_HZ,
-
-    KX132_ODR_12P5_HZ,
-    KX132_ODR_25_HZ,
-    KX132_ODR_50_HZ,
-    KX132_ODR_100_HZ,
-
-    KX132_ODR_200_HZ,
-    KX132_ODR_400_HZ,
-    KX132_ODR_800_HZ,
-    KX132_ODR_1600_HZ,
-
-    KX132_ODR_3200_HZ,
-    KX132_ODR_6400_HZ,
-    KX132_ODR_12800_HZ,
-    KX132_ODR_25600_HZ,
-};
-
-
-
 // "Data ready" interrupt port status possibilites:
 enum kx132_1211_drdy_port_status_e
 {
