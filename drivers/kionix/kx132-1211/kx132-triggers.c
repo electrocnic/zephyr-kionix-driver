@@ -81,6 +81,11 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
 {
+
+    uint32_t rstatus = 0;
+
+#if 0 // - DEV 1209 disabling this routine 
+
     struct kx132_device_data *data = dev->data;
 //    const struct kx132_device_config *cfg = dev->config;
 //    struct kx132_device_config *cfg = dev->config; // NOTE we are breaking Zephyr device rule that configuration data is read only - TMH
@@ -193,6 +198,9 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
     {
         printk("- KX132 triggers - drdy 'data ready' port marked initialized, --force_reinit not yet implemented\n");
     }
+
+#endif 0 // - per DEV 1209 disabling this routine - TMH
+
     return rstatus;
 }
 
@@ -335,7 +343,7 @@ static void kx132_gpio_callback(const struct device *dev,
                 CONTAINER_OF(cb, struct kx132_device_data, gpio_cb);
 //    const struct kx132_device_config *cfg = kx132->dev->config;
     const struct kx132_device_config *cfg = dev->config;
-    const struct kx132_device_data *data = dev->data;
+//    const struct kx132_device_data *data = dev->data;
 
 // zephyr/include/zephyr/sys/util_macro.h:38:#define BIT(n)  (1 << (n))
 // zephyr/include/zephyr/sys/util_macro.h:44:#define BIT(n)  (1UL << (n))
