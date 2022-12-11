@@ -38,7 +38,7 @@ static int kx132_spi_read(const struct device *dev, uint8_t reg, uint8_t *data, 
 #if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
 #warning "--- DEV 1120 --- compiling kx132_spi_read() function . . ."
     char lbuf[240];
-    snprintf(lbuf, sizeof(lbuf), "- DEV 1202 - SPI read called with reg %u, requesting %u bytes . . .\n",
+    snprintf(lbuf, sizeof(lbuf), "- KX132 driver - SPI read called with reg %u, requesting %u bytes . . .\n",
       reg, len);
     printk("%s", lbuf);
 #endif

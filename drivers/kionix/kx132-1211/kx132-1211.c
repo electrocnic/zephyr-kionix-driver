@@ -88,7 +88,7 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 #else
     uint8_t reg_addr_and_value_to_write[] = { KX132_ODCNTL, 0x00U };
     uint8_t *write_buffer = reg_addr_and_value_to_write;
-    uint32_t len = 2;
+//    uint32_t len = 2;
 #endif
 
     int rstatus = ROUTINE_OK;
