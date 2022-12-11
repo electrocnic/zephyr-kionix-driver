@@ -427,8 +427,10 @@ static int kx132_init_interface(const struct device *dev)
 
 static int kx132_1211_init(const struct device *dev)
 {
+#ifdef CONFIG_KX132_TRIGGER
     const struct kx132_device_config *cfg = dev->config;
-// - DEV 1128 -
+#endif
+// - DEV 1128 - add a member to KX132 data structure to hold GPIO port initialization status, an enum - TMH
     struct kx132_device_data *data = dev->data;
 // - DEV 1128 -
 
@@ -449,7 +451,6 @@ static int kx132_1211_init(const struct device *dev)
 // - DEV 1128 -
 
 #ifdef CONFIG_KX132_TRIGGER
-#warning "zztop"
         if (cfg->int_gpio.port) {
 
             printk("- MARK 1 a - kx132-1211.c finds cfg->int_gpio.port not null,\n");
@@ -470,7 +471,7 @@ static int kx132_1211_init(const struct device *dev)
 #endif // CONFIG_KX132_TRIGGER
 
 #ifdef CONFIG_KX132_TRIGGER_OWN_THREAD
-#warning "zztop - KX132 driver compiled with dedicated thread support"
+#warning "KX132 driver compiled with dedicated thread support"
 #endif
 
 // - DEV 1130 -
