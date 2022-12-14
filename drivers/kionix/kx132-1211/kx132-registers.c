@@ -134,7 +134,8 @@ int kx132_enable_asynchronous_readings(const struct device *dev)
     struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_write = 0x00U;
     uint8_t *write_buffer = &reg_val_to_write;
-    uint32_t len = 1;
+//    uint32_t len = 1;
+    uint32_t len = sizeof(write_buffer) + sizeof((uint8_t)write_buffer);
     int rstatus = ROUTINE_OK;
 
     reg_val_to_write = 0x00U;
@@ -156,7 +157,8 @@ int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev)
     struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_write = 0x00U;
     uint8_t *write_buffer = &reg_val_to_write;
-    uint32_t len = 1;
+//    uint32_t len = 1;
+    uint32_t len = sizeof(write_buffer) + sizeof((uint8_t)write_buffer);
     int rstatus = ROUTINE_OK;
 
 // From AN092-Getting-Started.pdf:
