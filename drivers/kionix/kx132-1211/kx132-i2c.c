@@ -97,8 +97,8 @@ static int kx132_i2c_write(const struct device *dev, uint8_t reg_addr, uint8_t *
       data[0], data[1]);
     printk("%s", lbuf);
 #else
-    snprintf(lbuf, sizeof(lbuf), "- kx132-i2c.c - writing internal reg 0x%02X with 0x%02X . . .\n",
-      reg_addr, data[0]);
+    snprintf(lbuf, sizeof(lbuf), "- kx132-i2c.c - writing internal reg 0x%02X with 0x%02X, data length set to %u . . .\n",
+      reg_addr, data[0], len);
     printk("%s", lbuf);
 #endif
 
