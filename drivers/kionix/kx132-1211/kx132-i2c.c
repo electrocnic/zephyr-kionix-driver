@@ -17,6 +17,7 @@
 #include <zephyr/logging/log.h>
 
 #include "kx132-1211.h"
+#include "out-of-tree-drivers.h"
 
 #include <stdio.h>                 // Only needed for development printk() calls, production code won't need this - TMH
 
