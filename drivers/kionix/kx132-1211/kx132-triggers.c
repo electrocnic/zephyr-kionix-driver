@@ -35,11 +35,11 @@
 
 #include <zephyr/device.h>
 
-#ifndef DEVICE_DT_GET
-#warning "AHH! - Somehow didn't pick up DEVICE_DT_GET definition from `zephyr/device.h' header"
-#else
-#warning "YEAH! - got DEVICE_DT_GET definition . . . now are we applying it right? . . ." 
-#endif
+// #ifndef DEVICE_DT_GET
+// #warning "AHH! - Somehow didn't pick up DEVICE_DT_GET definition from `zephyr/device.h' header"
+// #else
+// #warning "YEAH! - got DEVICE_DT_GET definition . . . now are we applying it right? . . ." 
+// #endif
 
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/logging/log.h> 

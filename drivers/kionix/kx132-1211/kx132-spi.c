@@ -36,7 +36,7 @@ static int kx132_spi_read(const struct device *dev, uint8_t reg, uint8_t *data, 
 	const struct kx132_device_config *config = dev->config;
 
 #if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
-#warning "--- DEV 1120 --- compiling kx132_spi_read() function . . ."
+// #warning "--- DEV 1120 --- compiling kx132_spi_read() function . . ."
     char lbuf[240];
     snprintf(lbuf, sizeof(lbuf), "- KX132 driver - SPI read called with reg %u, requesting %u bytes . . .\n",
       reg, len);
@@ -81,7 +81,7 @@ static int kx132_spi_write(const struct device *dev, uint8_t reg, uint8_t *data,
 	const struct kx132_device_config *config = dev->config;
 
 #if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
-#warning "--- DEV 1120 --- compiling kx132_spi_write() function . . ."
+// #warning "--- DEV 1120 --- compiling kx132_spi_write() function . . ."
 #endif
 
 //	uint8_t buffer_tx[1] = { reg | KX132_SPI_WRITEM };  // <-- this OR'ing of 0b01000000 may break comm's with KX132 sensor
