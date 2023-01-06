@@ -458,7 +458,7 @@ static int kx132_1211_init(const struct device *dev)
 //const struct gpio_dt_spec int_gpio_for_diag = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 });
 ////const struct gpio_dt_spec int_gpio_for_diag = GPIO_DT_SPEC_INST_GET_OR(inst, irq_gpios, { 0 });
             printk("- kx132-1211.c - kx132_1211_init() interrupt GPIO port name holds '%s',\n",
-              int_gpio.port->name);
+              cfg->int_gpio.port->name);
 
             if (kx132_init_interrupt(dev) < 0) {
                 LOG_ERR("kx132-1211.c - failed to initialize interrupts");
