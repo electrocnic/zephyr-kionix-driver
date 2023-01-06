@@ -122,7 +122,7 @@ endif # KX132_TRIGGER
 
 
 config KX132_I2C_WRITE_BUFFER_SIZE
-        int "KX132 I2C driver `i2c_write_dt()` write buffer"
+        int "KX132 I2C driver `i2c_write_dt()` write buffer size in bytes"
         depends on I2C
         default 5
         help

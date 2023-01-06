@@ -453,16 +453,17 @@ static int kx132_1211_init(const struct device *dev)
 #ifdef CONFIG_KX132_TRIGGER
         if (cfg->int_gpio.port) {
 
-            printk("- MARK 1 a - kx132-1211.c finds cfg->int_gpio.port not null,\n");
+            printk("- kx132-1211.c - kx132_1211_init() finds cfg->int_gpio.port not null,\n");
 
 //const struct gpio_dt_spec int_gpio_for_diag = GPIO_DT_SPEC_INST_GET_OR(inst, drdy_gpios, { 0 });
 ////const struct gpio_dt_spec int_gpio_for_diag = GPIO_DT_SPEC_INST_GET_OR(inst, irq_gpios, { 0 });
-//printk("- KX132 driver - interrupt GPIO port name holds '%s',\n", int_gpio_for_diag.port->name);
+            printk("- kx132-1211.c - kx132_1211_init() interrupt GPIO port name holds '%s',\n",
+              int_gpio_for_diag.port->name);
 
-                if (kx132_init_interrupt(dev) < 0) {
-                        LOG_ERR("KX132:  failed to initialize interrupts");
-                        return -EIO;
-                }
+            if (kx132_init_interrupt(dev) < 0) {
+                LOG_ERR("kx132-1211.c - failed to initialize interrupts");
+                return -EIO;
+            }
         }
         else
         {
