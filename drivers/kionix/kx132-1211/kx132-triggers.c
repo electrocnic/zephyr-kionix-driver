@@ -199,7 +199,7 @@ int kx132_reinitialize_interrupt_port(const struct device *dev, uint32_t option)
         printk("- KX132 triggers - drdy 'data ready' port marked initialized, --force_reinit not yet implemented\n");
     }
 
-#endif 0 // - per DEV 1209 disabling this routine - TMH
+#endif // 0 - per DEV 1209 disabling this routine - TMH
 
     return rstatus;
 }
