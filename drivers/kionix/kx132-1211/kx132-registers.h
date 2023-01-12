@@ -135,7 +135,7 @@ int kx132_fetch_acceleration_z_axis(const struct device *dev);
 
 int kx132_fetch_acceleration_xyz_axis(const struct device *dev);
 
-int kx132_fetch_interrupt_latch_release(dev);
+int kx132_fetch_interrupt_latch_release(const struct device *dev);
 
 
 
