@@ -158,6 +158,8 @@ struct kx132_device_data {
 // QUESTION:  any reason we need to align data on four byte boundary? - TMH
 //    uint8_t padding[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
 
+// Interrupt latch release register, interrupts cleared when code reads this register:
+    uint8_t register_int_rel;
 
 // NOTE:  this "sensor context" data structure holds function pointers to
 //  generalized, flexible register_write() and register_read() functions:
@@ -224,6 +226,7 @@ enum sensor_channels_kionix_specific {
     SENSOR_CHAN_KIONIX_START = (SENSOR_CHAN_PRIV_START + 1),
     SENSOR_CHAN_KIONIX_MANUFACTURER_ID,
     SENSOR_CHAN_KIONIX_PART_ID,
+    SENSOR_CHAN_KIONIX_INTERRUPT_LATCH_RELEASE,
     SENSOR_CHAN_KIONIX_END
 };
 

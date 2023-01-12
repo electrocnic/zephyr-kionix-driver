@@ -14,7 +14,8 @@
 #include <zephyr/logging/log.h>
 LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
-#include "kx132-1211.h"            // to provide KX132 data struct and config struct, couple unions, and enumerated settings
+#include "kx132-1211.h"            // to provide KX132 data struct and config struct, a couple
+                                   //  unions, and enumerated settings
 #include "out-of-tree-drivers.h"   // to provide enumerated driver scoped return values
 
 
@@ -385,6 +386,30 @@ int kx132_fetch_acceleration_xyz_axis(const struct device *dev)
     return rstatus;
 }
 
+
+
+int kx132_fetch_interrupt_latch_release(const struct device *dev)
+{
+    struct kx132_device_data *data = dev->data;
+    uint8_t reg_val_to_read[] = {0};
+    uint8_t *read_buffer = reg_val_to_read;
+//    int i = 0;
+
+    int rstatus = 0;
+
+    rstatus = kx132_read_reg(data->ctx, KX132_INT_REL, read_buffer, SIZE_KX132_REGISTER_VALUE);
+
+    if ( rstatus != 0 )
+    {
+        LOG_WRN("Unable to read interrupt latch release register.  Err: %i", rstatus);
+    }
+    else
+    {
+        data->register_int_rel = read_buffer[0];
+    }
+
+    return rstatus;
+}
 
 
 

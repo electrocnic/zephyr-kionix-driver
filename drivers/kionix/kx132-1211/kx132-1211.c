@@ -289,6 +289,10 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
             kx132_fetch_acceleration_xyz_axis(dev);
             break;
 
+        case SENSOR_CHAN_KIONIX_INTERRUPT_LATCH_RELEASE:
+            kx132_fetch_interrupt_latch_release(dev);
+            break;
+
         default:
             rstatus = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
     }
