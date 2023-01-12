@@ -112,7 +112,7 @@ enum kx132_1211_output_data_rates_e
 #define KX132_INC4     (0x25)
 
 // See TN027-Power-On-Procedure.pdf for following register use:
-#define KX132_UNNAMED_SW_RESET_REG_0x7F     (0x7F)
+#define KX132_UNNAMED_SW_RESET_REG_0x7F (0x7F)
 
 
 

@@ -229,6 +229,15 @@ static int kx132_1211_attr_set(const struct device *dev,
                         }
 #endif
 
+                        case KX132_PERMFORM_SOFTWARE_RESET:
+                        {
+// A fetch like routine, updates sensor data shadow registers 'who_am_i' and 'cotr':
+                            kx132_software_reset(dev);
+                            break;
+                        }
+
+
+
                         default: // ...action to take when requested config not supported
                         {
                             rstatus = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
@@ -298,6 +307,7 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
     }
 
     return rstatus;
+
 }
 
 
@@ -398,7 +408,8 @@ static int kx132_1211_channel_get(const struct device *dev,
     }
 
     return routine_status;
-}
+
+} // end routine kx132_1211_channel_get()
 
 
 
