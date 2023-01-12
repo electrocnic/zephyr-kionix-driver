@@ -62,6 +62,25 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
   *
   */
 
+//**********************************************************************
+//
+// Notes on register read, write wrappers . . .
+//
+//                                      I2C ctrlr, regaddr, data buffer, length data to write
+//                                           |       |          |                |
+// 112 typedef int32_t (*stmdev_write_ptr)(void *, uint8_t, const uint8_t *, uint16_t);
+// 113 typedef int32_t (*stmdev_read_ptr)(void *, uint8_t, uint8_t *, uint16_t);
+//                                           |       |          |                |
+//                                      I2C ctrlr, regaddr, data buffer, length data to read
+//
+// IIS2dh example call
+//
+//    ret = iis2dh_read_reg(ctx, IIS2DH_WHO_AM_I, buff, 1);
+//
+//**********************************************************************
+
+
+
 /**
   * @brief  Read generic device register
   *
@@ -110,22 +129,54 @@ int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t 
 // - SECTION - Kionix sensor specific configuration routines
 //----------------------------------------------------------------------
 
-//**********************************************************************
-//
-// Notes on register read, write wrappers . . .
-//
-//                                      I2C ctrlr, regaddr, data buffer, length data to write
-//                                           |       |          |                |
-// 112 typedef int32_t (*stmdev_write_ptr)(void *, uint8_t, const uint8_t *, uint16_t);
-// 113 typedef int32_t (*stmdev_read_ptr)(void *, uint8_t, uint8_t *, uint16_t);
-//                                           |       |          |                |
-//                                      I2C ctrlr, regaddr, data buffer, length data to read
-//
-// IIS2dh example call
-//
-//    ret = iis2dh_read_reg(ctx, IIS2DH_WHO_AM_I, buff, 1);
-//
-//**********************************************************************
+// Per software reset description in Kionix TN027-Power-On-Procedure.pdf:
+
+int kx132_software_reset(const struct device *dev)
+{
+    struct kx132_device_data *data = dev->data;
+
+    uint8_t reg_val_to_write = 0x00U;
+    uint8_t *write_buffer = &reg_val_to_write;
+// NEED to review size of read buffer here in KX132 software reset routine:
+    uint8_t reg_val_to_read[] = {0, 0, 0, 0};
+    uint8_t *read_buffer = reg_val_to_read;
+
+    uint32_t len = 2;
+    int rstatus = ROUTINE_OK;
+
+
+    k_msleep(PERIOD_TO_POWER_UP_IN_MS);
+
+    reg_val_to_write = 0x00U;
+    rstatus = kx132_write_reg(data->ctx, KX132_UNNAMED_SW_RESET_REG_0x7F, write_buffer, len);
+
+    reg_val_to_write = 0x00U;
+    rstatus += kx132_write_reg(data->ctx, KX132_CNTL2, write_buffer, len);
+
+    reg_val_to_write = 0x80U;
+    rstatus += kx132_write_reg(data->ctx, KX132_CNTL2, write_buffer, len);
+
+    k_msleep(PERIOD_TO_PERFORM_SW_RESET_IN_MS);
+
+
+    rstatus += kx132_read_reg(data->ctx, KX132_WHO_AM_I, read_buffer, SIZE_KX132_REGISTER_VALUE);
+    data->who_am_i = read_buffer[0];
+    printk("\n- KX132 driver - who_am_i register holds 0x%02X\n");
+
+    rstatus += kx132_read_reg(data->ctx, KX132_COTR, read_buffer, SIZE_KX132_REGISTER_VALUE);
+    data->cotr = read_buffer[0];
+    printk("\n- KX132 driver - who_am_i register holds 0x%02X\n");
+
+    if ( data->who_am_i != KX132_WHO_AM_I_EXPECTED_VALUE )
+        { rstatus = ROUTINE_STATUS__UNEXPECTED_VALUE_WHO_AM_I; }
+
+    if ( data->cotr != KX132_COTR_EXPECTED_VALUE )
+        { rstatus = ROUTINE_STATUS__UNEXPECTED_VALUE_COTR; }
+
+    return rstatus;
+}
+
+
 
 int kx132_enable_asynchronous_readings(const struct device *dev)
 {

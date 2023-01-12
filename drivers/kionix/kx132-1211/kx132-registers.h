@@ -18,6 +18,9 @@
 
 
 
+#define KX132_WHO_AM_I_EXPECTED_VALUE (0x3D)
+#define KX134_WHO_AM_I_EXPECTED_VALUE (0x46)
+#define KX132_COTR_EXPECTED_VALUE (0x55)
 
 //----------------------------------------------------------------------
 // - SECTION - enums and non-register-address defines
@@ -53,7 +56,7 @@ enum kx132_1211_output_data_rates_e
 
 
 //----------------------------------------------------------------------
-// - SECTION - defines register addresses
+// - SECTION - defined register addresses
 //----------------------------------------------------------------------
 
 // For following defines see Kionix document
@@ -100,11 +103,16 @@ enum kx132_1211_output_data_rates_e
 
 
 #define KX132_CNTL1    (0x1B)
+#define KX132_CNTL2    (0x1C)
+
 #define KX132_ODCNTL   (0x21)
 #define KX132_INC1     (0x22)
 #define KX132_INC2     (0x23)
 #define KX132_INC3     (0x24)
 #define KX132_INC4     (0x25)
+
+// See TN027-Power-On-Procedure.pdf for following register use:
+#define KX132_UNNAMED_SW_RESET_REG_0x7F     (0x7F)
 
 
 
@@ -136,6 +144,10 @@ int kx132_fetch_acceleration_z_axis(const struct device *dev);
 int kx132_fetch_acceleration_xyz_axis(const struct device *dev);
 
 int kx132_fetch_interrupt_latch_release(const struct device *dev);
+
+// As of 2023 Q1 software reset routine treated as a fetching routine, as it reads two
+// registers as part of final status check:
+int kx132_software_reset(const struct device *dev);
 
 
 

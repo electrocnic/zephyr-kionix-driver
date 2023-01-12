@@ -1,6 +1,10 @@
 #ifndef KX132_1211_H
 #define KX132_1211_H
 
+//----------------------------------------------------------------------
+// - SECTION - includes
+//----------------------------------------------------------------------
+
 // These includes here, following iis2dh.h example driver header file:
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/drivers/spi.h>
@@ -10,16 +14,76 @@
 
 #include "kx132-registers.h"       // to provide register addresses via symbols
 
-#include "kx132-register-interface.h" // to provide kionix_ctx_t sensor context data structure definition
+// Following include here to provide kionix_ctx_t sensor context data
+// structure definition.  This structure entails function pointers
+// to act as assignable wrappers to register read, and register write
+// functions.  This strategy found in STMicro IIS2DH Zephyr driver code
+// permits automatic compile-time selection of bus API calls -- I2C
+// versus SPI -- as expressed in device tree source files such as .dts
+// .overlay files.  In other words, straight-forward changes to a
+// firmware project device tree source result in correct, needed driver
+// compilation of the chosen bus on which KX132 sensor resides.
+
+#include "kx132-register-interface.h" 
 
 
+
+//----------------------------------------------------------------------
+// Note:  following DT_DRV_COMPAT macro needed in order to use important
+//   subset of Zephyr Device Tree Macro API:
+//----------------------------------------------------------------------
 
 #define DT_DRV_COMPAT kionix_kx132_1211
 
 
 
+//----------------------------------------------------------------------
+// - SECTION - Kionix KX132 specific
+//----------------------------------------------------------------------
+
 #define SIZE_MANUFACT_ID_STRING (4)
 #define SIZE_PART_ID_STRING (2)
+#define PERIOD_TO_POWER_UP_IN_MS         (50)
+#define PERIOD_TO_PERFORM_SW_RESET_IN_MS (20)
+
+// NEED 2023-01-12 to review how byte count here works for higher
+//  resolution KX132 readings, 16-bit wide readings, but is
+//  incorrect for low resolution readings which are 8 bits wide:
+
+#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS (2)
+
+#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES ((BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS) * 3) 
+
+
+//
+//**********************************************************************
+// Following enum likely to remain part of first production release
+// of this driver, but as of 2022 Q4 - 2023 Q1 there is debugging work
+// underway to find out and correct "data ready" interrupt support in
+// this Zephyr driver.  Same `drdy-gpios` based interrupt provisioning
+// in IIS2DH Zephyr driver has so far failed to function as expected
+// too . . .  TMH
+
+// "Data ready" interrupt port status possibilites:
+
+enum kx132_1211_drdy_port_status_e
+{
+    DRDY_PORT_NOT_INITIALIZED,
+    DRDY_CFG_INT_GPIO_FOUND_NULL,
+    DRDY_PORT_FOUND_NULL,
+    DRDY_PORT_MAL_INITIALIZED,
+    DRDY_PORT_INITIALIZED
+};
+
+//**********************************************************************
+//
+
+
+
+
+//----------------------------------------------------------------------
+// - SECTION - utilities
+//----------------------------------------------------------------------
 
 union string_union_type__manufacturer_id
 {
@@ -40,9 +104,16 @@ union string_union_type__part_id
 // # https://gcc.gnu.org/onlinedocs/gcc-3.4.6/cpp/Stringification.html . . . stringification via C macros
 #define xstr(s) str(s)
 #define str(s) #s
-// Ejemplo:   printk("- DEV 1028 - symbol ST_IIS2DH got assigned '%s'\n", xstr(ST_IIS2DH));
+
+// Ejemplo:
+// #define ST_IIS2DH DT_INST(0, st_iis2dh)
+// printk("- DEV 1028 - symbol ST_IIS2DH got assigned '%s'\n", xstr(ST_IIS2DH));
 
 
+
+//----------------------------------------------------------------------
+// - SECTION - Zephyr sensor API constructs
+//----------------------------------------------------------------------
 
 /**
  * struct kx132_device_config - Kionix KX132-1211 hardware configuration
@@ -115,8 +186,6 @@ struct iis2dh_data {
 #endif // 0
 
 
-#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS (2)
-#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES ((BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS) * 3) 
 
 struct kx132_device_data {
 
@@ -160,6 +229,11 @@ struct kx132_device_data {
 
 // Interrupt latch release register, interrupts cleared when code reads this register:
     uint8_t register_int_rel;
+
+    uint8_t who_am_i;
+
+    uint8_t cotr; // KX132 Command Test control Register
+
 
 // NOTE:  this "sensor context" data structure holds function pointers to
 //  generalized, flexible register_write() and register_read() functions:
@@ -210,40 +284,73 @@ int kx132_trigger_set(const struct device *dev,
 #define KX132_I2C_ADDRESS_FLIPPED__ADDR_PIN_AT_IO_VDD (0x1D)
 
 
-// Note:  Zephyr Project 2.6.0 provides sensor.h header file in
-//  ncs/zephyr/include/drivers/sensor.h.  An important enum given here
-//  is named sensor_channel.  Near it's end last two elements are:
+
 //
-//    189         SENSOR_CHAN_PRIV_START = SENSOR_CHAN_COMMON_COUNT,
-//
-//    194         SENSOR_CHAN_MAX = INT16_MAX,
-//
-//  Until we find better we're going to use "sensor channel private start"
-//  enum element to provide some custom channels to Kionix KX132-1211.
 //----------------------------------------------------------------------
+//
+// Note:  Zephyr Project 2.6.0, and Zephyr 3.2.0 provide sensor.h header
+//   file.  An important enum given here is named sensor_channel.  Near
+//   it's end last two elements are:
+//
+//     189         SENSOR_CHAN_PRIV_START = SENSOR_CHAN_COMMON_COUNT,
+//
+//     194         SENSOR_CHAN_MAX = INT16_MAX,
+//
+//   Until we find better we're going to use "sensor channel private start"
+//   enum element to provide some custom channels to Kionix KX132-1211.
+//
+//
+// 2023-01-12 addendum:
+//
+//   In more general sense Zephyr's sensor API establishes a notion
+//   of two interaction types between driver code and app code.  These
+//   interactions are in part referenced by the phrases "sensor channel
+//   fetch" and "sensor channel get".
+//
+//   To "fetch sensor data" causes given driver to communicate with a
+//   sensor and read back data.  The driver then stores latest readings
+//   or other status, config, or identifying data in memory allocated
+//   to the driver.
+//
+//   To "get sensor data" causes given driver to return the most
+//   recently fetched values to application code.
+//
+//   Zephyr also establishes a set of sensor "channels", in an attempt
+//   to make reading units and types uniformly known.  Sensor channels
+//   cover many commonly measured parameters from the outside world,
+//   parameters such as temperature, pressure, voltage, electrical
+//   current, acceleration, and similar.  This KX132 driver uses these
+//   channels where they apply.  There are also some configuration
+//   and identifying values application code may want to read from a
+//   KX132 sensor which do not appear in Zephyr's sensor API channels
+//   enumeration.  For this reason this driver implements a few
+//   additinal sensor channels in following enumeration, to support
+//   returning these data to app code from a KX132 accelerometer:
+//----------------------------------------------------------------------
+//
 
 enum sensor_channels_kionix_specific {
     SENSOR_CHAN_KIONIX_START = (SENSOR_CHAN_PRIV_START + 1),
     SENSOR_CHAN_KIONIX_MANUFACTURER_ID,
     SENSOR_CHAN_KIONIX_PART_ID,
     SENSOR_CHAN_KIONIX_INTERRUPT_LATCH_RELEASE,
+    SENSOR_CHAN_KIONIX_SOFTWARE_RESET_STATUS_VALUE,
     SENSOR_CHAN_KIONIX_END
 };
+
 
 
 // REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_attribute
 // REF from Kionix AN092-Getting-Stated.pdf
 
-// QUESTION:  how do we keep our and any custom enumerated sensor
-//  attributes from colliding with other third party, out-of-tree
-//  driver enumerations?
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 enum kx132_1211_config_setting_e
 {
     KX132_CONFIGURATION_SETTING_FIRST,
 
-// From AN092-Getting-Stated.pdf:
+// From Kionix document TN027-Power-On-Procedure.pdf:
+    KX132_PERMFORM_SOFTWARE_RESET,
+
+// From Kionix document AN092-Getting-Stated.pdf:
     KX132_ENABLE_ASYNC_READINGS,
     KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT,
     KX132_ENABLE_SYNC_READINGS_WITHOUT_HW_INTERRUPT,
@@ -266,14 +373,5 @@ enum kx132_1211_config_setting_e
 };
 
 
-// "Data ready" interrupt port status possibilites:
-enum kx132_1211_drdy_port_status_e
-{
-    DRDY_PORT_NOT_INITIALIZED,
-    DRDY_CFG_INT_GPIO_FOUND_NULL,
-    DRDY_PORT_FOUND_NULL,
-    DRDY_PORT_MAL_INITIALIZED,
-    DRDY_PORT_INITIALIZED
-};
 
 #endif // KX132_1211_H
