@@ -157,6 +157,7 @@ int kx132_fetch_interrupt_latch_release(const struct device *dev);
 // registers as part of final status check:
 int kx132_software_reset(const struct device *dev);
 
+int kx132_enable_watermark_interrupt(const struct device *dev);
 
 
 
