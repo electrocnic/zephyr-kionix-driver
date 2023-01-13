@@ -101,12 +101,12 @@ static int kx132_spi_write(const struct device *dev, uint8_t reg, uint8_t *data,
 		.count = 2
 	};
 
-
+#ifdef DEV__KX_DRIVER_DEV_1202__LOW_LEVEL_SPI_WRITE
     char lbuf[240];
     snprintf(lbuf, sizeof(lbuf), "- DEV 1202 - SPI write writing reg 0x%02x with %u (asked to write %u bytes)\n",
        buffer_tx[0], data[0], len);
     printk("%s", lbuf);
-
+#endif
 
 	if (spi_write_dt(&config->spi, &tx)) {
 		return -EIO;

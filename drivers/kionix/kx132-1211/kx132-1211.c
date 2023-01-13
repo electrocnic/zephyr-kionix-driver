@@ -382,7 +382,7 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
 
     return rstatus;
 
-}
+} // end routine kx132_1211_sample_fetch()
 
 
 

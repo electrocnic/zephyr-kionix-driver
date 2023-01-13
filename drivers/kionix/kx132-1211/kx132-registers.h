@@ -169,6 +169,8 @@ int kx132_software_reset(const struct device *dev);
 
 int kx132_enable_watermark_interrupt(const struct device *dev);
 
+int kx132_fetch_readings_from_buf_read(const struct device *dev);
+
 
 
 #endif // KX132_REGISTERS_H
