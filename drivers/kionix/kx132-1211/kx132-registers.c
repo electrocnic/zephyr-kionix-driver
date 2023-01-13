@@ -175,7 +175,8 @@ int kx132_software_reset(const struct device *dev)
         { rstatus = ROUTINE_STATUS__UNEXPECTED_VALUE_COTR; }
 
     return rstatus;
-}
+
+} // end routine kx132_software_reset()
 
 
 
@@ -262,6 +263,11 @@ int kx132_enable_watermark_interrupt(const struct device *dev)
 
     reg_val_to_write = 0x00U;
     rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
+
+// - DEV 0113 BEGIN - force output data rate of 3200 Hz:
+    reg_val_to_write = 0x0CU;
+    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
+// - DEV 0113 END - 
 
     reg_val_to_write = 0x30U;
     rstatus |= kx132_write_reg(data->ctx, KX132_INC1, write_buffer, len);
