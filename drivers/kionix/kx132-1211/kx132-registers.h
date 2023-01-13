@@ -53,7 +53,7 @@ enum kx132_1211_output_data_rates_e
     KX132_ODR_25600_HZ,
 };
 
-enum kx132_1211_reading_resolutions_e
+enum kx132_reading_resolutions_e
 {
     KX132_READING_RES_HI_16_BIT,
     KX132_READING_RES_LO_8_BIT,
