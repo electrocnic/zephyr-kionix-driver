@@ -581,7 +581,7 @@ int kx132_fetch_readings_from_buf_read(const struct device *dev)
 
     return rstatus = 0;
 
-} // end routine kx132_fetch_readings_from_516_byte_buffer()
+} // end routine kx132_fetch_readings_from_buf_read()
 
 
 

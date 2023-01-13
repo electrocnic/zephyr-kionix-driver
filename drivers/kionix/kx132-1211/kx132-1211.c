@@ -373,7 +373,7 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
             break;
 
         case SENSOR_CHAN_KIONIX_BUF_READ:
-            kx132_fetch_readings_from_516_byte_buffer(dev);
+            kx132_fetch_readings_from_buf_read(dev);
             break;
 
         default:
