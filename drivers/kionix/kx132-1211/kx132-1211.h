@@ -50,9 +50,9 @@
 //  resolution KX132 readings, 16-bit wide readings, but is
 //  incorrect for low resolution readings which are 8 bits wide:
 
-#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS (2)
+#define KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT (2)
 
-#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES ((BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS) * 3) 
+#define BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES ((KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT) * 3) 
 
 
 //
@@ -160,33 +160,6 @@ struct kx132_device_config {
 
 
 
-/* sensor data */
-
-#if 0 // - following iis2dh driver code commented for reference - TMH
-
-struct iis2dh_data {
-	int16_t acc[3];
-	uint32_t gain;
-
-        stmdev_ctx_t *ctx;
-#ifdef CONFIG_IIS2DH_TRIGGER
-        const struct device *dev;
-        struct gpio_callback gpio_cb;
-        sensor_trigger_handler_t drdy_handler;
-#if defined(CONFIG_IIS2DH_TRIGGER_OWN_THREAD)
-        K_KERNEL_STACK_MEMBER(thread_stack, CONFIG_IIS2DH_THREAD_STACK_SIZE);
-        struct k_thread thread;
-        struct k_sem gpio_sem;
-#elif defined(CONFIG_IIS2DH_TRIGGER_GLOBAL_THREAD)
-        struct k_work work;
-#endif /* CONFIG_IIS2DH_TRIGGER_GLOBAL_THREAD */
-#endif /* CONFIG_IIS2DH_TRIGGER */
-};
-
-#endif // 0
-
-
-
 struct kx132_device_data {
 
 // NEED to review whether this array needed, it is at present
@@ -196,54 +169,15 @@ struct kx132_device_data {
 // the IIS2DH:
     int16_t acc[3];
 
-// From the original 2021 kionix driver data structure:
-// NOTE:  all of these are slated to be removed.  Pointer to
-//  I2C controller will be part of kx132_ctx_t data structure,
-//  which will support both I2C and SPI buses.  The part ID
-//  and accelerometer readings are data which are normally
-//  read from the sensor and copied directly to memory to
-//  which calling code sends our driver here pointers.
-//
-//  Seems there should be no need to have a copy of data read
-//  from the sensor, but Zephyr's sensor API documentation speaks
-//  of sensor drivers internally holding a copy of all sensor
-//  readings and status which can be requested via Zephyr's
-//  'fetch and get' driver design.  Supposedly reduces bus
-//  traffic, though not sure if this can be true in the case
-//  of every and all senor types - TMH
-
 // NEED to review this data member, which seems now moot with
 // the adding of the sensor context type 'kionix_ctx_t':
-    const struct device *i2c_dev;
-
-    union string_union_type__manufacturer_id manufacturer_id;
-    union string_union_type__part_id part_id;
-// Following three data members are written with LSB, MSB of respective accelerometer readings:
-    uint8_t accel_axis_x[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
-    uint8_t accel_axis_y[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
-    uint8_t accel_axis_z[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
-// Following data member written with LSB, MSB of allaccelerometer readings X, Y and Z axes:
-    uint8_t accel_axis_xyz[BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES];
-// QUESTION:  any reason we need to align data on four byte boundary? - TMH
-//    uint8_t padding[BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS];
-
-// Interrupt latch release register, interrupts cleared when code reads this register:
-    uint8_t register_int_rel;
-
-    uint8_t who_am_i;
-
-    uint8_t cotr; // KX132 Command Test control Register
+//    const struct device *i2c_dev;  . . . 2023-01-13 Ted commenting out
 
 
 // NOTE:  this "sensor context" data structure holds function pointers to
 //  generalized, flexible register_write() and register_read() functions:
 
     kionix_ctx_t *ctx;
-
-// - DEV 1128 - driver introspection effort to address early,
-//  seeming mal-assigned drdy "data ready" GPIO port device pointer:
-
-    uint32_t drdy_port_status;
 
 #ifdef CONFIG_KX132_TRIGGER
 #warning "compiling KX132 trigger data members into kx132_device_data structure . . ."
@@ -261,6 +195,64 @@ struct kx132_device_data {
     struct k_work work;
 #endif /* CONFIG_KX132_TRIGGER_GLOBAL_THREAD */
 #endif /* CONFIG_KX132_TRIGGER */
+
+
+// - DEV 1128 - driver introspection effort to address early,
+//  seeming mal-assigned drdy "data ready" GPIO port device pointer:
+// NEED 2023-01-13 to determine whether good practice to conditionally compile following when CONFIG_KX132_TRIGGER=y:
+
+    uint32_t drdy_port_status;
+
+
+//----------------------------------------------------------------------
+// "shadow" instances of sensor registers:
+//----------------------------------------------------------------------
+
+// As of 2013-01-23 a four byte data type:
+    union string_union_type__manufacturer_id manufacturer_id;
+
+// As of 2013-01-23 a two byte data type:
+    union string_union_type__part_id part_id;
+
+// Interrupt latch release register, interrupts cleared when code reads this register:
+    uint8_t register_int_rel;
+
+    uint8_t who_am_i;
+
+    uint8_t cotr; // KX132 Command Test control Register
+
+
+// Following three data members are written with LSB, MSB of respective accelerometer readings:
+    uint8_t accel_axis_x[KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT];
+    uint8_t accel_axis_y[KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT];
+    uint8_t accel_axis_z[KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT];
+
+// Following data member written with LSB, MSB of allaccelerometer readings X, Y and Z axes:
+    uint8_t accel_axis_xyz[BYTE_COUNT_OF_KX132_ACCELERATION_READING_THREE_AXES];
+
+// QUESTION:  any reason we need to align data on four byte boundary? - TMH
+//    uint8_t padding[KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT];
+
+
+// From KX132-1211-Technical-Reference-Manual-Rev-5.0.pdf page 43 of 75:
+// In 16-bit readings resolution mode readings buffer holds 86 triplets of x,y,z readings,
+// In 8-bit readings resolution mode readings buffer holds 171 triplets of x,y,z readings.
+
+#define KX132_READINGS_BUFFER_SIZE_FOR_16_BIT_XYZ_SETS 86
+#define KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT 6
+#define KX132_READINGS_TRIPLET_LO_RES_BYTE_COUNT 3
+#define KX132_BUF_READ_SIZE (KX132_READINGS_BUFFER_SIZE_FOR_16_BIT_XYZ_SETS * KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT)
+
+union kx132_acc_reading
+{
+    uint16_t in_hi_res_16_bit_mode;
+    uint8_t in_lo_res_8_bit_mode[2];
+};
+
+    union kx132_acc_reading buf_read[KX132_READINGS_BUFFER_SIZE_FOR_16_BIT_XYZ_SETS];
+
+    uint16_t buf_read_index;
+
 };
 
 
@@ -331,10 +323,13 @@ int kx132_trigger_set(const struct device *dev,
 
 enum sensor_channels_kionix_specific {
     SENSOR_CHAN_KIONIX_START = (SENSOR_CHAN_PRIV_START + 1),
+
     SENSOR_CHAN_KIONIX_MANUFACTURER_ID,
     SENSOR_CHAN_KIONIX_PART_ID,
     SENSOR_CHAN_KIONIX_INTERRUPT_LATCH_RELEASE,
     SENSOR_CHAN_KIONIX_SOFTWARE_RESET_STATUS_VALUE,
+    SENSOR_CHAN_KIONIX_BUF_READ,
+
     SENSOR_CHAN_KIONIX_END
 };
 

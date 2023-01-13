@@ -507,6 +507,82 @@ int kx132_fetch_interrupt_latch_release(const struct device *dev)
 
 
 
+//
+// Following routine attempts to read from KX132 readings buffer 'watermark'
+// watermark count of bytes, where watermark value is set in
+//
+// This routine also checks for selected readings resolution, which
+// defaults to 16-bit width, and may also be 8-bit width in other
+// modes related to low power.
+//----------------------------------------------------------------------
+
+int kx132_fetch_readings_from_buf_read(const struct device *dev)
+{
+    struct kx132_device_data *data = dev->data;
+
+    uint8_t reg_val_to_write = 0x00U;
+    uint8_t *write_buffer = &reg_val_to_write;
+
+    uint8_t reg_val_to_read[KX132_BUF_READ_SIZE];
+    uint8_t *read_buffer = reg_val_to_read;
+
+// Local index to copy sensor readings to driver "shadow" array:
+    uint32_t i = 0;
+    uint16_t count_of_readings_to_fetch = 0;
+    uint16_t bytes_to_request_from_buf_read = 0;
+    enum kx132_readings_resolution_e reading_resolution = KX132_READING_RES_HI_16_BIT;
+
+    int rstatus = 0;
+
+
+// First couple of sensor reads only read back a single register, one-byte value:
+
+    read_buffer[0] = 0;
+    read_buffer[1] = 0;
+
+// Read BUF_CNTL1 to obtain count of readings which app code sets as "sufficient readings count ready" threshold:
+
+    rstatus = kx132_read_reg(data->ctx, KX132_BUF_CNTL1, read_buffer, SIZE_KX132_REGISTER_VALUE);
+    count_of_readings_to_fetch = read_buffer[0];
+    printk("- KX132 driver - preparing to fetch %u readings from sensor BUF_READ register,\n",
+      count_of_readings_to_fetch);
+
+// Read BUF_CNTL2 to determine sensor readings bit width, "low res" or "high res":
+
+    rstatus = kx132_read_reg(data->ctx, KX132_BUF_CNTL2, read_buffer, SIZE_KX132_REGISTER_VALUE);
+    if ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES )
+    {
+        reading_resolution = KX132_READING_RES_HI_16_BIT;
+        bytes_to_request_from_buf_read = (count_of_readings_to_fetch * KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT);
+    }
+    else
+    {
+        reading_resolution = KX132_READING_RES_LO_8_BIT;
+        bytes_to_request_from_buf_read = (count_of_readings_to_fetch * KX132_READINGS_TRIPLET_LO_RES_BYTE_COUNT);
+    }
+    printk("- KX132 driver - readings resolution bit flag set to %u,\n",
+      ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES ));
+
+
+    memset(reg_val_to_read, KX132_BUF_READ_SIZE, 0);
+
+    rstatus = kx132_read_reg(data->ctx, KX132_BUF_READ, read_buffer, bytes_to_request_from_buf_read);
+
+    printk("- KX132 driver - first six BUF_READ values:\n  0x%04X, 0x%04X, 0x%04X,\n  0x%04X, 0x%04X, 0x%04X,\n\n",
+        (readings[0] + (readings[1] << 8 )),
+        (readings[2] + (readings[3] << 8 )),
+        (readings[4] + (readings[5] << 8 )),
+
+        (readings[6] + (readings[7] << 8 )),
+        (readings[8] + (readings[9] << 8 )),
+        (readings[10] + (readings[11] << 8 ))
+      );
+
+    return rstatus = 0;
+
+} // end routine kx132_fetch_readings_from_516_byte_buffer()
+
+
 
 
 //----------------------------------------------------------------------

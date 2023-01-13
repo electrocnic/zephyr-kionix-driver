@@ -286,6 +286,7 @@ static int kx132_1211_attr_set(const struct device *dev,
                             break;
                         }
 
+// NEED 2023-01-13 to review whether needed parameters are missing here`
                         case KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT:
                         {
                             kx132_enable_synchronous_reading_with_hw_interrupt(dev);
@@ -332,7 +333,8 @@ static int kx132_1211_attr_set(const struct device *dev,
     } // close scope of switch(attr)
 
     return rstatus;
-}
+
+} // end routine kx132_1211_attr_set()
 
 
 
@@ -368,6 +370,10 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
 
         case SENSOR_CHAN_KIONIX_INTERRUPT_LATCH_RELEASE:
             kx132_fetch_interrupt_latch_release(dev);
+            break;
+
+        case SENSOR_CHAN_KIONIX_BUF_READ:
+            kx132_fetch_readings_from_516_byte_buffer(dev);
             break;
 
         default:
