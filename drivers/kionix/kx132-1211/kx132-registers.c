@@ -162,11 +162,11 @@ int kx132_software_reset(const struct device *dev)
 
     rstatus += kx132_read_reg(data->ctx, KX132_WHO_AM_I, read_buffer, SIZE_KX132_REGISTER_VALUE);
     data->who_am_i = read_buffer[0];
-    printk("\n- KX132 driver - who_am_i register holds 0x%02X\n", data->who_am_i);
+    printk("\n- KX132 driver - WHO_AM_I register holds 0x%02X\n", data->who_am_i);
 
     rstatus += kx132_read_reg(data->ctx, KX132_COTR, read_buffer, SIZE_KX132_REGISTER_VALUE);
     data->cotr = read_buffer[0];
-    printk("\n- KX132 driver - who_am_i register holds 0x%02X\n", data->cotr);
+    printk("\n- KX132 driver - COTR register holds 0x%02X\n", data->cotr);
 
     if ( data->who_am_i != KX132_WHO_AM_I_EXPECTED_VALUE )
         { rstatus = ROUTINE_STATUS__UNEXPECTED_VALUE_WHO_AM_I; }
