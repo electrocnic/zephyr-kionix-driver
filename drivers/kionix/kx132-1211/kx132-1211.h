@@ -99,6 +99,12 @@ union string_union_type__part_id
     uint16_t as_16_bit_integer;
 };
 
+union kx132_acc_reading
+{
+    uint16_t in_hi_res_16_bit_mode;
+    uint8_t in_lo_res_8_bit_mode[2];
+};
+
 
 
 // # https://gcc.gnu.org/onlinedocs/gcc-3.4.6/cpp/Stringification.html . . . stringification via C macros
@@ -242,12 +248,6 @@ struct kx132_device_data {
 #define KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT 6
 #define KX132_READINGS_TRIPLET_LO_RES_BYTE_COUNT 3
 #define KX132_BUF_READ_SIZE (KX132_READINGS_BUFFER_SIZE_FOR_16_BIT_XYZ_SETS * KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT)
-
-union kx132_acc_reading
-{
-    uint16_t in_hi_res_16_bit_mode;
-    uint8_t in_lo_res_8_bit_mode[2];
-};
 
     union kx132_acc_reading buf_read[KX132_READINGS_BUFFER_SIZE_FOR_16_BIT_XYZ_SETS];
 

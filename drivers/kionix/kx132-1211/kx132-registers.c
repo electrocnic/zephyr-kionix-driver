@@ -18,6 +18,7 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
                                    //  unions, and enumerated settings
 #include "out-of-tree-drivers.h"   // to provide enumerated driver scoped return values
 
+#include "kx132-registers.h"       //
 
 
 //----------------------------------------------------------------------
@@ -358,7 +359,7 @@ int kx132_fetch_acceleration_x_axis(const struct device *dev)
         return rstatus;
     }
 
-    for ( i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++ )
+    for ( i = 0; i < KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT; i++ )
     {
         data->accel_axis_x[i] = read_buffer[i];
     }
@@ -391,7 +392,7 @@ int kx132_fetch_acceleration_y_axis(const struct device *dev)
         return rstatus;
     }
 
-    for ( i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++ )
+    for ( i = 0; i < KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT; i++ )
     {
         data->accel_axis_y[i] = read_buffer[i];
     }
@@ -422,7 +423,7 @@ int kx132_fetch_acceleration_z_axis(const struct device *dev)
         return rstatus;
     }
 
-    for ( i = 0; i < BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS; i++ )
+    for ( i = 0; i < KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT; i++ )
     {
         data->accel_axis_z[i] = read_buffer[i];
     }
@@ -457,11 +458,11 @@ int kx132_fetch_acceleration_xyz_axis(const struct device *dev)
 
 #if 1
 // This block of FOR loops hard to read - TMH
-    for (i = 0; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 0); i++)
+    for (i = 0; i < (KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT + 0); i++)
         { data->accel_axis_x[i - 0] = read_buffer[i]; }
-    for (i = 2; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 2); i++)
+    for (i = 2; i < (KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT + 2); i++)
         { data->accel_axis_y[i - 2] = read_buffer[i]; }
-    for (i = 4; i < (BYTE_COUNT_OF_KX132_ACCELERATION_READING_SINGLE_AXIS + 4); i++)
+    for (i = 4; i < (KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT + 4); i++)
         { data->accel_axis_z[i - 4] = read_buffer[i]; }
 #else
     
