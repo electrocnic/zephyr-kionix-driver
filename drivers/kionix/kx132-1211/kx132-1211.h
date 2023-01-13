@@ -86,6 +86,7 @@ enum kx132_1211_drdy_port_status_e
 //----------------------------------------------------------------------
 
 //#define DEV__KX_DRIVER_DEV_1202__LOW_LEVEL_SPI_WRITE
+//#define DEV__KX_DRIVER_DEV_1120__LOW_LEVEL_SPI_READ
 
 
 
