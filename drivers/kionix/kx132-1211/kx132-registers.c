@@ -213,11 +213,11 @@ int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev)
 
 // From AN092-Getting-Started.pdf:
 //
-// CNTL1  0x00
-// INC1   0x30
-// INC4   0x10
-// ODCNTL 0x06
-// CNTL1  0xE0
+//   CNTL1  0x00   . . . put sensor into stand-by mode
+//   INC1   0x30   . . . reg Interrupt Control 1, enable INT1, set active high, and for latched operation
+//   INC4   0x10   . . . reg Interrupt Control 4, set interrupt event to "data ready"
+// ( ODCNTL 0x06   . . . reg to control output data rate . . . Optional!  Default rate is 50 Hz )
+//   CNTL1  0xE0   . . . put sensor into active readings mode
 
     reg_val_to_write = 0x00U;
     rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
@@ -228,8 +228,51 @@ int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev)
     reg_val_to_write = 0x10U;
     rstatus |= kx132_write_reg(data->ctx, KX132_INC4, write_buffer, len);
 
+// NEED to review setting of ODCNTL register in this routine:   - TMH
     reg_val_to_write = 0x06U;
     rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
+
+    reg_val_to_write = 0xE0U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
+
+    return rstatus;
+}
+
+
+
+int kx132_enable_watermark_interrupt(const struct device *dev)
+{
+    struct kx132_device_data *data = dev->data;
+    uint8_t reg_val_to_write = 0x00U;
+    uint8_t *write_buffer = &reg_val_to_write;
+    uint32_t len = 2;
+    int rstatus = ROUTINE_OK;
+
+// From AN092-Getting-Started.pdf, section 3.4.2 "Watermark Interrupt (WMI)":
+//
+//   CNTL1     0x00   . . . put sensor into stand-by mode
+// ( ODCNTL    0x06   . . . Optional!  Set Output Data Rate via writes to this register )
+//   INC1      0x30   . . . reg Interrupt Control 1, enable INT1, set active high, and for latched operation
+//   INC4      0x20   . . . reg Interrupt Control 4, set interrupt event to "watermark / sample threshold reached"
+//   BUF_CNTL1 0x2B   . . . buffer control reg 1,
+//   BUF_CNTL2 0xE0   . . . buffer control reg 2,
+//   CNTL1     0xE0   . . . put sensor into active readings mode
+
+
+    reg_val_to_write = 0x00U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
+
+    reg_val_to_write = 0x30U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_INC1, write_buffer, len);
+
+    reg_val_to_write = 0x20U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_INC4, write_buffer, len);
+
+    reg_val_to_write = 0x2BU;
+    rstatus |= kx132_write_reg(data->ctx, KX132_BUF_CNTL1, write_buffer, len);
+
+    reg_val_to_write = 0xE0U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_BUF_CNTL2, write_buffer, len);
 
     reg_val_to_write = 0xE0U;
     rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
@@ -461,6 +504,8 @@ int kx132_fetch_interrupt_latch_release(const struct device *dev)
 
     return rstatus;
 }
+
+
 
 
 

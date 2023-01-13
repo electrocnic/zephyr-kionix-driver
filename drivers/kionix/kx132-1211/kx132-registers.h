@@ -62,17 +62,17 @@ enum kx132_1211_output_data_rates_e
 // For following defines see Kionix document
 // KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf
 
-#define KX132_MAN_ID   (0x00)
+#define KX132_MAN_ID    (0x00)
 #define KX132_MAN_ID_SIZE  (4)
-#define KX132_PART_ID  (0x01)
+#define KX132_PART_ID   (0x01)
 #define KX132_PART_ID_SIZE (2)
 
-#define KX132_XOUT_L   (0x08)
-#define KX132_XOUT_H   (0x09)
-#define KX132_YOUT_L   (0x0A)
-#define KX132_YOUT_H   (0x0B)
-#define KX132_ZOUT_L   (0x0C)
-#define KX132_ZOUT_H   (0x0D)
+#define KX132_XOUT_L    (0x08)
+#define KX132_XOUT_H    (0x09)
+#define KX132_YOUT_L    (0x0A)
+#define KX132_YOUT_H    (0x0B)
+#define KX132_ZOUT_L    (0x0C)
+#define KX132_ZOUT_H    (0x0D)
 
 //----------------------------------------------------------------------
 // 
@@ -80,15 +80,15 @@ enum kx132_1211_output_data_rates_e
 #define SIZE_KX132_REGISTER_VALUE (1)
 
 
-#define KX132_COTR     (0x12)
-#define KX132_WHO_AM_I (0x13)
+#define KX132_COTR      (0x12)
+#define KX132_WHO_AM_I  (0x13)
 
 // KX132-1211-Technical-Reference-Manual-Rev-5.0.pdf p 14 of 75:
 // interrtup latch release register INT_REL
 
-#define KX132_INS1     (0x16)
+#define KX132_INS1      (0x16)
 
-#define KX132_INS2     (0x17)
+#define KX132_INS2      (0x17)
 #define BIT_FLAG_FREE_FALL_STATUS        (1 << 7)
 #define BIT_FLAG_BUFFER_FULL             (1 << 6)
 #define BIT_FLAG_WATERMARK_EXCEEDED      (1 << 5)
@@ -97,19 +97,27 @@ enum kx132_1211_output_data_rates_e
 #define BIT_FLAG_TAP_DOUBLE_TAP_STATUS_0 (1 << 2)
 #define BIT_FLAG_TILT_POSITION_STATUS    (1 << 0)
 
-#define KX132_INS3     (0x18)
+#define KX132_INS3      (0x18)
 
-#define KX132_INT_REL  (0x1A)
+#define KX132_INT_REL   (0x1A)
 
 
-#define KX132_CNTL1    (0x1B)
-#define KX132_CNTL2    (0x1C)
+#define KX132_CNTL1     (0x1B)
+#define KX132_CNTL2     (0x1C)
 
-#define KX132_ODCNTL   (0x21)
-#define KX132_INC1     (0x22)
-#define KX132_INC2     (0x23)
-#define KX132_INC3     (0x24)
-#define KX132_INC4     (0x25)
+#define KX132_ODCNTL    (0x21)
+#define KX132_INC1      (0x22)
+#define KX132_INC2      (0x23)
+#define KX132_INC3      (0x24)
+#define KX132_INC4      (0x25)
+
+// Register whose bits express sample count threshold, a.k.a. watermark
+// at which to raise interrupt for application to read samples:
+#define KX132_BUF_CNTL1 (0x5E)
+
+#define KX132_BUF_CNTL2 (0x5F)
+
+
 
 // See TN027-Power-On-Procedure.pdf for following register use:
 #define KX132_UNNAMED_SW_RESET_REG_0x7F (0x7F)

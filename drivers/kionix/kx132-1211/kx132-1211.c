@@ -169,6 +169,74 @@ static int kx132_1211_attr_get(const struct device *dev,
 
 
 
+//----------------------------------------------------------------------
+// @brief  Routine to update KX132 sensor attributes, also called
+//        configuration values.  The somewhat misnamed `value` parameter
+//        conveys in its first of two integer members a sensor attribute,
+//        configuration or state change to effect.  The second integer
+//        member optionally conveys a value, when fitting, to which
+//        this routine sets given sensor attribute or configuration
+//        parameter.
+//
+//        Some KX132 config related attributes lie outside Zephyr's
+//        defined sensor attributes.  These KX132 specific attributes
+//        are expressed in Kionix driver enumeration named
+//        'kx132_1211_config_setting_e'.
+//
+//        Note that not all configuration and state changes are simple,
+//        numeric values applied to a KX132 register, but that some
+//        attribute settings involve more complex sensor side action,
+//        self tests and sensor side register updates.  In these cases
+//        the second integer part of @param `value` may not convey any
+//        value from app side code.  The driver itself directs the
+//        sensor to perform self tests or other configuration tasks.
+//
+//
+// @param  *dev, a pointer to a Zephyr form sensor instance, a compound data structure
+//
+// @param  channel, sensor API construct to describe which sensor readings (channels) to which attribute applies
+//
+// @param  attribute, most often a sensor setting or configuration value, which app code calls us to update
+//
+// @param  value, a small Zephyr structure holding two 32-bit integers.
+//         The first conveys the KX132 configuration or state to change,
+//         and the second integer optionally conveys a value to which
+//         this routine sets given attribute, when such value applies.
+//
+// @return rstatus "routine status", one of:
+//
+//         *  unsupported sensor configuration
+//         *  undefined sensor attribute
+//         *  undefined sensor channel
+//         *  routine ok (routine succeeded)
+//
+//
+// Example set up and call, sets up readings with sensor actuated hardware
+// interrupt, and sets an accelerometer output data rate of 3200 Hz:
+//
+//      requested_config.val1 = KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT;
+//      requested_config.val2 = KX132_ODR_3200_HZ;
+//
+//      sensor_api_status = sensor_attr_set(
+//       dev_kx132_1,
+//       SENSOR_CHAN_ALL,
+//       SENSOR_ATTR_PRIV_START,
+//       &requested_config
+//      );
+//
+//
+// Notes:
+//
+//   REF https://docs.zephyrproject.org/2.6.0/reference/peripherals/sensor.html#c.sensor_attribute
+//     case SENSOR_ATTR_CONFIGURATION:  <- this enumerator available in Zephyr RTOS 2.7.99 but not 2.6.0 - TMH
+//
+//   +  For compatibility with Zephyr 2.6.0, Zephyr sensor channel
+//      enum member `SENSOR_CHAN_ALL` is paired with the more recently
+//      available and more fitting sensor attribute enum member
+//      `SENSOR_ATTR_CONFIGURATION` in a nested switch construct of
+//      this routine.
+//----------------------------------------------------------------------
+
 // REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_channel.SENSOR_CHAN_ALL
 
 static int kx132_1211_attr_set(const struct device *dev,
@@ -183,26 +251,29 @@ static int kx132_1211_attr_set(const struct device *dev,
     switch (attr)
     {
 
-// Note:  Zephyr standard sensor attribute case values will be
-//  added here, at top of SWITCH construct.  None do far implemented as
-//  of 2022-11-28 - TMH
+// Note:  Zephyr standard sensor attribute enumeration values will be
+//  added here, at top of SWITCH construct.  None so far implemented as
+//  of 2022-11-28.  See `zephyr/include/zephyr/drivers/sensor.h` for
+//  full enumeration of Zephyr defined sensor attributes.  - TMH
 
-// REF https://docs.zephyrproject.org/2.6.0/reference/peripherals/sensor.html#c.sensor_attribute
-//        case SENSOR_ATTR_CONFIGURATION:  <- this enumerator available in Zephyr RTOS 2.7.99 but not 2.6.0 - TMH
         case SENSOR_ATTR_PRIV_START:
         {
             switch (chan)
             {
                 case SENSOR_CHAN_ALL:
+                case SENSOR_ATTR_CONFIGURATION:
                 {
                     switch (sensor_config_requested)
                     {
-// When a sensor attribute to set is a configuration value, and it
-// applies to some or all readings channels not just one, then calling
-// code should call this routine with above two Zephyr enumerated
-// case values, and a final value in paramter 'val' which falls in
-// the local Kionix driver enumeration named 'kx132_1211_config_setting_e'.
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                        case KX132_PERMFORM_SOFTWARE_RESET:
+                        {
+// A fetch like routine, updates sensor data shadow registers 'who_am_i' and 'cotr':
+                            kx132_software_reset(dev);
+                            break;
+                        }
+
+
                         case KX132_ENABLE_ASYNC_READINGS:
                         {
                             kx132_enable_asynchronous_readings(dev);
@@ -228,14 +299,11 @@ static int kx132_1211_attr_set(const struct device *dev,
                             break;
                         }
 #endif
-
-                        case KX132_PERMFORM_SOFTWARE_RESET:
+                        case KX132_ENABLE_WATERMARK_INTERRUPT:
                         {
-// A fetch like routine, updates sensor data shadow registers 'who_am_i' and 'cotr':
-                            kx132_software_reset(dev);
+                            kx132_enable_watermark_interrupt(dev);
                             break;
                         }
-
 
 
                         default: // ...action to take when requested config not supported
@@ -455,9 +523,13 @@ static int kx132_1211_init(const struct device *dev)
     struct kx132_device_data *data = dev->data;
 // - DEV 1128 -
 
+    uint32_t rstatus = ROUTINE_OK;
+
+
     kx132_init_interface(dev);
 
 // Optionally check chip ID here:
+    rstatus = kx132_software_reset(dev);
 
 // Optionally set a block data update mode, if applicable, here:
 
@@ -496,11 +568,11 @@ static int kx132_1211_init(const struct device *dev)
 #warning "KX132 driver compiled with dedicated thread support"
 #endif
 
-// - DEV 1130 -
+// - DEV 1130 BEGIN -
 printk("- DEV 1028 - devicetree API finds drdy-gpios compatible node with path '%s'\n", xstr(DRDY_GPIO_DEVICETREE_PATH));
+// - DEV 1130 END -
 
-
-    return 0;
+    return rstatus;
 }
 
 
@@ -512,7 +584,8 @@ printk("- DEV 1028 - devicetree API finds drdy-gpios compatible node with path '
 //  terms detailed here:
 // https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html
 
-static const struct sensor_driver_api kx132_driver_api = {
+static const struct sensor_driver_api kx132_driver_api =
+{
     .attr_get = &kx132_1211_attr_get,
     .attr_set = &kx132_1211_attr_set,
 #if CONFIG_KX132_TRIGGER
