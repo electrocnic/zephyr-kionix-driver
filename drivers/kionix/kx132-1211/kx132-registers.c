@@ -570,13 +570,13 @@ int kx132_fetch_readings_from_buf_read(const struct device *dev)
     rstatus = kx132_read_reg(data->ctx, KX132_BUF_READ, read_buffer, bytes_to_request_from_buf_read);
 
     printk("- KX132 driver - first six BUF_READ values:\n  0x%04X, 0x%04X, 0x%04X,\n  0x%04X, 0x%04X, 0x%04X,\n\n",
-        (readings[0] + (readings[1] << 8 )),
-        (readings[2] + (readings[3] << 8 )),
-        (readings[4] + (readings[5] << 8 )),
+        (read_buffer[0] + (read_buffer[1] << 8 )),
+        (read_buffer[2] + (read_buffer[3] << 8 )),
+        (read_buffer[4] + (read_buffer[5] << 8 )),
 
-        (readings[6] + (readings[7] << 8 )),
-        (readings[8] + (readings[9] << 8 )),
-        (readings[10] + (readings[11] << 8 ))
+        (read_buffer[6] + (read_buffer[7] << 8 )),
+        (read_buffer[8] + (read_buffer[9] << 8 )),
+        (read_buffer[10] + (read_buffer[11] << 8 ))
       );
 
     return rstatus = 0;
