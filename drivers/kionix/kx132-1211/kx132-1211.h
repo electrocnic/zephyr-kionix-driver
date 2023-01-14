@@ -85,7 +85,9 @@ enum kx132_1211_drdy_port_status_e
 // - SECTION - development
 //----------------------------------------------------------------------
 
+// Following define is very handy to confirm multi-register config sequences:
 #define DEV__KX_DRIVER_DEV_1202__LOW_LEVEL_SPI_WRITE
+
 //#define DEV__KX_DRIVER_DEV_1120__LOW_LEVEL_SPI_READ
 
 
@@ -229,12 +231,12 @@ struct kx132_device_data {
 // As of 2013-01-23 a two byte data type:
     union string_union_type__part_id part_id;
 
-// Interrupt latch release register, interrupts cleared when code reads this register:
-    uint8_t register_int_rel;
-
     uint8_t who_am_i;
-
     uint8_t cotr; // KX132 Command Test control Register
+// Interrupt latch release register, interrupts cleared when code reads this register:
+    uint8_t shadow_reg_int_rel;
+
+    uint8_t shadow_reg_ins2;
 
 
 // Following three data members are written with LSB, MSB of respective accelerometer readings:
@@ -253,12 +255,13 @@ struct kx132_device_data {
 // In 16-bit readings resolution mode readings buffer holds 86 triplets of x,y,z readings,
 // In 8-bit readings resolution mode readings buffer holds 171 triplets of x,y,z readings.
 
-#define KX132_READINGS_BUFFER_SIZE_FOR_16_BIT_XYZ_SETS 86
+// From AN092-Getting-Started.pdf page 7 of 27, Kionix says KX132 read buffer has 258 bytes:
+#define KX132_FIFO_CAPACITY_FOR_HI_RES_XYZ_READING_TRIPLETS 43
 #define KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT 6
 #define KX132_READINGS_TRIPLET_LO_RES_BYTE_COUNT 3
-#define KX132_BUF_READ_SIZE (KX132_READINGS_BUFFER_SIZE_FOR_16_BIT_XYZ_SETS * KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT)
+#define KX132_BUF_READ_SIZE (KX132_FIFO_CAPACITY_FOR_HI_RES_XYZ_READING_TRIPLETS * KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT)
 
-    union kx132_acc_reading buf_read[KX132_READINGS_BUFFER_SIZE_FOR_16_BIT_XYZ_SETS];
+    union kx132_acc_reading buf_read[KX132_BUF_READ_SIZE / 2];
 
     uint16_t buf_read_index;
 
@@ -336,6 +339,7 @@ enum sensor_channels_kionix_specific {
     SENSOR_CHAN_KIONIX_MANUFACTURER_ID,
     SENSOR_CHAN_KIONIX_PART_ID,
     SENSOR_CHAN_KIONIX_INTERRUPT_LATCH_RELEASE,
+    SENSOR_CHAN_KIONIX_INS2,
     SENSOR_CHAN_KIONIX_SOFTWARE_RESET_STATUS_VALUE,
     SENSOR_CHAN_KIONIX_BUF_READ,
 

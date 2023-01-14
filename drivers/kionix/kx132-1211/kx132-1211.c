@@ -471,8 +471,13 @@ static int kx132_1211_channel_get(const struct device *dev,
             val->val2 = ( ( data->accel_axis_z[1] <<  8 ) | ( data->accel_axis_z[0] <<  0 ) );
             break;
 
-        case SENSOR_CHAN_KIONIX_INTERRUPT_LATCH_RELEASE:  // one byte of data,
-            val->val1 = data->register_int_rel;
+        case SENSOR_CHAN_KIONIX_INTERRUPT_LATCH_RELEASE:
+            val->val1 = data->shadow_reg_int_rel;
+            val->val2 = 0;
+            break;
+
+        case SENSOR_CHAN_KIONIX_INS2:
+            val->val1 = data->shadow_reg_ins2;
             val->val2 = 0;
             break;
 

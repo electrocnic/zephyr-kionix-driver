@@ -126,6 +126,8 @@ enum kx132_readings_resolution_e
 #define KX132_BUF_CNTL1 (0x5E)
 #define KX132_BUF_CNTL2 (0x5F)
 
+#define KX132_BUF_CLEAR (0x62)
+
 #define KX132_BUF_READ  (0x63)
 
 
@@ -144,9 +146,16 @@ int32_t kx132_read_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t l
 int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t len);
 
 
+// As of 2023 Q1 software reset routine treated as a fetching routine, as it reads two
+// registers as part of final status check:
+int kx132_software_reset(const struct device *dev);
+
+int kx132_enable_watermark_interrupt(const struct device *dev);
+
 int kx132_enable_asynchronous_readings(const struct device *dev);
 
 int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev);
+
 
 
 int kx132_fetch_device_id(const struct device *dev);
@@ -163,13 +172,9 @@ int kx132_fetch_acceleration_xyz_axis(const struct device *dev);
 
 int kx132_fetch_interrupt_latch_release(const struct device *dev);
 
-// As of 2023 Q1 software reset routine treated as a fetching routine, as it reads two
-// registers as part of final status check:
-int kx132_software_reset(const struct device *dev);
-
-int kx132_enable_watermark_interrupt(const struct device *dev);
-
 int kx132_fetch_readings_from_buf_read(const struct device *dev);
+
+int kx132_fetch_interrupt_source_2(const struct device *dev);
 
 
 

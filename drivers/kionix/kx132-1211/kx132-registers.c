@@ -162,11 +162,11 @@ int kx132_software_reset(const struct device *dev)
 
     rstatus += kx132_read_reg(data->ctx, KX132_WHO_AM_I, read_buffer, SIZE_KX132_REGISTER_VALUE);
     data->who_am_i = read_buffer[0];
-    printk("\n- KX132 driver - WHO_AM_I register holds 0x%02X\n", data->who_am_i);
+    printk("- KX132 driver - WHO_AM_I register holds 0x%02X\n", data->who_am_i);
 
     rstatus += kx132_read_reg(data->ctx, KX132_COTR, read_buffer, SIZE_KX132_REGISTER_VALUE);
     data->cotr = read_buffer[0];
-    printk("\n- KX132 driver - COTR register holds 0x%02X\n", data->cotr);
+    printk("- KX132 driver - COTR register holds 0x%02X\n\n", data->cotr);
 
     if ( data->who_am_i != KX132_WHO_AM_I_EXPECTED_VALUE )
         { rstatus = ROUTINE_STATUS__UNEXPECTED_VALUE_WHO_AM_I; }
@@ -494,23 +494,37 @@ int kx132_fetch_interrupt_latch_release(const struct device *dev)
     struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0};
     uint8_t *read_buffer = reg_val_to_read;
-//    int i = 0;
-
     int rstatus = 0;
 
     rstatus = kx132_read_reg(data->ctx, KX132_INT_REL, read_buffer, SIZE_KX132_REGISTER_VALUE);
 
     if ( rstatus != 0 )
-    {
-        LOG_WRN("Unable to read interrupt latch release register.  Err: %i", rstatus);
-    }
+        { LOG_WRN("Unable to read interrupt latch release register.  Err: %i", rstatus); }
     else
-    {
-        data->register_int_rel = read_buffer[0];
-    }
+        { data->shadow_reg_int_rel = read_buffer[0]; }
 
     return rstatus;
 }
+
+
+
+int kx132_fetch_interrupt_source_2(const struct device *dev)
+{
+    struct kx132_device_data *data = dev->data;
+    uint8_t reg_val_to_read[] = {0};
+    uint8_t *read_buffer = reg_val_to_read;
+    int rstatus = 0;
+
+    rstatus = kx132_read_reg(data->ctx, KX132_INS2, read_buffer, SIZE_KX132_REGISTER_VALUE);
+
+    if ( rstatus != 0 )
+        { LOG_WRN("Unable to read INS2 register.  Err: %i", rstatus); }
+    else
+        { data->shadow_reg_ins2 = read_buffer[0]; }
+
+    return rstatus;
+}
+
 
 
 
