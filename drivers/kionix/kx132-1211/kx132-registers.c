@@ -275,7 +275,7 @@ int kx132_enable_watermark_interrupt(const struct device *dev)
     reg_val_to_write = 0x20U;
     rstatus |= kx132_write_reg(data->ctx, KX132_INC4, write_buffer, len);
 
-    reg_val_to_write = 0x2BU;
+    reg_val_to_write = 0x0AU;
     rstatus |= kx132_write_reg(data->ctx, KX132_BUF_CNTL1, write_buffer, len);
 
     reg_val_to_write = 0xE0U;
