@@ -541,14 +541,14 @@ int kx132_fetch_readings_from_buf_read(const struct device *dev)
 {
     struct kx132_device_data *data = dev->data;
 
-    uint8_t reg_val_to_write = 0x00U;
-    uint8_t *write_buffer = &reg_val_to_write;
+//    uint8_t reg_val_to_write = 0x00U;
+//    uint8_t *write_buffer = &reg_val_to_write;
 
     uint8_t reg_val_to_read[KX132_BUF_READ_SIZE];
     uint8_t *read_buffer = reg_val_to_read;
 
 // Local index to copy sensor readings to driver "shadow" array:
-    uint32_t i = 0;
+//    uint32_t i = 0;
     uint16_t count_of_readings_to_fetch = 0;
     uint16_t bytes_to_request_from_buf_read = 0;
     enum kx132_readings_resolution_e reading_resolution = KX132_READING_RES_HI_16_BIT;

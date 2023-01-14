@@ -90,6 +90,8 @@ enum kx132_1211_drdy_port_status_e
 
 //#define DEV__KX_DRIVER_DEV_1120__LOW_LEVEL_SPI_READ
 
+//#define DEV_ANNOUNCE_TRIGGER_CODE_COMPILATION
+
 
 
 //----------------------------------------------------------------------
@@ -155,7 +157,9 @@ struct kx132_device_config {
 
 	uint8_t pm;
 #ifdef CONFIG_KX132_TRIGGER
+#ifdef DEV_ANNOUNCE_TRIGGER_CODE_COMPILATION
 #warning "KX132 1211 driver - compiling gpio_dt_spec instance in struct 'kx132_device_config'"
+#endif
 // # REF https://github.com/zephyrproject-rtos/zephyr/blob/main/include/zephyr/drivers/gpio.h#L271
 	struct gpio_dt_spec int_gpio;
 #endif /* CONFIG_KX132_TRIGGER */
@@ -197,7 +201,9 @@ struct kx132_device_data {
     kionix_ctx_t *ctx;
 
 #ifdef CONFIG_KX132_TRIGGER
+#ifdef DEV_ANNOUNCE_TRIGGER_CODE_COMPILATION
 #warning "compiling KX132 trigger data members into kx132_device_data structure . . ."
+#endif
     const struct device *dev;
     struct gpio_callback gpio_cb;
     sensor_trigger_handler_t drdy_handler;
