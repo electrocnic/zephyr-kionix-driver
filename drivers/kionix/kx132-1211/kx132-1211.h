@@ -237,8 +237,8 @@ struct kx132_device_data {
 // As of 2013-01-23 a two byte data type:
     union string_union_type__part_id part_id;
 
-    uint8_t who_am_i;
-    uint8_t cotr; // KX132 Command Test control Register
+    uint8_t shadow_reg_who_am_i;
+    uint8_t shadow_reg_cotr; // KX132 Command Test control Register
 // Interrupt latch release register, interrupts cleared when code reads this register:
     uint8_t shadow_reg_int_rel;
 
@@ -267,10 +267,15 @@ struct kx132_device_data {
 #define KX132_READINGS_TRIPLET_LO_RES_BYTE_COUNT 3
 #define KX132_BUF_READ_SIZE (KX132_FIFO_CAPACITY_FOR_HI_RES_XYZ_READING_TRIPLETS * KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT)
 
+// For 16-bit and 8-bit resolution readings buffer, (16 * 129) is same as (8 * 258) byte buffer size:
     union kx132_acc_reading buf_read[KX132_BUF_READ_SIZE / 2];
 
+// A driver side array index to driver's array holding buf_read FIFO readings:
     uint16_t buf_read_index;
 
+// A driver side "register", not in sensor, to support flexible FIFO reading
+// during stream, watermark based and related FIFO readings modes:
+    uint8_t driver_reg_count_of_buf_read_readings_to_return;
 };
 
 
@@ -344,10 +349,20 @@ enum sensor_channels_kionix_specific {
 
     SENSOR_CHAN_KIONIX_MANUFACTURER_ID,
     SENSOR_CHAN_KIONIX_PART_ID,
+// KX132_INT_REL, something of a config and a status register:
     SENSOR_CHAN_KIONIX_INTERRUPT_LATCH_RELEASE,
+// sensor status register:
     SENSOR_CHAN_KIONIX_INS2,
+// programmatic:
     SENSOR_CHAN_KIONIX_SOFTWARE_RESET_STATUS_VALUE,
+// sensor readings FIFO:
     SENSOR_CHAN_KIONIX_BUF_READ,
+
+// a general "read configuration value" custom sensor channel:
+    SENSOR_CHAN_KIONIX__KX132_CONFIG_REGISTER,
+
+// a general "read status value" custom sensor channel:
+    SENSOR_CHAN_KIONIX__KX132_STATUS_REGISTER,
 
     SENSOR_CHAN_KIONIX_END
 };
@@ -364,6 +379,9 @@ enum kx132_1211_config_setting_e
 // From Kionix document TN027-Power-On-Procedure.pdf:
     KX132_PERMFORM_SOFTWARE_RESET,
 
+// From AN109-...-3p0.pdf
+    KX132_SET_OUTPUT_DATA_RATE,
+
 // From Kionix document AN092-Getting-Stated.pdf:
     KX132_ENABLE_ASYNC_READINGS,
     KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT,
@@ -377,11 +395,11 @@ enum kx132_1211_config_setting_e
     KX132_ENABLE_TAP_DOUBLE_TAP,
     KX132_ENABLE_FREE_FALL_ENGINE,
 
-// From AN109-...-3p0.pdf
-    KX132_SET_OUTPUT_DATA_RATE,
-
 // - DEV 1128 -
     KX132_REINITIALIZE_DRDY_GPIO_PORT,
+
+// - DEV 0115 -
+    KX132_SET_BUF_READ_FETCH_SAMPLES_COUNT,
 
     KX132_CONFIGURATION_SETTING_LAST
 };
