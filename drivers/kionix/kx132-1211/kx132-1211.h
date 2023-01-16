@@ -242,6 +242,8 @@ struct kx132_device_data {
 
     uint8_t shadow_reg_cotr; // KX132 Command Test control Register
 
+    uint8_t shadow_reg_cntl1;
+
 // Interrupt latch release register, interrupts cleared when code reads this register:
     uint8_t shadow_reg_int_rel;
 

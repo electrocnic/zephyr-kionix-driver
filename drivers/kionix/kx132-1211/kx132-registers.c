@@ -328,7 +328,7 @@ int kx132_disable_sample_buffer(const struct device *dev)
 
     data->shadow_reg_buf_cntl2 &= ~(KX132_BUF_CNTL2_BIT_FLAG_BUFE);
 
-    rstatus |= kx132_write_reg(data->ctx, KX132_BUF_CNTL2, data->shadow_reg_buf_cntl2, len);
+    rstatus |= kx132_write_reg(data->ctx, KX132_BUF_CNTL2, &(data->shadow_reg_buf_cntl2), len);
 
     return rstatus;
 }
