@@ -111,6 +111,14 @@ enum kx132_readings_resolution_e
 
 
 #define KX132_CNTL1     (0x1B)
+#define KX132_CNTL1_BIT_FLAG_PC1                    (1 << 7)  // "Controls the operating mode" per tech' reference manual
+#define KX132_CNTL1_BIT_FLAG_RES                    (1 << 6)  // acc reading resolution, 8-bit versus 16-bit
+#define KX132_CNTL1_BIT_FLAG_DRDYE                  (1 << 5)  // Data Ready Engine enable
+#define KX132_CNTL1_BIT_FLAG_GSEL1                  (1 << 4)  // G range selection bit most significant
+#define KX132_CNTL1_BIT_FLAG_GSEL0                  (1 << 3)  // G range selection bit least significant
+#define KX132_CNTL1_BIT_FLAG_TDTE                   (1 << 2)  // Tap, Double-Tap enable
+#define KX132_CNTL1_BIT_FLAG_BIT1_RESERVED          (1 << 1)
+#define KX132_CNTL1_BIT_FLAG_TPE                    (1 << 0)  // Tile Position Engine enable
 
 #define KX132_CNTL2     (0x1C)
 #define KX132_CNTL2_BIT_FLAG_BRES                   (1 << 6)
@@ -121,11 +129,29 @@ enum kx132_readings_resolution_e
 #define KX132_INC3      (0x24)
 #define KX132_INC4      (0x25)
 
+
 // Register whose bits express sample count threshold, a.k.a. watermark
 // at which to raise interrupt for application to read samples:
 #define KX132_BUF_CNTL1 (0x5E)
-#define KX132_BUF_CNTL2 (0x5F)
+// bit-wise flags of this register in technical manual are named SMP_TH7..SMP_TH0
 
+#define KX132_BUF_CNTL2 (0x5F)
+#define KX132_BUF_CNTL2_BIT_FLAG_BUFE               (1 << 7)  // controls activation of sample buffer at BUF_READ
+#define KX132_BUF_CNTL2_BIT_FLAG_BRES               (1 << 6)  // determines resolution of samples collected by buffer
+#define KX132_BUF_CNTL2_BIT_FLAG_BFIE               (1 << 5)  // buffer full interrupt enable
+#define KX132_BUF_CNTL2_BIT_FLAG_BIT4_RESERVED      (1 << 4)
+#define KX132_BUF_CNTL2_BIT_FLAG_BIT3_RESERVED      (1 << 3)
+#define KX132_BUF_CNTL2_BIT_FLAG_BIT2_RESERVED      (1 << 2)
+#define KX132_BUF_CNTL2_BIT_FLAG_BM1                (1 << 1)  // buffer operating mode bit
+#define KX132_BUF_CNTL2_BIT_FLAG_BM0                (1 << 0)  // buffer operating mode bit
+// buffer operating modes, KX132 technical reference manual page 43 of 75:
+//         BM1  BM0
+// FIFO     0    0
+// STREAM   0    1
+// TRIGGER  1    0
+
+// Per manual latched buffer status info and entire buffer data are
+// cleared whenever are data written to this register:
 #define KX132_BUF_CLEAR (0x62)
 
 #define KX132_BUF_READ  (0x63)

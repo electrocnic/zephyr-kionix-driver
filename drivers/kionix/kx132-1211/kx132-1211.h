@@ -275,7 +275,7 @@ struct kx132_device_data {
 
 // A driver side "register", not in sensor, to support flexible FIFO reading
 // during stream, watermark based and related FIFO readings modes:
-    uint8_t driver_reg_count_of_buf_read_readings_to_return;
+    uint8_t driver_reg_sample_count_to_read;
 };
 
 
@@ -361,6 +361,13 @@ enum sensor_channels_kionix_specific {
 // a general "read configuration value" custom sensor channel:
     SENSOR_CHAN_KIONIX__KX132_CONFIG_REGISTER,
 
+//**********************************************************************
+// NOTE:  for safety there is no general "write register"
+// Zephyr sensor channel defined in this driver.  Certain register
+// bits of KX132 are reserved and technical manual instructs
+// sensor users to leave these bits unwritten and not changed.
+//**********************************************************************
+
 // a general "read status value" custom sensor channel:
     SENSOR_CHAN_KIONIX__KX132_STATUS_REGISTER,
 
@@ -394,6 +401,10 @@ enum kx132_1211_config_setting_e
     KX132_ENABLE_TILT_POSITION_WITH_FACE_DETECT,
     KX132_ENABLE_TAP_DOUBLE_TAP,
     KX132_ENABLE_FREE_FALL_ENGINE,
+
+// - single-register configurations:
+    KX132_ENTER_STANDBY_MODE,
+    KX132_DISABLE_SAMPLE_BUFFER,
 
 // - DEV 1128 -
     KX132_REINITIALIZE_DRDY_GPIO_PORT,
