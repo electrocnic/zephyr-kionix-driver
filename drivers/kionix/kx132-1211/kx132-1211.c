@@ -53,11 +53,6 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
 // - SECTION - Kionix sensor specific configuration routines
 //----------------------------------------------------------------------
 
-#if 0
-#endif
-
-
-
 /*
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  *  @brief   Routine to configure KX132-1211 Output Data Rate (ODR).
@@ -273,6 +268,19 @@ static int kx132_1211_attr_set(const struct device *dev,
                             break;
                         }
 
+// Single register update:
+                        case KX132_ENTER_STANDBY_MODE:
+                        {
+                            kx132_enter_standby_mode(dev);
+                            break;
+                        }
+
+// Single register update:
+                        case KX132_DISABLE_SAMPLE_BUFFER:
+                        {
+                            kx132_disable_sample_buffer(dev);
+                            break;
+                        }
 
                         case KX132_ENABLE_ASYNC_READINGS:
                         {
