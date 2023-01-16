@@ -638,8 +638,17 @@ int kx132_fetch_readings_from_buf_read(const struct device *dev)
         bytes_to_request_from_buf_read = (count_of_readings_to_fetch * KX132_READINGS_TRIPLET_LO_RES_BYTE_COUNT);
     }
     printk("- KX132 driver - readings resolution bit flag set to %u,\n",
-      ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES ));
+//      ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES ));
+      ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES ? 1 : 0));
 
+
+// - DEV 0116 - compel a read only one set of x,y,z readings:
+    if ( reading_resolution == KX132_READING_RES_HI_16_BIT )
+        { bytes_to_request_from_buf_read = 6; }
+    else
+        { bytes_to_request_from_buf_read = 3; }
+
+// - DEV 0116 -
 
     memset(reg_val_to_read, KX132_BUF_READ_SIZE, 0);
 

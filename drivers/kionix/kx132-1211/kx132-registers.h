@@ -55,8 +55,8 @@ enum kx132_1211_output_data_rates_e
 
 enum kx132_readings_resolution_e
 {
-    KX132_READING_RES_HI_16_BIT,
-    KX132_READING_RES_LO_8_BIT,
+    KX132_READING_RES_LO_8_BIT = 0,
+    KX132_READING_RES_HI_16_BIT = 1,
 };
 
 
