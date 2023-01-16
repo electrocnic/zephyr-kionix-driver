@@ -48,6 +48,7 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 // #define DEV_1121__KX132_I2C_BURST_WRITES_WORKING
 
+#define DEV_0116
 
 
 //----------------------------------------------------------------------
@@ -300,13 +301,17 @@ int kx132_enter_standby_mode(const struct device *dev)
     uint32_t len = 2;
     int rstatus = ROUTINE_OK;
 
-    rstatus += kx132_read_reg(data->ctx, KX132_CNTL1, read_buffer, SIZE_KX132_REGISTER_VALUE);
+    rstatus = kx132_read_reg(data->ctx, KX132_CNTL1, read_buffer, SIZE_KX132_REGISTER_VALUE);
     data->shadow_reg_cntl1 = read_buffer[0];
 
     data->shadow_reg_cntl1 &= ~(KX132_CNTL1_BIT_FLAG_PC1);
 
-    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, data->shadow_reg_cntl1, len);
+    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, &(data->shadow_reg_cntl1), len);
 
+#if DEV_0116
+    rstatus = kx132_read_reg(data->ctx, KX132_CNTL1, read_buffer, SIZE_KX132_REGISTER_VALUE);
+    printk("- DEV 0116 - 'enter standby mode' wrote 0x%02x to CNTL1 register.\n", read_buffer[0]);
+#endif
     return rstatus;
 }
 
@@ -323,13 +328,17 @@ int kx132_disable_sample_buffer(const struct device *dev)
     uint32_t len = 2;
     int rstatus = ROUTINE_OK;
 
-    rstatus += kx132_read_reg(data->ctx, KX132_BUF_CNTL2, read_buffer, SIZE_KX132_REGISTER_VALUE);
+    rstatus = kx132_read_reg(data->ctx, KX132_BUF_CNTL2, read_buffer, SIZE_KX132_REGISTER_VALUE);
     data->shadow_reg_buf_cntl2 = read_buffer[0];
 
     data->shadow_reg_buf_cntl2 &= ~(KX132_BUF_CNTL2_BIT_FLAG_BUFE);
 
     rstatus |= kx132_write_reg(data->ctx, KX132_BUF_CNTL2, &(data->shadow_reg_buf_cntl2), len);
 
+#if DEV_0116
+    rstatus = kx132_read_reg(data->ctx, KX132_BUF_CNTL2, read_buffer, SIZE_KX132_REGISTER_VALUE);
+    printk("- DEV 0116 - 'disable sample buffer' wrote 0x%02x to BUF_CNTL2 register.\n", read_buffer[0]);
+#endif
     return rstatus;
 }
 
