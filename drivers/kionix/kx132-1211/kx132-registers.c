@@ -308,7 +308,7 @@ int kx132_enter_standby_mode(const struct device *dev)
 
     rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, &(data->shadow_reg_cntl1), len);
 
-#if DEV_0116
+#ifdef DEV_0116
     rstatus = kx132_read_reg(data->ctx, KX132_CNTL1, read_buffer, SIZE_KX132_REGISTER_VALUE);
     printk("- DEV 0116 - 'enter standby mode' wrote 0x%02x to CNTL1 register.\n", read_buffer[0]);
 #endif
@@ -335,7 +335,7 @@ int kx132_disable_sample_buffer(const struct device *dev)
 
     rstatus |= kx132_write_reg(data->ctx, KX132_BUF_CNTL2, &(data->shadow_reg_buf_cntl2), len);
 
-#if DEV_0116
+#ifdef DEV_0116
     rstatus = kx132_read_reg(data->ctx, KX132_BUF_CNTL2, read_buffer, SIZE_KX132_REGISTER_VALUE);
     printk("- DEV 0116 - 'disable sample buffer' wrote 0x%02x to BUF_CNTL2 register.\n", read_buffer[0]);
 #endif
