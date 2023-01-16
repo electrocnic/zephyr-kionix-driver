@@ -337,8 +337,15 @@ int kx132_disable_sample_buffer(const struct device *dev)
 
     rstatus = kx132_read_reg(data->ctx, KX132_BUF_CNTL2, read_buffer, SIZE_KX132_REGISTER_VALUE);
     data->shadow_reg_buf_cntl2 = read_buffer[0];
+#ifdef DEV_0116
+    printk("*\n* DEV 0116 * 'disable sample buffer' finds 0x%02x in BUF_CNTL2 register.\n", read_buffer[0]);
+    printk("* DEV 0116 * 'disable sample buffer' about to mask this value with 0x%02x\n", (uint8_t)~(KX132_BUF_CNTL2_BIT_FLAG_BUFE));
+#endif
 
-    data->shadow_reg_buf_cntl2 &= ~(KX132_BUF_CNTL2_BIT_FLAG_BUFE);
+    data->shadow_reg_buf_cntl2 &= (uint8_t)~(KX132_BUF_CNTL2_BIT_FLAG_BUFE);
+#ifdef DEV_0116
+    printk("* DEV 0116 * masked value is 0x%02x\n", data->shadow_reg_buf_cntl2);
+#endif
 
     rstatus |= kx132_write_reg(data->ctx, KX132_BUF_CNTL2, &(data->shadow_reg_buf_cntl2), len);
 
