@@ -303,14 +303,21 @@ int kx132_enter_standby_mode(const struct device *dev)
 
     rstatus = kx132_read_reg(data->ctx, KX132_CNTL1, read_buffer, SIZE_KX132_REGISTER_VALUE);
     data->shadow_reg_cntl1 = read_buffer[0];
+#ifdef DEV_0116
+    printk("*\n* DEV 0116 * 'enter standby mode' finds 0x%02x in CNTL1 register.\n", read_buffer[0]);
+    printk("* DEV 0116 * 'enter standby mode' about to mask this value with 0x%02x\n", ~(KX132_CNTL1_BIT_FLAG_PC1));
+#endif
 
     data->shadow_reg_cntl1 &= ~(KX132_CNTL1_BIT_FLAG_PC1);
+#ifdef DEV_0116
+    printk("* DEV 0116 * masked value is 0x%02x\n", data->shadow_reg_cntl1);
+#endif
 
     rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, &(data->shadow_reg_cntl1), len);
 
 #ifdef DEV_0116
     rstatus = kx132_read_reg(data->ctx, KX132_CNTL1, read_buffer, SIZE_KX132_REGISTER_VALUE);
-    printk("- DEV 0116 - 'enter standby mode' wrote 0x%02x to CNTL1 register.\n", read_buffer[0]);
+    printk("*\n DEV 0116 - 'enter standby mode' wrote 0x%02x to CNTL1 register.\n*\n", read_buffer[0]);
 #endif
     return rstatus;
 }
