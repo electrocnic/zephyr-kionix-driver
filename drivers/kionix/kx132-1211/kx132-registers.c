@@ -289,6 +289,38 @@ int kx132_enable_watermark_interrupt(const struct device *dev)
 
 
 
+int kx132_enter_standby_mode(const struct device *dev)
+{
+    return 0;
+}
+
+
+
+int kx132_disable_sample_buffer(const struct device *dev)
+{
+    struct kx132_device_data *data = dev->data;
+
+    uint8_t reg_val_to_write = 0x00U;
+    uint8_t *write_buffer = &reg_val_to_write;
+    uint8_t reg_val_to_read[] = {0, 0};
+    uint8_t *read_buffer = reg_val_to_read;
+    uint32_t len = 2;
+    int rstatus = ROUTINE_OK;
+
+    rstatus += kx132_read_reg(data->ctx, KX132_BUF_CNTL2, read_buffer, SIZE_KX132_REGISTER_VALUE);
+    data->shadow_reg_buf_cntl2 = read_buffer[0];
+
+    data->shadow_reg_buf_cntl2 &= ~(KX132_BUF_CNTL2_BIT_FLAG_BUFE);
+
+//    reg_val_to_write = 0xE0U;
+    rstatus |= kx132_write_reg(data->ctx, KX132_BUF_CNTL2, data->shadow_reg_buf_cntl2, len);
+
+    return rstatus;
+}
+
+
+
+
 //----------------------------------------------------------------------
 // - SECTION - sensor "fetch" routines
 //----------------------------------------------------------------------

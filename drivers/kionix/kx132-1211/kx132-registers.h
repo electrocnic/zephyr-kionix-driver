@@ -136,7 +136,7 @@ enum kx132_readings_resolution_e
 // bit-wise flags of this register in technical manual are named SMP_TH7..SMP_TH0
 
 #define KX132_BUF_CNTL2 (0x5F)
-#define KX132_BUF_CNTL2_BIT_FLAG_BUFE               (1 << 7)  // controls activation of sample buffer at BUF_READ
+#define KX132_BUF_CNTL2_BIT_FLAG_BUFE               (1 << 7)  // enable sample buffer BUF_READ
 #define KX132_BUF_CNTL2_BIT_FLAG_BRES               (1 << 6)  // determines resolution of samples collected by buffer
 #define KX132_BUF_CNTL2_BIT_FLAG_BFIE               (1 << 5)  // buffer full interrupt enable
 #define KX132_BUF_CNTL2_BIT_FLAG_BIT4_RESERVED      (1 << 4)
@@ -181,6 +181,12 @@ int kx132_enable_watermark_interrupt(const struct device *dev);
 int kx132_enable_asynchronous_readings(const struct device *dev);
 
 int kx132_enable_synchronous_reading_with_hw_interrupt(const struct device *dev);
+
+// - DEV 0116 -
+int kx132_enter_standby_mode(const struct device *dev);
+
+int kx132_disable_sample_buffer(const struct device *dev);
+// - DEV 0116 -
 
 
 

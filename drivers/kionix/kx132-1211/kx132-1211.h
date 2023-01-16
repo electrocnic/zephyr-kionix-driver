@@ -237,12 +237,17 @@ struct kx132_device_data {
 // As of 2013-01-23 a two byte data type:
     union string_union_type__part_id part_id;
 
+
     uint8_t shadow_reg_who_am_i;
+
     uint8_t shadow_reg_cotr; // KX132 Command Test control Register
+
 // Interrupt latch release register, interrupts cleared when code reads this register:
     uint8_t shadow_reg_int_rel;
 
     uint8_t shadow_reg_ins2;
+
+    uint8_t shadow_reg_buf_cntl2;
 
 
 // Following three data members are written with LSB, MSB of respective accelerometer readings:
