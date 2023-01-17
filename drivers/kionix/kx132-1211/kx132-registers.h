@@ -89,21 +89,38 @@ enum kx132_readings_resolution_e
 #define KX132_COTR      (0x12)
 #define KX132_WHO_AM_I  (0x13)
 
-
+// Tap, Double-Tap axis specific interrupts:
 #define KX132_INS1      (0x16)
+//#define KX132_INS1_BIT7_RESERVED
+//#define KX132_INS1_BIT6_RESERVED
+//#define KX132_INS1_BIT_FLAG_TLE
+//#define KX132_INS1_BIT_FLAG_TRI
+//#define KX132_INS1_BIT_FLAG_TDO
+//#define KX132_INS1_BIT_FLAG_TUP
+//#define KX132_INS1_BIT_FLAG_TFD
+//#define KX132_INS1_BIT_FLAG_TFU
 
 // Status register to indicate source of or event triggering interrupt:
 #define KX132_INS2      (0x17)
-
 #define KX132_INS2_BIT_FLAG_FREE_FALL_STATUS        (1 << 7)
 #define KX132_INS2_BIT_FLAG_BUFFER_FULL             (1 << 6)
 #define KX132_INS2_BIT_FLAG_WATERMARK_EXCEEDED      (1 << 5)
 #define KX132_INS2_BIT_FLAG_DATA_READY              (1 << 4)
 #define KX132_INS2_BIT_FLAG_TAP_DOUBLE_TAP_STATUS_1 (1 << 3)
 #define KX132_INS2_BIT_FLAG_TAP_DOUBLE_TAP_STATUS_0 (1 << 2)
+#define KX132_INS2_BIT_FLAG_BIT1_RESERVED
 #define KX132_INS2_BIT_FLAG_TILT_POSITION_STATUS    (1 << 0)
 
+// Wake Up From Sleep, Back To Sleep, directions of motion causing interrupts:
 #define KX132_INS3      (0x18)
+//#define KX132_INS3_BIT_FLAG_WUFS
+//#define KX132_INS3_BIT_FLAG_BTS
+//#define KX132_INS3_BIT_FLAG_XNWU
+//#define KX132_INS3_BIT_FLAG_XPWU
+//#define KX132_INS3_BIT_FLAG_YNWU
+//#define KX132_INS3_BIT_FLAG_YPWU
+//#define KX132_INS3_BIT_FLAG_ZNWU
+//#define KX132_INS3_BIT_FLAG_ZPWU
 
 // KX132-1211-Technical-Reference-Manual-Rev-5.0.pdf p 14 of 75:
 // interrtup latch release register INT_REL
@@ -117,7 +134,7 @@ enum kx132_readings_resolution_e
 #define KX132_CNTL1_BIT_FLAG_GSEL1                  (1 << 4)  // G range selection bit most significant
 #define KX132_CNTL1_BIT_FLAG_GSEL0                  (1 << 3)  // G range selection bit least significant
 #define KX132_CNTL1_BIT_FLAG_TDTE                   (1 << 2)  // Tap, Double-Tap enable
-#define KX132_CNTL1_BIT_FLAG_BIT1_RESERVED          (1 << 1)
+#define KX132_CNTL1_BIT_FLAG_BIT1_RESERVED
 #define KX132_CNTL1_BIT_FLAG_TPE                    (1 << 0)  // Tile Position Engine enable
 
 #define KX132_CNTL2     (0x1C)

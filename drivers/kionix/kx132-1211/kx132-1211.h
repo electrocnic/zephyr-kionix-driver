@@ -252,6 +252,13 @@ struct kx132_device_data {
     uint8_t shadow_reg_buf_cntl2;
 
 
+//----------------------------------------------------------------------
+// NOTE following `accel_axis_` structure members are not shadow registers,
+// in that they don't map to the XOUT_L, XOUT_H byte pairs, nor do
+// these account for the low 8-bit res and higher 16-bit resolution
+// readings that can be switched between during use of KX132 sensor:
+//----------------------------------------------------------------------
+
 // Following three data members are written with LSB, MSB of respective accelerometer readings:
     uint8_t accel_axis_x[KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT];
     uint8_t accel_axis_y[KX132_ACC_READING_SINGLE_AXIS_BYTE_COUNT];
@@ -278,11 +285,24 @@ struct kx132_device_data {
     union kx132_acc_reading buf_read[KX132_BUF_READ_SIZE / 2];
 
 // A driver side array index to driver's array holding buf_read FIFO readings:
-    uint16_t buf_read_index;
+    uint16_t driver_side_index__shadow_buf_read_array;
 
-// A driver side "register", not in sensor, to support flexible FIFO reading
-// during stream, watermark based and related FIFO readings modes:
+
+//----------------------------------------------------------------------
+// A driver side "register", not in sensor, to support flexible FIFO
+// reading during stream, watermark based and related FIFO readings
+// modes:
+//
+// NOTE, may not be much use for this after all, given that KX132
+// documentation says there may be sample data loss if app side code
+// reads from BUF_READ in quantities other than one byte, three bytes,
+// or six bytes.
+//----------------------------------------------------------------------
     uint8_t driver_reg_sample_count_to_read;
+
+// A "shadow array" to hold one set of high resolution acc samples:
+    uint8_t shadow_reg_buf_read[KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT];
+
 };
 
 

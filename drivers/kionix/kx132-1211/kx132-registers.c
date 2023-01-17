@@ -605,80 +605,77 @@ int kx132_fetch_interrupt_source_2(const struct device *dev)
 // This routine also checks for selected readings resolution, which
 // defaults to 16-bit width, and may also be 8-bit width in other
 // modes related to low power.
+//
 //----------------------------------------------------------------------
+
+/**
+ * @brief routine to read one x,y,z acceleration reading set from
+ *        KX132 sample buffer.
+ *
+ * @param const struct device *dev A valid Zephyr device pointer to a
+ *        Kionix KX132 sensor.
+ *
+ * @return 0 if successful, negative errno code if failure.
+ *
+ * @note per Kionix KX132-1211-Technical-Reference-Manual-Rev-5.0.pdf,
+ *       page 45 of 75, "To prevent any data loss, data must be read on
+ *       a single byte basis or in complete data sets."
+ *
+ *       High resolution x,y,z data sets reside in six bytes of buffer
+ *       space.  Low resolution acceleration data sets take up three
+ *       bytes.  This routine reads either six bytes of sample buffer
+ *       data or three bytes, based on present readings resolution
+ *       setting in the sensor.
+ */
 
 int kx132_fetch_readings_from_buf_read(const struct device *dev)
 {
     struct kx132_device_data *data = dev->data;
-
-//    uint8_t reg_val_to_write = 0x00U;
-//    uint8_t *write_buffer = &reg_val_to_write;
-
-    uint8_t reg_val_to_read[KX132_BUF_READ_SIZE];
+    uint8_t reg_val_to_read[KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT];
     uint8_t *read_buffer = reg_val_to_read;
-
-// Local index to copy sensor readings to driver "shadow" array:
-//    uint32_t i = 0;
-    uint16_t count_of_readings_to_fetch = 0;
-    uint16_t bytes_to_request_from_buf_read = 0;
-    enum kx132_readings_resolution_e reading_resolution = KX132_READING_RES_HI_16_BIT;
+    uint16_t needed_sample_byte_count = 0;
+//    enum kx132_readings_resolution_e reading_resolution = KX132_READING_RES_HI_16_BIT;
 
     int rstatus = 0;
 
 
-// First couple of sensor reads only read back a single register, one-byte value:
+// Clear read buffer, which will be used first to obtain sample resolution setting:
 
-    read_buffer[0] = 0;
-    read_buffer[1] = 0;
-
-// Read BUF_CNTL1 to obtain count of readings which app code sets as "sufficient readings count ready" threshold:
-
-    rstatus = kx132_read_reg(data->ctx, KX132_BUF_CNTL1, read_buffer, SIZE_KX132_REGISTER_VALUE);
-    count_of_readings_to_fetch = read_buffer[0];
-    printk("- KX132 driver - preparing to fetch %u readings from sensor BUF_READ register,\n",
-      count_of_readings_to_fetch);
+    memset(read_buffer, 0, KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT);
 
 // Read BUF_CNTL2 to determine sensor readings bit width, "low res" or "high res":
 
     rstatus = kx132_read_reg(data->ctx, KX132_BUF_CNTL2, read_buffer, SIZE_KX132_REGISTER_VALUE);
-    if ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES )
-    {
-        reading_resolution = KX132_READING_RES_HI_16_BIT;
-        bytes_to_request_from_buf_read = (count_of_readings_to_fetch * KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT);
-    }
-    else
-    {
-        reading_resolution = KX132_READING_RES_LO_8_BIT;
-        bytes_to_request_from_buf_read = (count_of_readings_to_fetch * KX132_READINGS_TRIPLET_LO_RES_BYTE_COUNT);
-    }
+// - DIAG BEGIN -
     printk("- KX132 driver - readings resolution bit flag set to %u,\n",
-//      ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES ));
       ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES ? 1 : 0));
+// - DIAG END -
 
-
-// - DEV 0116 - compel a read only one set of x,y,z readings:
-    if ( reading_resolution == KX132_READING_RES_HI_16_BIT )
-        { bytes_to_request_from_buf_read = 6; }
+    if ( ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES ) == 1 )
+        { needed_sample_byte_count = 6; }
     else
-        { bytes_to_request_from_buf_read = 3; }
+        { needed_sample_byte_count = 3; }
 
-// - DEV 0116 -
+    memset(reg_val_to_read, 0, KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT);
 
-    memset(reg_val_to_read, KX132_BUF_READ_SIZE, 0);
+    rstatus = kx132_read_reg(data->ctx, KX132_BUF_READ, read_buffer, needed_sample_byte_count);
 
-    rstatus = kx132_read_reg(data->ctx, KX132_BUF_READ, read_buffer, bytes_to_request_from_buf_read);
+    memcpy(data->shadow_reg_buf_read, read_buffer, KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT);
 
-    printk("- KX132 driver - first six BUF_READ values:\n  0x%04X, 0x%04X, 0x%04X,\n  0x%04X, 0x%04X, 0x%04X,\n\n",
+// - DIAG BEGIN -
+    printk("- KX132 driver - first six bytes from BUF_READ sample buffer:\n  0x%04X, 0x%04X, 0x%04X,\n\n",
         (read_buffer[0] + (read_buffer[1] << 8 )),
         (read_buffer[2] + (read_buffer[3] << 8 )),
-        (read_buffer[4] + (read_buffer[5] << 8 )),
-
-        (read_buffer[6] + (read_buffer[7] << 8 )),
-        (read_buffer[8] + (read_buffer[9] << 8 )),
-        (read_buffer[10] + (read_buffer[11] << 8 ))
+        (read_buffer[4] + (read_buffer[5] << 8 ))
       );
+    printk("- KX132 driver - shadowed BUF_READ now holds:\n  0x%04X, 0x%04X, 0x%04X,\n\n",
+        (data->shadow_reg_buf_read[0] + (data->shadow_reg_buf_read[1] << 8 )),
+        (data->shadow_reg_buf_read[2] + (data->shadow_reg_buf_read[3] << 8 )),
+        (data->shadow_reg_buf_read[4] + (data->shadow_reg_buf_read[5] << 8 ))
+      );
+// - DIAG END -
 
-    return rstatus = 0;
+    return rstatus;
 
 } // end routine kx132_fetch_readings_from_buf_read()
 
