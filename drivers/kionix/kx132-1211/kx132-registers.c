@@ -651,7 +651,7 @@ int kx132_fetch_readings_from_buf_read(const struct device *dev)
       ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES ? 1 : 0));
 // - DIAG END -
 
-    if ( ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES ) == 1 )
+    if ( ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES ) == KX132_CNTL2_BIT_FLAG_BRES )
         { needed_sample_byte_count = 6; }
     else
         { needed_sample_byte_count = 3; }
