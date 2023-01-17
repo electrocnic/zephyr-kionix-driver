@@ -48,7 +48,7 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 // #define DEV_1121__KX132_I2C_BURST_WRITES_WORKING
 
-#define DEV_0116
+//#define DEV_0116
 
 
 //----------------------------------------------------------------------
