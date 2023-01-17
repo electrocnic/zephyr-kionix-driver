@@ -479,6 +479,18 @@ static int kx132_1211_channel_get(const struct device *dev,
             val->val2 = ( ( data->accel_axis_z[1] <<  8 ) | ( data->accel_axis_z[0] <<  0 ) );
             break;
 
+// NOTE, KX132 sample buffer readings not to be confused with values
+// read from XOUT_L, XOUT_H, YOUT_L, YOUT_H, etc:
+        case SENSOR_CHAN_KIONIX_BUF_READ:
+            val->val1 = ((data->shadow_reg_buf_read[0] <<  0) | (data->shadow_reg_buf_read[1] <<  8) | // x | xlsb, xmsb
+                         (data->shadow_reg_buf_read[2] << 16) | (data->shadow_reg_buf_read[3] << 24)   // y | ylsb, ymsb
+                        );
+            val->val2 = ((data->shadow_reg_buf_read[4] <<  0) | (data->shadow_reg_buf_read[5] <<  8)   // z | zlsb, zmsb
+                        );
+            break;
+
+
+
         case SENSOR_CHAN_KIONIX_INTERRUPT_LATCH_RELEASE:
             val->val1 = data->shadow_reg_int_rel;
             val->val2 = 0;
