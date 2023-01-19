@@ -392,7 +392,7 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
 
     rstatus = kx132_write_reg(data->ctx, KX132_ODCNTL, new_output_rate, len);
     if ( rstatus == ROUTINE_OK ) { }
-    return read_buffer[0];
+    return rstatus;
 }
 
 
