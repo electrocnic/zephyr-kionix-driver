@@ -386,9 +386,11 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
 // NOTE - NEED to refactor or replace ODR routine near top of kx132-1211.c - TMH
 {
     struct kx132_device_data *data = dev->data;
-    int rstatus = 0;
+    uint8_t* new_output_rate = (uint8_t)new_odr;
+    uint32_t len = 2;
+    uint32_t rstatus = 0;
 
-    rstatus = kx132_write_reg(data->ctx, KX132_ODCNTL, new_odr, len);
+    rstatus = kx132_write_reg(data->ctx, KX132_ODCNTL, new_output_rate, len);
     if ( rstatus == ROUTINE_OK ) { }
     return read_buffer[0];
 }
