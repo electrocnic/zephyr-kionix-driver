@@ -277,8 +277,9 @@ int kx132_enable_watermark_interrupt(const struct device *dev)
     reg_val_to_write = 0x00U;
     rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
 
-// - DEV 0113 BEGIN - force output data rate of 3200 Hz:
-    reg_val_to_write = 0x0CU;
+// - DEV 0113 BEGIN - assure output data rate of 50 Hz, see page 26 of 75 of KX132-1211-Technical-Reference-Manual-Rev-5.0.pdf:
+// value 0x0C sets 3200 Hz ODR,
+    reg_val_to_write = 0x06U;
     rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
 // - DEV 0113 END - 
 
