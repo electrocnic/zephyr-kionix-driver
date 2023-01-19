@@ -658,7 +658,7 @@ int kx132_fetch_readings_from_buf_read(const struct device *dev)
 // Read BUF_CNTL2 to determine sensor readings bit width, "low res" or "high res":
 
     rstatus = kx132_read_reg(data->ctx, KX132_BUF_CNTL2, read_buffer, SIZE_KX132_REGISTER_VALUE);
-#if DEV_0118
+#ifdef DEV_0118
 // - DIAG BEGIN -
     printk("- KX132 driver - readings resolution bit flag set to %u,\n",
       ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES ? 1 : 0));
@@ -676,7 +676,7 @@ int kx132_fetch_readings_from_buf_read(const struct device *dev)
 
     memcpy(data->shadow_reg_buf_read, read_buffer, KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT);
 
-#if DEV_0118
+#ifdef DEV_0118
 // - DIAG BEGIN -
     printk("- KX132 driver - first six bytes from BUF_READ sample buffer:\n  0x%04X, 0x%04X, 0x%04X,\n\n",
         (read_buffer[0] + (read_buffer[1] << 8 )),
