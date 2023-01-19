@@ -99,7 +99,7 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 
         if ( rstatus != ROUTINE_OK )
         {
-            // ROUTINE_STATUS__COMM_FAILURE_ON_BUS
+            rstatus = ROUTINE_STATUS__COMM_FAILURE_ON_BUS
         }
         else
         {

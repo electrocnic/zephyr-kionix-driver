@@ -206,6 +206,18 @@ int kx132_disable_sample_buffer(const struct device *dev);
 // - DEV 0116 -
 
 
+//----------------------------------------------------------------------
+// - SECTION - register update routines
+//----------------------------------------------------------------------
+
+int kx132_update_output_data_rate__odcntl(const struct device *dev,
+                                          enum kx132_1211_output_data_rates_e new_odr
+                                         );
+
+
+//----------------------------------------------------------------------
+// - SECTION - sensor fetch routines
+//----------------------------------------------------------------------
 
 int kx132_fetch_device_id(const struct device *dev);
 

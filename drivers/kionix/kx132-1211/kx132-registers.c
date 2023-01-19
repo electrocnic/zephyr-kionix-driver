@@ -371,6 +371,29 @@ int kx132_disable_sample_buffer(const struct device *dev)
 
 
 
+//----------------------------------------------------------------------
+// - SECTION - update register routines
+//----------------------------------------------------------------------
+
+int kx132_update_output_data_rate__odcntl(const struct device *dev,
+                                          enum kx132_1211_output_data_rates_e new_odr)
+// NEED to review KX132 datasheet(s) to see whether there are multiple
+// output data rates independtly settable by end users, in registers
+// beyond KX132_ODCNTL - TMH
+
+// NEED TO LOGICALLY 'OR' THE PASSED OUTPUT DATA RATE (ODR) BITS!!!
+
+// NOTE - NEED to refactor or replace ODR routine near top of kx132-1211.c - TMH
+{
+    struct kx132_device_data *data = dev->data;
+    int rstatus = 0;
+
+    rstatus = kx132_write_reg(data->ctx, KX132_ODCNTL, new_odr, len);
+    if ( rstatus == ROUTINE_OK ) { }
+    return read_buffer[0];
+}
+
+
 
 //----------------------------------------------------------------------
 // - SECTION - sensor "fetch" routines
