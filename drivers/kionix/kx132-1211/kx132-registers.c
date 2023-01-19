@@ -46,9 +46,13 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 //  x,y,z acceleration readings registers are read out via an I2C
 //  burst read operation.
 
-// #define DEV_1121__KX132_I2C_BURST_WRITES_WORKING
+//#define DEV_1121__KX132_I2C_BURST_WRITES_WORKING
 
 //#define DEV_0116
+
+//#define DEV_0118
+
+//#define DEV__SOFTWARE_RESET_DIAG
 
 
 //----------------------------------------------------------------------
@@ -163,11 +167,19 @@ int kx132_software_reset(const struct device *dev)
 
     rstatus += kx132_read_reg(data->ctx, KX132_WHO_AM_I, read_buffer, SIZE_KX132_REGISTER_VALUE);
     data->shadow_reg_who_am_i = read_buffer[0];
+#ifdef DEV__SOFTWARE_RESET_DIAG
     printk("- KX132 driver - WHO_AM_I register holds 0x%02X\n", data->shadow_reg_who_am_i);
+#endif
 
     rstatus += kx132_read_reg(data->ctx, KX132_COTR, read_buffer, SIZE_KX132_REGISTER_VALUE);
     data->shadow_reg_cotr = read_buffer[0];
+#ifdef DEV__SOFTWARE_RESET_DIAG
     printk("- KX132 driver - COTR register holds 0x%02X\n\n", data->shadow_reg_cotr);
+#endif
+
+// 2023-01-18
+// NEED to amend return values to capture bus transaction errors,
+// and yet support unexpected 'who am i' and 'cotr' values - TMH
 
     if ( data->shadow_reg_who_am_i != KX132_WHO_AM_I_EXPECTED_VALUE )
         { rstatus = ROUTINE_STATUS__UNEXPECTED_VALUE_WHO_AM_I; }
@@ -646,10 +658,12 @@ int kx132_fetch_readings_from_buf_read(const struct device *dev)
 // Read BUF_CNTL2 to determine sensor readings bit width, "low res" or "high res":
 
     rstatus = kx132_read_reg(data->ctx, KX132_BUF_CNTL2, read_buffer, SIZE_KX132_REGISTER_VALUE);
+#if DEV_0118
 // - DIAG BEGIN -
     printk("- KX132 driver - readings resolution bit flag set to %u,\n",
       ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES ? 1 : 0));
 // - DIAG END -
+#endif
 
     if ( ( read_buffer[0] & KX132_CNTL2_BIT_FLAG_BRES ) == KX132_CNTL2_BIT_FLAG_BRES )
         { needed_sample_byte_count = 6; }
@@ -662,6 +676,7 @@ int kx132_fetch_readings_from_buf_read(const struct device *dev)
 
     memcpy(data->shadow_reg_buf_read, read_buffer, KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT);
 
+#if DEV_0118
 // - DIAG BEGIN -
     printk("- KX132 driver - first six bytes from BUF_READ sample buffer:\n  0x%04X, 0x%04X, 0x%04X,\n\n",
         (read_buffer[0] + (read_buffer[1] << 8 )),
@@ -674,6 +689,7 @@ int kx132_fetch_readings_from_buf_read(const struct device *dev)
         (data->shadow_reg_buf_read[4] + (data->shadow_reg_buf_read[5] << 8 ))
       );
 // - DIAG END -
+#endif
 
     return rstatus;
 
