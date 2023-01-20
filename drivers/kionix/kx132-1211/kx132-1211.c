@@ -87,14 +87,18 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 #endif
 
     int rstatus = ROUTINE_OK;
-
+#if 0
 
     if ((val->val2 < KX132_ODR__0P781_HZ) || (val->val2 > KX132_ODR_25600_HZ))
     {
-        rstatus = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
+        return ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
     }
-    else
+
     {
+
+        rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, 1);
+
+
         rstatus = kx132_read_reg(data->ctx, KX132_ODCNTL, read_buffer, 1);
 
         if ( rstatus != ROUTINE_OK )
@@ -118,6 +122,7 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 #endif
         }
     }
+#endif
 
     return rstatus;
 }
@@ -290,7 +295,8 @@ static int kx132_1211_attr_set(const struct device *dev,
 
                         case KX132_SET_OUTPUT_DATA_RATE:
                         {
-                            kx132_configure_output_data_rate(dev, val);
+//                            kx132_configure_output_data_rate(dev, val);
+                            kx132_update_output_data_rate__odcntl(dev, val);
                             break;
                         }
 

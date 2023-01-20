@@ -386,11 +386,34 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
 // NOTE - NEED to refactor or replace ODR routine near top of kx132-1211.c - TMH
 {
     struct kx132_device_data *data = dev->data;
-    uint8_t new_output_rate = (uint8_t)new_odr;
+
+    uint8_t reg_val_to_write = 0x00U;
+    uint8_t *write_buffer = &reg_val_to_write;
+    uint8_t reg_val_to_read[] = {0, 0, 0, 0};
+    uint8_t *read_buffer = reg_val_to_read;
     uint32_t len = 2;
+
+    uint8_t as_found_reg_cntl1 = 0;
+    uint8_t as_found_reg_odcntl = 0;
+
     uint32_t rstatus = 0;
 
-    rstatus = kx132_write_reg(data->ctx, KX132_ODCNTL, &new_output_rate, len);
+// grab the present value:
+    rstatus = kx132_read_reg(data->ctx, KX132_CNTL1, read_buffer, len);
+    as_found_reg_cntl1 = read_buffer[0];
+
+// mask out the PC1 (power control?) bit:
+    reg_val_to_write = (as_found_reg_cntl1 & ~KX132_CNTL1_BIT_FLAG_PC1);
+    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
+
+// write the new output data rate to ODCNTL reg:
+    reg_val_to_write = (uint8_t)new_odr;
+    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
+
+// restore the CNTL1 register value to as found:
+    reg_val_to_write = as_found_reg_cntl1;
+    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
+
     if ( rstatus == ROUTINE_OK ) { }
     return rstatus;
 }
