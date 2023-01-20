@@ -71,6 +71,7 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  */
 
+#if 0
 static int kx132_configure_output_data_rate(const struct device *dev, const struct sensor_value *val)
 {
     struct kx132_device_data *data = dev->data;
@@ -87,9 +88,8 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 #endif
 
     int rstatus = ROUTINE_OK;
-#if 0
 
-    if ((val->val2 < KX132_ODR__0P781_HZ) || (val->val2 > KX132_ODR_25600_HZ))
+    if ((val->val2 < KX132_ODR_0P781_HZ) || (val->val2 > KX132_ODR_25600_HZ))
     {
         return ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
     }
@@ -122,10 +122,10 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 #endif
         }
     }
-#endif
 
     return rstatus;
 }
+#endif
 
 
 
