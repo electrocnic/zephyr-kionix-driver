@@ -398,7 +398,7 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
 
     uint32_t rstatus = 0;
 
-// grab the present value:
+// grab the present CNTL1 value:
     rstatus = kx132_read_reg(data->ctx, KX132_CNTL1, read_buffer, len);
     as_found_reg_cntl1 = read_buffer[0];
 
@@ -406,8 +406,13 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
     reg_val_to_write = (as_found_reg_cntl1 & ~KX132_CNTL1_BIT_FLAG_PC1);
     rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
 
-// write the new output data rate to ODCNTL reg:
-    reg_val_to_write = (uint8_t)new_odr;
+// grab the present ODCNTL value:
+    rstatus = kx132_read_reg(data->ctx, KX132_ODCNTL, read_buffer, len);
+    as_found_reg_odcntl = read_buffer[0];
+
+// mask, update and write new output data rate to ODCNTL reg:
+    reg_val_to_write = (as_found_reg_odcntl & ~KX132_OSA_BITS_MASK);
+    reg_val_to_write |= new_odr;
     rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
 
 // restore the CNTL1 register value to as found:

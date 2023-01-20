@@ -141,6 +141,12 @@ enum kx132_readings_resolution_e
 #define KX132_CNTL2_BIT_FLAG_BRES                   (1 << 6)
 
 #define KX132_ODCNTL    (0x21)
+#define KX132_BIT_OSA3                              (1 << 3)
+#define KX132_BIT_OSA2                              (1 << 2)
+#define KX132_BIT_OSA1                              (1 << 1)
+#define KX132_BIT_OSA0                              (1 << 0)
+#defins KX132_OSA_BITS_MASK (KX132_BIT_OSA3 | KX132_BIT_OSA2 | KX132_BIT_OSA1 | KX132_BIT_OSA0)
+
 #define KX132_INC1      (0x22)
 #define KX132_INC2      (0x23)
 #define KX132_INC3      (0x24)
