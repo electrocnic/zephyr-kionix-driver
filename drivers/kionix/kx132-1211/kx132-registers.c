@@ -485,7 +485,7 @@ int kx132_fetch_part_id(const struct device *dev)
  
 
 
-int kx132_fetch_attribute__output_data_rate(const struct device *dev, struct sensor_value *val)
+int kx132_get_attr__output_data_rate(const struct device *dev, struct sensor_value *val)
 {
     struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0};
