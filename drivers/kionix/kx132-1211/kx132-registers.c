@@ -493,8 +493,8 @@ int kx132_fetch_attribute__output_data_rate(const struct device *dev, struct sen
 
     rstatus = kx132_read_reg(data->ctx, KX132_PART_ID, read_buffer, 2);  // NEED we read two bytes, e.g. SIZE_KX132_REGISTER_VALUE?
     data->shadow_reg_odcntl = read_buffer[0];
-    val.val1 = data->shadow_reg_odcntl;
-    val.val2 = 0;
+    val->val1 = data->shadow_reg_odcntl;
+    val->val2 = 0;
 
     return rstatus;
 }
