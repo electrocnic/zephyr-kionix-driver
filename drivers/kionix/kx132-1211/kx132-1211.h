@@ -242,7 +242,18 @@ struct kx132_device_data {
 
     uint8_t shadow_reg_cotr; // KX132 Command Test control Register
 
+// CNTL1 . . . CNTL6:
     uint8_t shadow_reg_cntl1;
+    uint8_t shadow_reg_cntl2;
+    uint8_t shadow_reg_cntl3;
+    uint8_t shadow_reg_cntl4;
+    uint8_t shadow_reg_cntl5;
+    uint8_t shadow_reg_cntl6;
+
+    uint8_t shadow_reg_odcntl;
+
+// INC1 . . . INC6:
+// INterrupt Control registers one through six, not yet implemented as shadow registers - TMH
 
 // Interrupt latch release register, interrupts cleared when code reads this register:
     uint8_t shadow_reg_int_rel;
@@ -399,6 +410,16 @@ enum sensor_channels_kionix_specific {
     SENSOR_CHAN_KIONIX__KX132_STATUS_REGISTER,
 
     SENSOR_CHAN_KIONIX_END
+};
+
+
+
+// REF https://github.com/zephyrproject-rtos/zephyr/blob/main/include/zephyr/drivers/sensor.h#L330
+
+enum sensor_attributes_kionix_specific {
+    SENSOR_ATTR_KIONIX__START = (SENSOR_ATTR_PRIV_START + 1),
+    SENSOR_ATTR_KIONIX__OUTPUT_DATA_RATE_REG_ODCNTL,
+    SENSOR_ATTR_KIONIX__END
 };
 
 

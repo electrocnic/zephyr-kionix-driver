@@ -225,10 +225,6 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
 // - SECTION - sensor fetch routines
 //----------------------------------------------------------------------
 
-int kx132_fetch_device_id(const struct device *dev);
-
-int kx132_fetch_part_id(const struct device *dev);
-
 int kx132_fetch_acceleration_x_axis(const struct device *dev);
 
 int kx132_fetch_acceleration_y_axis(const struct device *dev);
@@ -237,11 +233,22 @@ int kx132_fetch_acceleration_z_axis(const struct device *dev);
 
 int kx132_fetch_acceleration_xyz_axis(const struct device *dev);
 
-int kx132_fetch_interrupt_latch_release(const struct device *dev);
-
 int kx132_fetch_readings_from_buf_read(const struct device *dev);
 
+//
+// Sensor fetch routines, but for sensor configuration and identifying
+// values as opposed to readings of external quantifiables:
+// 
+
+int kx132_fetch_device_id(const struct device *dev);
+
+int kx132_fetch_part_id(const struct device *dev);
+
+int kx132_fetch_interrupt_latch_release(const struct device *dev);
+
 int kx132_fetch_interrupt_source_2(const struct device *dev);
+
+int kx132_get_attr__output_data_rate(const struct device *dev, struct sensor_value *val);
 
 
 
