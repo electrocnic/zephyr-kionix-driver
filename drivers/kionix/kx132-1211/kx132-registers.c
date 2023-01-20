@@ -490,6 +490,7 @@ int kx132_fetch_attribute__output_data_rate(const struct device *dev, struct sen
     struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0};
     uint8_t *read_buffer = reg_val_to_read;
+    uint32_t rstatus = 0;
 
     rstatus = kx132_read_reg(data->ctx, KX132_PART_ID, read_buffer, 2);  // NEED we read two bytes, e.g. SIZE_KX132_REGISTER_VALUE?
     data->shadow_reg_odcntl = read_buffer[0];
