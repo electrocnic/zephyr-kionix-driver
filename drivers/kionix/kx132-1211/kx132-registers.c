@@ -376,7 +376,7 @@ int kx132_disable_sample_buffer(const struct device *dev)
 //----------------------------------------------------------------------
 
 int kx132_update_output_data_rate__odcntl(const struct device *dev,
-                                          enum kx132_1211_output_data_rates_e new_odr)
+                                          const enum kx132_1211_output_data_rates_e new_odr)
 // NEED to review KX132 datasheet(s) to see whether there are multiple
 // output data rates independtly settable by end users, in registers
 // beyond KX132_ODCNTL - TMH

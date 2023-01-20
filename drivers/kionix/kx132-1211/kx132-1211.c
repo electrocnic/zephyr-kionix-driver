@@ -348,6 +348,10 @@ static int kx132_1211_attr_set(const struct device *dev,
 
 static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel channel)
 {
+// NEED 2023-01-19 to fully implement helpful return status value 'rstatus', this
+// entails defining helpful rstatus values for each routine called
+// from SWITCH construct of this routine.
+
     int rstatus = 0;
 
     switch (channel)
