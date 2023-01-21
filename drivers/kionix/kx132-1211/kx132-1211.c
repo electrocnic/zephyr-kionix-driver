@@ -243,13 +243,12 @@ static int kx132_1211_attr_get(const struct device *dev,
 
 // REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_channel.SENSOR_CHAN_ALL
 
-static uint32_t kx132_1211_attr_set(const struct device *dev,
+static int kx132_1211_attr_set(const struct device *dev,
                                enum sensor_channel chan,
                                enum sensor_attribute attr,
                                const struct sensor_value *val)
 {
     uint32_t rstatus = ROUTINE_OK;
-
     uint32_t sensor_config_requested = val->val1;
 
     switch (attr)
