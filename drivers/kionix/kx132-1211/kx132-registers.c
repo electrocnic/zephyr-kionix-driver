@@ -448,6 +448,9 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
     reg_val_to_write = (as_found_reg_odcntl & ~KX132_OSA_BITS_MASK);
     reg_val_to_write |= new_odr;
     rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
+#ifdef DEV__ODCNTL_UPDATE_DIAG
+    printk("- kx132-registers.c - wrote %u to ODCNTL,\n", reg_val_to_write);
+#endif
 
 // restore the CNTL1 register value to as found:
     reg_val_to_write = as_found_reg_cntl1;
