@@ -250,6 +250,8 @@ int kx132_fetch_interrupt_source_2(const struct device *dev);
 
 int kx132_get_attr__output_data_rate(const struct device *dev, struct sensor_value *val);
 
+int kx132_update_reg__buf_clear(const struct device *dev);
+
 
 
 #endif // KX132_REGISTERS_H
