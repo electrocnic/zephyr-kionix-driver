@@ -8,21 +8,7 @@
 
 
 //----------------------------------------------------------------------
-// - SECTION - includes
-//----------------------------------------------------------------------
-
-#include <zephyr/logging/log.h>
-LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
-
-#include "kx132-1211.h"            // to provide KX132 data struct and config struct, a couple
-                                   //  unions, and enumerated settings
-#include "out-of-tree-drivers.h"   // to provide enumerated driver scoped return values
-
-#include "kx132-registers.h"       //
-
-
-//----------------------------------------------------------------------
-// - SECTION - defines
+// - SECTION - notes
 //----------------------------------------------------------------------
 
 // 2022-11-21:  Encountered issue on 11-21, finding that with Kionix
@@ -46,6 +32,27 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 //  x,y,z acceleration readings registers are read out via an I2C
 //  burst read operation.
 
+
+
+//----------------------------------------------------------------------
+// - SECTION - includes
+//----------------------------------------------------------------------
+
+#include <zephyr/logging/log.h>
+LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
+
+#include "kx132-1211.h"            // to provide KX132 data struct and config struct, a couple
+                                   //  unions, and enumerated settings
+#include "out-of-tree-drivers.h"   // to provide enumerated driver scoped return values
+
+#include "kx132-registers.h"       //
+
+
+
+//----------------------------------------------------------------------
+// - SECTION - defines
+//----------------------------------------------------------------------
+
 //#define DEV_1121__KX132_I2C_BURST_WRITES_WORKING
 
 //#define DEV_0116
@@ -55,6 +62,8 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 //#define DEV__SOFTWARE_RESET_DIAG
 
 #define DEV__ODCNTL_UPDATE_DIAG
+
+//#define KX132_DRIVER__SET_ODR_OF_50_HZ_IN_ENABLE_WATERMARK_SEQUENCE
 
 
 
@@ -280,11 +289,11 @@ int kx132_enable_watermark_interrupt(const struct device *dev)
     reg_val_to_write = 0x00U;
     rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
 
-// - DEV 0113 BEGIN - assure output data rate of 50 Hz, see page 26 of 75 of KX132-1211-Technical-Reference-Manual-Rev-5.0.pdf:
-// value 0x0C sets 3200 Hz ODR,
-    reg_val_to_write = 0x06U;
+#ifdef KX132_DRIVER__SET_ODR_OF_50_HZ_IN_ENABLE_WATERMARK_SEQUENCE
+// For reg ODCNTL and OSA3..OSA1 bits, see page 26 of 75 of KX132-1211-Technical-Reference-Manual-Rev-5.0.pdf:
+    reg_val_to_write = KX132_ODR_50_HZ;
     rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
-// - DEV 0113 END - 
+#endif
 
     reg_val_to_write = 0x30U;
     rstatus |= kx132_write_reg(data->ctx, KX132_INC1, write_buffer, len);
