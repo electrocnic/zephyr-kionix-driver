@@ -54,6 +54,9 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 //#define DEV__SOFTWARE_RESET_DIAG
 
+#define DEV__ODCNTL_UPDATE_DIAG
+
+
 
 //----------------------------------------------------------------------
 // - SECTION - register read and write wrapper functions
@@ -398,6 +401,9 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
 
     uint32_t rstatus = 0;
 
+#ifdef DEV__ODCNTL_UPDATE_DIAG
+    printk("\n- kx132-registers.c - ODCNTL update begin:\n");
+#endif
 // grab the present CNTL1 value:
     rstatus = kx132_read_reg(data->ctx, KX132_CNTL1, read_buffer, len);
     as_found_reg_cntl1 = read_buffer[0];
@@ -418,6 +424,9 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
 // restore the CNTL1 register value to as found:
     reg_val_to_write = as_found_reg_cntl1;
     rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
+#ifdef DEV__ODCNTL_UPDATE_DIAG
+    printk("- kx132-registers.c - ODCNTL update end.\n\n");
+#endif
 
     if ( rstatus == ROUTINE_OK ) { }
     return rstatus;
