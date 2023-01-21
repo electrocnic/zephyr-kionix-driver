@@ -307,6 +307,7 @@ static int kx132_1211_attr_set(const struct device *dev,
 
                     } // close scope of switch(val)
                 }
+                    break;
 
                 default: // ...action to take with unrecognized sensor channel
                 {
@@ -316,6 +317,7 @@ static int kx132_1211_attr_set(const struct device *dev,
 
             } // close scope of switch(chan)
         }
+            break;
 
         default: // ...default action to take with unrecognized sensor attribute
         {
