@@ -155,10 +155,10 @@ enum kx132_readings_resolution_e
 
 // Register whose bits express sample count threshold, a.k.a. watermark
 // at which to raise interrupt for application to read samples:
-#define KX132_BUF_CNTL1 (0x5E)
+#define KX132_BUF_CNTL1 (0x5E)                                // BUF_CNTL1 is an "on the fly" register
 // bit-wise flags of this register in technical manual are named SMP_TH7..SMP_TH0
 
-#define KX132_BUF_CNTL2 (0x5F)
+#define KX132_BUF_CNTL2 (0x5F)                                // BUF_CNTL2 is an "on the fly" register
 #define KX132_BUF_CNTL2_BIT_FLAG_BUFE               (1 << 7)  // enable sample buffer BUF_READ
 #define KX132_BUF_CNTL2_BIT_FLAG_BRES               (1 << 6)  // determines resolution of samples collected by buffer
 #define KX132_BUF_CNTL2_BIT_FLAG_BFIE               (1 << 5)  // buffer full interrupt enable
@@ -175,7 +175,7 @@ enum kx132_readings_resolution_e
 
 // Per manual latched buffer status info and entire buffer data are
 // cleared whenever are data written to this register:
-#define KX132_BUF_CLEAR (0x62)
+#define KX132_BUF_CLEAR (0x62)                                // BUF_CLEAR is an "on the fly" register
 
 #define KX132_BUF_READ  (0x63)
 

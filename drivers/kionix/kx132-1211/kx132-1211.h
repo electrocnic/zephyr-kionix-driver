@@ -453,6 +453,7 @@ enum kx132_1211_config_setting_e
 // - single-register configurations:
     KX132_ENTER_STANDBY_MODE,
     KX132_DISABLE_SAMPLE_BUFFER,
+    KX132_CLEAR_SAMPLE_BUFFER,
 
 // - DEV 1128 -
     KX132_REINITIALIZE_DRDY_GPIO_PORT,

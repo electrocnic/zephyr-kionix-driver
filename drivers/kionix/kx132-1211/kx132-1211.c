@@ -277,6 +277,12 @@ static int kx132_1211_attr_set(const struct device *dev,
                             kx132_disable_sample_buffer(dev);
                             break;
 
+
+                        case KX132_CLEAR_SAMPLE_BUFFER:
+                            kx132_update_reg__buf_clear(dev);
+                            break;
+
+
                         case KX132_ENABLE_ASYNC_READINGS:
                             kx132_enable_asynchronous_readings(dev);
                             break;

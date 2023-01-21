@@ -144,7 +144,7 @@ int32_t kx132_write_reg(kionix_ctx_t *ctx, uint8_t reg, uint8_t *data, uint16_t 
 
 
 //----------------------------------------------------------------------
-// - SECTION - Kionix sensor specific configuration routines
+// - SECTION - KX132 multi-register config routines
 //----------------------------------------------------------------------
 
 // Per software reset description in Kionix TN027-Power-On-Procedure.pdf:
@@ -449,7 +449,7 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
     reg_val_to_write |= new_odr;
     rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
 #ifdef DEV__ODCNTL_UPDATE_DIAG
-    printk("- kx132-registers.c - wrote %u to ODCNTL,\n", reg_val_to_write);
+    printk("- kx132-registers.c - updated reg ODCNTL to %u,\n", reg_val_to_write);
 #endif
 
 // restore the CNTL1 register value to as found:
@@ -465,11 +465,58 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
 
 
 
+/**
+ * @brief Routine to write a value to KX132 "clear sample buffer"
+ *        register.
+ *
+ * @note  Kionix technical manual gives no specific value
+ *        required to write, only says that any write operation clears
+ *        the sample buffer, and also the level based WMI (watermark)
+ *        and BFI (buffer full) interrupts.  Those interrupts cannot
+ *        be cleared by other means, such as a read of register INT_REL.
+ */
+
+int kx132_update_reg__buf_clear(const struct device *dev)
+{
+    struct kx132_device_data *data = dev->data;
+
+    uint8_t reg_val_to_write = 0x01U;  // value of one chosen arbitrarily, tech' manual specs no particular write value necesary.
+    uint8_t *write_buffer = &reg_val_to_write;
+//    uint8_t reg_val_to_read[] = {0, 0, 0, 0};
+//    uint8_t *read_buffer = reg_val_to_read;
+    uint32_t len = 2;
+
+    rstatus |= kx132_write_reg(data->ctx, KX132_BUF_CLEAR, write_buffer, len);
+
+    if ( rstatus == ROUTINE_OK ) { }
+    return rstatus;
+}
+
+
+
 //----------------------------------------------------------------------
-// - SECTION - sensor "fetch" routines
+// - SECTION - fetch and get register value routines
 //----------------------------------------------------------------------
 
-// Note this routine fetches Kionix KX132-1211 Manufacturer ID string.
+/**
+ * @ note Zephyr RTOS sensor API presents notions of fetching, and
+ *   getting sensor readings and register values.  In Zephyr context
+ *   to fetch a value means a driver reads a value from a sensor and
+ *   stores this value in some variable, such as a "shadow" or copy
+ *   register variable, which is itself part of the driver.
+ *
+ *   In Zephyr context to get a sensor reading or register value means
+ *   that the driver returns that value to application code, whether
+ *   reading directly from a sensor register or returning the
+ *   shadowed copy of the most recent reading.
+ *
+ *   KX132 driver routines in this section either fetch register
+ *   values, or they fetch and return values to application code.
+ */
+
+/** 
+ * @brief This routine fetches Kionix KX132-1211 Manufacturer ID string.
+ */
 
 int kx132_fetch_device_id(const struct device *dev)
 {
