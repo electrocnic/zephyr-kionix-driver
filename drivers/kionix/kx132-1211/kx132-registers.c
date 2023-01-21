@@ -411,13 +411,13 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
 
 #ifdef DEV__ODCNTL_UPDATE_DIAG
     printk("\n- kx132-registers.c - ODCNTL update begin:\n");
-    printk("\n- kx132-registers.c - caller requests ODR setting of %u,\n", new_odr);
+    printk("- kx132-registers.c - caller requests ODR setting of %u,\n", new_odr);
 #endif
 // grab the present CNTL1 value:
     rstatus = kx132_read_reg(data->ctx, KX132_CNTL1, read_buffer, len);
     as_found_reg_cntl1 = read_buffer[0];
 #ifdef DEV__ODCNTL_UPDATE_DIAG
-    printk("\n- kx132-registers.c - register CNTL1 as found value is %u,\n", as_found_reg_cntl1);
+    printk("- kx132-registers.c - register CNTL1 as found value is %u,\n", as_found_reg_cntl1);
 #endif
 
 // mask out the PC1 (power control?) bit:
@@ -428,7 +428,7 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
     rstatus = kx132_read_reg(data->ctx, KX132_ODCNTL, read_buffer, len);
     as_found_reg_odcntl = read_buffer[0];
 #ifdef DEV__ODCNTL_UPDATE_DIAG
-    printk("\n- kx132-registers.c - register ODCNTL as found value is %u,\n", as_found_reg_odcntl);
+    printk("- kx132-registers.c - register ODCNTL as found value is %u,\n", as_found_reg_odcntl);
 #endif
 
 // mask, update and write new output data rate to ODCNTL reg:

@@ -299,8 +299,8 @@ static int kx132_1211_attr_set(const struct device *dev,
 
                         case KX132_SET_OUTPUT_DATA_RATE:
                         {
-//                            kx132_configure_output_data_rate(dev, val);
-                            kx132_update_output_data_rate__odcntl(dev, (const enum kx132_1211_output_data_rates_e)val);
+                            kx132_update_output_data_rate__odcntl(dev,
+                              (const enum kx132_1211_output_data_rates_e)val->val2);
                             break;
                         }
 
