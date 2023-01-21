@@ -38,7 +38,7 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
 // - SECTION - defines
 //----------------------------------------------------------------------
 
-#define DEV_TRACE_ATTR_SET_RSTATUS_VALUE
+//#define DEV_TRACE_ATTR_SET_RSTATUS_VALUE
 
 
 
