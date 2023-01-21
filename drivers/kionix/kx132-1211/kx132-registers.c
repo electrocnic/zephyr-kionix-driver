@@ -186,7 +186,8 @@ int kx132_software_reset(const struct device *dev)
     rstatus += kx132_read_reg(data->ctx, KX132_COTR, read_buffer, SIZE_KX132_REGISTER_VALUE);
     data->shadow_reg_cotr = read_buffer[0];
 #ifdef DEV__SOFTWARE_RESET_DIAG
-    printk("- KX132 driver - COTR register holds 0x%02X\n\n", data->shadow_reg_cotr);
+    printk("- KX132 driver - COTR register holds 0x%02X\n", data->shadow_reg_cotr);
+    printk("- KX132 driver - low level reads and write so far return status of %u\n\n", rstatus);
 #endif
 
 // 2023-01-18
@@ -199,6 +200,9 @@ int kx132_software_reset(const struct device *dev)
     if ( data->shadow_reg_cotr != KX132_COTR_EXPECTED_VALUE )
         { rstatus = ROUTINE_STATUS__UNEXPECTED_VALUE_COTR; }
 
+#ifdef DEV__SOFTWARE_RESET_DIAG
+    printk("- KX132 driver - after checks of who_am_i and cotr values, rstatus holds %u\n\n", rstatus);
+#endif
     return rstatus;
 
 } // end routine kx132_software_reset()
