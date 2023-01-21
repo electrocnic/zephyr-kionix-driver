@@ -486,7 +486,7 @@ int kx132_update_reg__buf_clear(const struct device *dev)
 //    uint8_t *read_buffer = reg_val_to_read;
     uint32_t len = 2;
 
-    rstatus |= kx132_write_reg(data->ctx, KX132_BUF_CLEAR, write_buffer, len);
+    uint32_t rstatus = kx132_write_reg(data->ctx, KX132_BUF_CLEAR, write_buffer, len);
 
     if ( rstatus == ROUTINE_OK ) { }
     return rstatus;
