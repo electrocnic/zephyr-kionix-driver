@@ -187,7 +187,7 @@ int kx132_software_reset(const struct device *dev)
     data->shadow_reg_cotr = read_buffer[0];
 #ifdef DEV__SOFTWARE_RESET_DIAG
     printk("- KX132 driver - COTR register holds 0x%02X\n", data->shadow_reg_cotr);
-    printk("- KX132 driver - low level reads and write so far return status of %u\n\n", rstatus);
+    printk("- KX132 driver - low level reads and write so far return status of %u\n", rstatus);
 #endif
 
 // 2023-01-18

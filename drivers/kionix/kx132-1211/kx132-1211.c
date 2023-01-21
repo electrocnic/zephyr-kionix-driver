@@ -10,16 +10,14 @@
 
 #define DT_DRV_COMPAT kionix_kx132_1211
 
+#include <stdio.h>
 #include <math.h>
 
 #include <zephyr/device.h>          // 2022-11-10 was <device.h>
 #include <zephyr/drivers/i2c.h>     // 2022-11-10 was <drivers/i2c.h>
 #include <zephyr/drivers/sensor.h>  // 2022-11-10 was <drivers/sensor.h>
-
 #include <zephyr/sys/util_macro.h>    // <-- not sure whether this header required by driver - TMH
-
 #include <zephyr/devicetree.h>
-
 #include <zephyr/logging/log.h>     // 2022-11-10 was <logging/log.h>
 
 LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_MODULE_DECLARE() due to this line
@@ -35,17 +33,12 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
 #include "kx132-triggers.h"        // to provide sensor interrupt port reinitialization code
 
 
-#include <stdio.h>
-
-
 
 //----------------------------------------------------------------------
-// Note:  struct sensor_value is defined in Zephyr's sensor.h header
-// file.  In Nordic ncs v1.6.1 SDK this file found in
-// nsc/v1.6.1/zephyr/include/drivers
-//
-// Kionix KX132-1211 register definitions found in KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf.
+// - SECTION - defines
 //----------------------------------------------------------------------
+
+#define DEV_TRACE_ATTR_SET_RSTATUS_VALUE
 
 
 
@@ -331,7 +324,7 @@ static int kx132_1211_attr_set(const struct device *dev,
         }
     } // close scope of switch(attr)
 
-#ifdef DEV_
+#ifdef DEV_TRACE_ATTR_SET_RSTATUS_VALUE
     printk("- kx132-1211.c - kx132_1211_attr_set() rstatus holds %u, returning . . .\n\n", rstatus);
 #endif
     return rstatus;
