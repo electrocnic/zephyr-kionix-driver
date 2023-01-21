@@ -378,6 +378,14 @@ int kx132_disable_sample_buffer(const struct device *dev)
 // - SECTION - update register routines
 //----------------------------------------------------------------------
 
+/**
+ * @brief Routine to update KX132 Output Data Rate control register.
+ *
+ * @note Kionix KX132 register ODCNTL can only be updated when sensor
+ *       is in standby mode, hence the changes to control register
+ *       CNTL1 in this routine.
+ */
+
 int kx132_update_output_data_rate__odcntl(const struct device *dev,
                                           const enum kx132_1211_output_data_rates_e new_odr)
 // NEED to review KX132 datasheet(s) to see whether there are multiple
@@ -423,7 +431,7 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
 
 // restore the CNTL1 register value to as found:
     reg_val_to_write = as_found_reg_cntl1;
-    rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, len);
+    rstatus |= kx132_write_reg(data->ctx, KX132_CNTL1, write_buffer, len);
 #ifdef DEV__ODCNTL_UPDATE_DIAG
     printk("- kx132-registers.c - ODCNTL update end.\n\n");
 #endif
