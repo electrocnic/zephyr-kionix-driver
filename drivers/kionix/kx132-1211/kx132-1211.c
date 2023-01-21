@@ -243,14 +243,14 @@ static int kx132_1211_attr_get(const struct device *dev,
 
 // REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_channel.SENSOR_CHAN_ALL
 
-static int kx132_1211_attr_set(const struct device *dev,
+static uint32_t kx132_1211_attr_set(const struct device *dev,
                                enum sensor_channel chan,
                                enum sensor_attribute attr,
                                const struct sensor_value *val)
 {
-    int rstatus = ROUTINE_OK;
+    uint32_t rstatus = ROUTINE_OK;
 
-    int sensor_config_requested = val->val1;
+    uint32_t sensor_config_requested = val->val1;
 
     switch (attr)
     {
@@ -271,65 +271,47 @@ static int kx132_1211_attr_set(const struct device *dev,
                     {
 
                         case KX132_PERMFORM_SOFTWARE_RESET:
-                        {
 // A fetch like routine, updates sensor data shadow registers 'who_am_i' and 'cotr':
-                            kx132_software_reset(dev);
+                            rstatus = kx132_software_reset(dev);
                             break;
-                        }
 
 // Single register update:
                         case KX132_ENTER_STANDBY_MODE:
-                        {
                             kx132_enter_standby_mode(dev);
                             break;
-                        }
 
 // Single register update:
                         case KX132_DISABLE_SAMPLE_BUFFER:
-                        {
                             kx132_disable_sample_buffer(dev);
                             break;
-                        }
 
                         case KX132_ENABLE_ASYNC_READINGS:
-                        {
                             kx132_enable_asynchronous_readings(dev);
                             break;
-                        }
 
                         case KX132_SET_OUTPUT_DATA_RATE:
-                        {
                             kx132_update_output_data_rate__odcntl(dev,
                               (const enum kx132_1211_output_data_rates_e)val->val2);
                             break;
-                        }
 
 // NEED 2023-01-13 to review whether needed parameters are missing here`
                         case KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT:
-                        {
-                            kx132_enable_synchronous_reading_with_hw_interrupt(dev);
+                            rstatus = kx132_enable_synchronous_reading_with_hw_interrupt(dev);
                             break;
-                        }
 
 #ifdef CONFIG_KX132_TRIGGER
                         case KX132_REINITIALIZE_DRDY_GPIO_PORT:
-                        {
-                            kx132_reinitialize_interrupt_port(dev, DEFAULT_INTERAL_OPTION_OF_ZERO);
+                            rstatus = kx132_reinitialize_interrupt_port(dev, DEFAULT_INTERAL_OPTION_OF_ZERO);
                             break;
-                        }
 #endif
                         case KX132_ENABLE_WATERMARK_INTERRUPT:
-                        {
-                            kx132_enable_watermark_interrupt(dev);
+                            rstatus = kx132_enable_watermark_interrupt(dev);
                             break;
-                        }
 
 
                         default: // ...action to take when requested config not supported
-                        {
                             rstatus = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
                             break;
-                        }
 
                     } // close scope of switch(val)
                 }
@@ -350,6 +332,9 @@ static int kx132_1211_attr_set(const struct device *dev,
         }
     } // close scope of switch(attr)
 
+#ifdef DEV_
+    printk("- kx132-1211.c - kx132_1211_attr_set() rstatus holds %u, returning . . .\n\n", rstatus);
+#endif
     return rstatus;
 
 } // end routine kx132_1211_attr_set()
