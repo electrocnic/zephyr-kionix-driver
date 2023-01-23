@@ -61,7 +61,7 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 //#define DEV__SOFTWARE_RESET_DIAG
 
-#define DEV__ODCNTL_UPDATE_DIAG
+//#define DEV__ODCNTL_UPDATE_DIAG
 
 //#define KX132_DRIVER__SET_ODR_OF_50_HZ_IN_ENABLE_WATERMARK_SEQUENCE
 
@@ -588,6 +588,54 @@ int kx132_get_attr__output_data_rate(const struct device *dev, struct sensor_val
     printk("\- kx132-registers.c - ODCNTL get attr begin:\n");
     printk("\n");
 #endif
+
+    return rstatus;
+}
+
+
+
+//
+// 2023-01-23 - IN PROGRESS routine to return BUF_READ six bytes for
+//  latest sample, directly to calling code:
+//----------------------------------------------------------------------
+
+/**
+ * @brief Routine to read high resolution (16-bit) x,y,z acc sample
+ *        triplet and return this sample directly to calling code.
+ *
+ * @note  This direct value returning is in contrast to Zephyr's sensor
+ *        API practice, where Zephyr drivers conventionally "fetch"
+ *        a reading from a sensor and store the reading in driver side
+ *        memory, and a second routine call to the driver is then
+ *        required to "get" the fetched data and return it to
+ *        application code.
+ */
+
+int kx132_get_attr__buf_read_sample_as_attribute(const struct device *dev, struct sensor_value *val)
+{
+    struct kx132_device_data *data = dev->data;
+    uint8_t reg_val_to_read[] = {0, 0, 0, 0, 0, 0};
+    uint8_t *read_buffer = reg_val_to_read;
+    int rstatus = 0;
+
+    rstatus = kx132_read_reg(data->ctx, KX132_BUF_READ, read_buffer, KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT);
+
+    if ( rstatus != 0 )
+    {
+        LOG_WRN("Unable to read acceleration sample buffer BUF_READ.  Error: %i", rstatus);
+        return rstatus;
+    }
+
+    val->val1 = (
+                 ( read_buffer[0] <<  0 ) +  // XOUT_L
+                 ( read_buffer[1] <<  8 ) +  // XOUT_H
+                 ( read_buffer[2] << 16 ) +  // YOUT_L
+                 ( read_buffer[3] << 24 )    // YOUT_H
+                );
+    val->val2 = (
+                 ( read_buffer[0] <<  0 ) +  // ZOUT_L
+                 ( read_buffer[1] <<  8 ) +  // ZOUT_H
+                );
 
     return rstatus;
 }

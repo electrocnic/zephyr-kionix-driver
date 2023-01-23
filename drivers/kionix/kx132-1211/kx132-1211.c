@@ -156,6 +156,10 @@ static int kx132_1211_attr_get(const struct device *dev,
             rstatus = kx132_get_attr__output_data_rate(dev, val);
             break;
 
+        case SENSOR_ATTR_KIONIX__XYZ_HI_RES_SAMPLE_REG_BUF_READ:
+            rstatus = kx132_get_attr__buf_read_sample_as_attribute(dev, val);
+            break;
+
         default:
             rstatus = ROUTINE_STATUS__UNDEFINED_SENSOR_ATTRIBUTE;
             break;

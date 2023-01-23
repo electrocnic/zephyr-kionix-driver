@@ -419,6 +419,7 @@ enum sensor_channels_kionix_specific {
 enum sensor_attributes_kionix_specific {
     SENSOR_ATTR_KIONIX__START = (SENSOR_ATTR_PRIV_START + 1),
     SENSOR_ATTR_KIONIX__OUTPUT_DATA_RATE_REG_ODCNTL,
+    SENSOR_ATTR_KIONIX__XYZ_HI_RES_SAMPLE_REG_BUF_READ,
     SENSOR_ATTR_KIONIX__END
 };
 

@@ -173,7 +173,14 @@ enum kx132_readings_resolution_e
 // STREAM   0    1
 // TRIGGER  1    0
 
-// Per manual latched buffer status info and entire buffer data are
+
+#define KX132_BUF_STATUS_1 (0x60)                             // read only register
+// SMP_LEV7..SMP_LEV0
+
+#define KX132_BUF_STATUS_2 (0x61)                             // read only register
+// BUF_TRIG RESERVED RESERVED RESERVED RESERVED RESERVED SMP_LEV9 SMP_LEV8
+
+// Per manual latched buffer status info and sample buffer data are
 // cleared whenever are data written to this register:
 #define KX132_BUF_CLEAR (0x62)                                // BUF_CLEAR is an "on the fly" register
 
@@ -249,6 +256,8 @@ int kx132_fetch_interrupt_latch_release(const struct device *dev);
 int kx132_fetch_interrupt_source_2(const struct device *dev);
 
 int kx132_get_attr__output_data_rate(const struct device *dev, struct sensor_value *val);
+
+int kx132_get_attr__buf_read_sample_as_attribute(const struct device *dev, struct sensor_value *val);
 
 int kx132_update_reg__buf_clear(const struct device *dev);
 
