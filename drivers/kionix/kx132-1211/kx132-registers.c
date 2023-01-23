@@ -633,8 +633,8 @@ int kx132_get_attr__buf_read_sample_as_attribute(const struct device *dev, struc
                  ( read_buffer[3] << 24 )    // YOUT_H
                 );
     val->val2 = (
-                 ( read_buffer[0] <<  0 ) +  // ZOUT_L
-                 ( read_buffer[1] <<  8 )    // ZOUT_H
+                 ( read_buffer[4] <<  0 ) +  // ZOUT_L
+                 ( read_buffer[6] <<  8 )    // ZOUT_H
                 );
 
     return rstatus;
