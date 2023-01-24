@@ -295,7 +295,7 @@ static int kx132_1211_attr_set(const struct device *dev,
                             break;
 
                         case KX132_SET_WMI_SAMPLE_THRESHOLD:
-                            int kx132_update_reg__sample_threshold_buf_cntl1(dev,
+                            kx132_update_reg__sample_threshold_buf_cntl1(dev,
                               (const uint8_t)val->val2);
                             break;
 
