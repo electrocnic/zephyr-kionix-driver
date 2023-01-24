@@ -285,7 +285,7 @@ int kx132_enable_watermark_interrupt(const struct device *dev)
 // ( ODCNTL    0x06   . . . Optional!  Set Output Data Rate via writes to this register )
 //   INC1      0x30   . . . reg Interrupt Control 1, enable INT1, set active high, and for latched operation
 //   INC4      0x20   . . . reg Interrupt Control 4, set interrupt event to "watermark / sample threshold reached"
-//   BUF_CNTL1 0x2B   . . . buffer control reg 1,
+//   BUF_CNTL1 0x2B   . . . buffer control reg 1 to set sample threshold or watermark interrupt "level"
 //   BUF_CNTL2 0xE0   . . . buffer control reg 2,
 //   CNTL1     0xE0   . . . put sensor into active readings mode
 
@@ -305,7 +305,11 @@ int kx132_enable_watermark_interrupt(const struct device *dev)
     reg_val_to_write = 0x20U;
     rstatus |= kx132_write_reg(data->ctx, KX132_INC4, write_buffer, len);
 
-    reg_val_to_write = 0x0AU;
+// NEED TO REVIEW whether there is a better way to manage / support watermark
+// threshold setting, which following stanzas configure for a sample
+// threshold of ten.  That may not be what end application requires . . .
+//    reg_val_to_write = 0x0AU;
+    reg_val_to_write = data->shadow_reg_buf_cntl1;
     rstatus |= kx132_write_reg(data->ctx, KX132_BUF_CNTL1, write_buffer, len);
 
     reg_val_to_write = 0xE0U;
@@ -399,7 +403,7 @@ int kx132_disable_sample_buffer(const struct device *dev)
  *       CNTL1 in this routine.
  */
 
-int kx132_update_output_data_rate__odcntl(const struct device *dev,
+int kx132_update_reg__odcntl__output_data_rate(const struct device *dev,
                                           const enum kx132_1211_output_data_rates_e new_odr)
 // NEED to review KX132 datasheet(s) to see whether there are multiple
 // output data rates independtly settable by end users, in registers
@@ -507,6 +511,21 @@ int kx132_update_reg__buf_clear(const struct device *dev)
 
     if ( rstatus == ROUTINE_OK ) { }
     return rstatus;
+}
+
+
+
+/**
+ * @brief Routing to allow for app code to set a FIFO sample watermark
+ *        or threshold level, which is referenced in the multi-register
+ *        config sequence to enable watermark driven interrupt sampling.
+ */
+
+int kx132_update_shadow_reg__sample_threshold(const struct device *dev, const uint8_t new_sample_threshold)
+{
+    struct kx132_device_data *data = dev->data;
+    data->shadow_reg_buf_cntl1 = new_sample_threshold;
+    return ROUTINE_OK;
 }
 
 

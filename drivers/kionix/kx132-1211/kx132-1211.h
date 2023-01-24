@@ -260,7 +260,9 @@ struct kx132_device_data {
 
     uint8_t shadow_reg_ins2;
 
-    uint8_t shadow_reg_buf_cntl2;
+    uint8_t shadow_reg_buf_cntl1;  // sample threshold value stored in FIFO buffer control 1 register
+
+    uint8_t shadow_reg_buf_cntl2;  // FIFO buffer mode or operation settings
 
 
 //----------------------------------------------------------------------
@@ -443,6 +445,7 @@ enum kx132_1211_config_setting_e
 // From AN109-...-3p0.pdf
     KX132_SET_OUTPUT_DATA_RATE,
     KX132_SET_WMI_SAMPLE_THRESHOLD,
+    KX132_SET_SHADOW_REG__WMI_SAMPLE_THRESHOLD,
 
 // From Kionix document AN092-Getting-Stated.pdf:
     KX132_ENABLE_ASYNC_READINGS,

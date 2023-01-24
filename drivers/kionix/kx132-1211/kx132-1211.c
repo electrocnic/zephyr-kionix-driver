@@ -294,12 +294,18 @@ static int kx132_1211_attr_set(const struct device *dev,
                             break;
 
                         case KX132_SET_OUTPUT_DATA_RATE:
-                            kx132_update_output_data_rate__odcntl(dev,
+                            kx132_update_reg__odcntl__output_data_rate(dev,
                               (const enum kx132_1211_output_data_rates_e)val->val2);
                             break;
 
                         case KX132_SET_WMI_SAMPLE_THRESHOLD:
                             kx132_update_reg__sample_threshold_buf_cntl1(dev,
+                              (const uint8_t)val->val2);
+                            break;
+
+// Shadow register updates:
+                        case KX132_SET_SHADOW_REG__WMI_SAMPLE_THRESHOLD:
+                            kx132_update_shadow_reg__sample_threshold(dev,
                               (const uint8_t)val->val2);
                             break;
 

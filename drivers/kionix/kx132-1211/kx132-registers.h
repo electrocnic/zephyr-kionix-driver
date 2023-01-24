@@ -222,15 +222,6 @@ int kx132_disable_sample_buffer(const struct device *dev);
 
 
 //----------------------------------------------------------------------
-// - SECTION - register update routines
-//----------------------------------------------------------------------
-
-int kx132_update_output_data_rate__odcntl(const struct device *dev,
-                                          enum kx132_1211_output_data_rates_e new_odr
-                                         );
-
-
-//----------------------------------------------------------------------
 // - SECTION - sensor fetch routines
 //----------------------------------------------------------------------
 
@@ -281,6 +272,12 @@ int kx132_update_reg__sample_threshold_buf_cntl1(const struct device *dev, const
 
 int kx132_update_reg__buf_clear(const struct device *dev);
 
+int kx132_update_reg__odcntl__output_data_rate(
+                                               const struct device *dev,
+                                               enum kx132_1211_output_data_rates_e new_odr
+                                              );
+
+int kx132_update_shadow_reg__sample_threshold(const struct device *dev, const uint8_t new_sample_threshold);
 
 
 #endif // KX132_REGISTERS_H
