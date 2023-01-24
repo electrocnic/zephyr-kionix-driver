@@ -156,7 +156,9 @@ enum kx132_readings_resolution_e
 // Register whose bits express sample count threshold, a.k.a. watermark
 // at which to raise interrupt for application to read samples:
 #define KX132_BUF_CNTL1 (0x5E)                                // BUF_CNTL1 is an "on the fly" register
-// bit-wise flags of this register in technical manual are named SMP_TH7..SMP_TH0
+// SMP_TH7..SMP_TH0, these are sample threshold bits which indicate
+//  count of x,y,z samples at which KX132 raises its level-based
+//  watermark interrupt (WMI).
 
 #define KX132_BUF_CNTL2 (0x5F)                                // BUF_CNTL2 is an "on the fly" register
 #define KX132_BUF_CNTL2_BIT_FLAG_BUFE               (1 << 7)  // enable sample buffer BUF_READ

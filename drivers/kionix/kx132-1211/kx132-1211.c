@@ -281,11 +281,9 @@ static int kx132_1211_attr_set(const struct device *dev,
                             kx132_disable_sample_buffer(dev);
                             break;
 
-
                         case KX132_CLEAR_SAMPLE_BUFFER:
                             kx132_update_reg__buf_clear(dev);
                             break;
-
 
                         case KX132_ENABLE_ASYNC_READINGS:
                             kx132_enable_asynchronous_readings(dev);
@@ -295,6 +293,15 @@ static int kx132_1211_attr_set(const struct device *dev,
                             kx132_update_output_data_rate__odcntl(dev,
                               (const enum kx132_1211_output_data_rates_e)val->val2);
                             break;
+
+                        case KX132_SET_WMI_SAMPLE_THRESHOLD:
+                            int kx132_update_reg__sample_threshold_buf_cntl1(dev,
+                              (const uint8_t)val->val2);
+                            break;
+
+//----------------------------------------------------------------------
+// Multi-register updates, configuration routines:
+//----------------------------------------------------------------------
 
 // NEED 2023-01-13 to review whether needed parameters are missing here`
                         case KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT:

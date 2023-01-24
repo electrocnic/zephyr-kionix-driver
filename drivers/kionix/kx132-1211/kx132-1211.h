@@ -437,6 +437,7 @@ enum kx132_1211_config_setting_e
 
 // From AN109-...-3p0.pdf
     KX132_SET_OUTPUT_DATA_RATE,
+    KX132_SET_WMI_SAMPLE_THRESHOLD,
 
 // From Kionix document AN092-Getting-Stated.pdf:
     KX132_ENABLE_ASYNC_READINGS,
@@ -458,9 +459,6 @@ enum kx132_1211_config_setting_e
 
 // - DEV 1128 -
     KX132_REINITIALIZE_DRDY_GPIO_PORT,
-
-// - DEV 0115 -
-    KX132_SET_BUF_READ_FETCH_SAMPLES_COUNT,
 
     KX132_CONFIGURATION_SETTING_LAST
 };

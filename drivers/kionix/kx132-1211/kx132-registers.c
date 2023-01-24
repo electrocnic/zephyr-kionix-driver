@@ -466,6 +466,26 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
 
 
 /**
+ * @brief Routine to update KX132 sample threshold value, which sets
+ *        count of x,y,z samples needed to trigger a "watermark reached"
+ *        interrupt, also called WMI in Kionix technical references.
+ */
+
+int kx132_update_reg__sample_threshold_buf_cntl1(const struct device *dev, const uint8_t new_sample_threshold)
+{
+    struct kx132_device_data *data = dev->data;
+    uint8_t reg_val_to_write = new_sample_threshold;
+    uint8_t *write_buffer = &reg_val_to_write;
+    uint32_t len = 2;
+
+    uint32_t rstatus = kx132_write_reg(data->ctx, KX132_BUF_CNTL1, write_buffer, len);
+
+//    if ( rstatus == ROUTINE_OK ) { }
+    return rstatus;
+}
+
+
+/**
  * @brief Routine to write a value to KX132 "clear sample buffer"
  *        register.
  *
@@ -479,11 +499,8 @@ int kx132_update_output_data_rate__odcntl(const struct device *dev,
 int kx132_update_reg__buf_clear(const struct device *dev)
 {
     struct kx132_device_data *data = dev->data;
-
     uint8_t reg_val_to_write = 0x01U;  // value of one chosen arbitrarily, tech' manual specs no particular write value necesary.
     uint8_t *write_buffer = &reg_val_to_write;
-//    uint8_t reg_val_to_read[] = {0, 0, 0, 0};
-//    uint8_t *read_buffer = reg_val_to_read;
     uint32_t len = 2;
 
     uint32_t rstatus = kx132_write_reg(data->ctx, KX132_BUF_CLEAR, write_buffer, len);
