@@ -263,7 +263,9 @@ int kx132_get_attr__return_interrupt_statae_2(const struct device *dev, struct s
 
 int kx132_get_attr__output_data_rate(const struct device *dev, struct sensor_value *val);
 
-int kx132_get_attr__buf_read_sample_as_attribute(const struct device *dev, struct sensor_value *val);
+int kx132_get_attr__buf_cntl1__sample_threshold_setting(const struct device *dev, struct sensor_value *val);
+
+int kx132_get_attr__buf_read__sample_as_attribute(const struct device *dev, struct sensor_value *val);
 
 
 // - GROUP - routines which write values to sensor registers:

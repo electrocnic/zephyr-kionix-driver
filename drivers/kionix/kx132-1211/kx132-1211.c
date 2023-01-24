@@ -160,8 +160,12 @@ static int kx132_1211_attr_get(const struct device *dev,
             rstatus = kx132_get_attr__output_data_rate(dev, val);
             break;
 
+        case SENSOR_ATTR_KIONIX__CONFIG_REG_BUF_CNTL1:
+            rstatus = kx132_get_attr__buf_cntl1__sample_threshold_setting(dev, val);
+            break;
+
         case SENSOR_ATTR_KIONIX__FIFO_REG_BUF_READ:
-            rstatus = kx132_get_attr__buf_read_sample_as_attribute(dev, val);
+            rstatus = kx132_get_attr__buf_read__sample_as_attribute(dev, val);
             break;
 
         default:

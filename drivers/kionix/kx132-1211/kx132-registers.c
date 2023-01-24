@@ -608,8 +608,6 @@ int kx132_fetch_part_id(const struct device *dev)
  
 
 
-// IN PROGRESS - routine to immediately return interrupt source 2 status register . . .
-
 int kx132_get_attr__return_interrupt_statae_2(const struct device *dev, struct sensor_value *val)
 {
     struct kx132_device_data *data = dev->data;
@@ -643,6 +641,24 @@ int kx132_get_attr__output_data_rate(const struct device *dev, struct sensor_val
 
 
 
+// IN PROGRESS - routine to return BUF_CNTL1 sample threshold value:
+
+int kx132_get_attr__buf_cntl1__sample_threshold_setting(const struct device *dev, struct sensor_value *val)
+{
+    struct kx132_device_data *data = dev->data;
+    uint8_t reg_val_to_read[] = {0, 0};  uint8_t *read_buffer = reg_val_to_read;
+    uint32_t rstatus = 0;
+
+    rstatus = kx132_read_reg(data->ctx, KX132_BUF_CNTL1, read_buffer, SIZE_KX132_REGISTER_VALUE);
+    data->shadow_reg_buf_cntl1 = read_buffer[0];
+    val->val1 = data->shadow_reg_buf_cntl1;
+    val->val2 = 0;
+
+    return rstatus;
+}
+
+
+
 //
 // 2023-01-23 - IN PROGRESS routine to return BUF_READ six bytes for
 //  latest sample, directly to calling code:
@@ -660,7 +676,7 @@ int kx132_get_attr__output_data_rate(const struct device *dev, struct sensor_val
  *        application code.
  */
 
-int kx132_get_attr__buf_read_sample_as_attribute(const struct device *dev, struct sensor_value *val)
+int kx132_get_attr__buf_read__sample_as_attribute(const struct device *dev, struct sensor_value *val)
 {
     struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0, 0, 0, 0, 0};
