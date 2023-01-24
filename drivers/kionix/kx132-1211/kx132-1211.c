@@ -152,11 +152,15 @@ static int kx132_1211_attr_get(const struct device *dev,
 // only provides for sensor_t values to be shared.  That will be
 // kludgy at best to convey strings between app and driver code.
 
-        case SENSOR_ATTR_KIONIX__OUTPUT_DATA_RATE_REG_ODCNTL:
+        case SENSOR_ATTR_KIONIX__STATUS_REG_INS2:
+            rstatus = kx132_get_attr__return_interrupt_statae_2(dev, val);
+            break;
+
+        case SENSOR_ATTR_KIONIX__STATUS_REG_ODCNTL:
             rstatus = kx132_get_attr__output_data_rate(dev, val);
             break;
 
-        case SENSOR_ATTR_KIONIX__XYZ_HI_RES_SAMPLE_REG_BUF_READ:
+        case SENSOR_ATTR_KIONIX__FIFO_REG_BUF_READ:
             rstatus = kx132_get_attr__buf_read_sample_as_attribute(dev, val);
             break;
 

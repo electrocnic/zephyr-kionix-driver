@@ -589,22 +589,35 @@ int kx132_fetch_part_id(const struct device *dev)
  
 
 
+// IN PROGRESS - routine to immediately return interrupt source 2 status register . . .
+
+int kx132_get_attr__return_interrupt_statae_2(const struct device *dev, struct sensor_value *val)
+{
+    struct kx132_device_data *data = dev->data;
+    uint8_t reg_val_to_read[] = {0, 0};  uint8_t *read_buffer = reg_val_to_read;
+    uint32_t rstatus = 0;
+
+    rstatus = kx132_read_reg(data->ctx, KX132_INS2, read_buffer, SIZE_KX132_REGISTER_VALUE);
+    data->shadow_reg_ins2 = read_buffer[0];
+    val->val1 = data->shadow_reg_ins2;
+    val->val2 = 0;
+
+    return rstatus;
+}
+
+
+
 int kx132_get_attr__output_data_rate(const struct device *dev, struct sensor_value *val)
 {
     struct kx132_device_data *data = dev->data;
-    uint8_t reg_val_to_read[] = {0, 0};
-    uint8_t *read_buffer = reg_val_to_read;
+    uint8_t reg_val_to_read[] = {0, 0};  uint8_t *read_buffer = reg_val_to_read;
     uint32_t rstatus = 0;
 
-    rstatus = kx132_read_reg(data->ctx, KX132_ODCNTL, read_buffer, 2);  // NEED we read two bytes, e.g. SIZE_KX132_REGISTER_VALUE?
+//    rstatus = kx132_read_reg(data->ctx, KX132_ODCNTL, read_buffer, 2);  // NEED we read two bytes, e.g. SIZE_KX132_REGISTER_VALUE?
+    rstatus = kx132_read_reg(data->ctx, KX132_ODCNTL, read_buffer, SIZE_KX132_REGISTER_VALUE);  // NEED we read two bytes, e.g. SIZE_KX132_REGISTER_VALUE?
     data->shadow_reg_odcntl = read_buffer[0];
     val->val1 = (data->shadow_reg_odcntl & KX132_OSA_BITS_MASK);
     val->val2 = 0;
-
-#if 0
-    printk("\- kx132-registers.c - ODCNTL get attr begin:\n");
-    printk("\n");
-#endif
 
     return rstatus;
 }

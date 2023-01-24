@@ -244,10 +244,18 @@ int kx132_fetch_acceleration_xyz_axis(const struct device *dev);
 
 int kx132_fetch_readings_from_buf_read(const struct device *dev);
 
-//
-// Sensor fetch routines, but for sensor configuration and identifying
-// values as opposed to readings of external quantifiables:
-// 
+
+/**
+ * @note Sensor fetch routines, but for sensor configuration and
+ *       identifying values as opposed to readings of external
+ *       quantifiables.
+ *
+ * @note Zephyr's "fetch" and "get" model is not always helpful in
+ *       supporting sensors which may involve high data acquisition
+ *       rates, and therefore the following routines may by modified
+ *       and moved into the "get attribute" type routines group.
+ *----------------------------------------------------------------------
+ */
 
 int kx132_fetch_device_id(const struct device *dev);
 
@@ -257,10 +265,17 @@ int kx132_fetch_interrupt_latch_release(const struct device *dev);
 
 int kx132_fetch_interrupt_source_2(const struct device *dev);
 
+
+// - GROUP - "get attribute" type routines which immediately return sensor register values:
+
+int kx132_get_attr__return_interrupt_statae_2(const struct device *dev, struct sensor_value *val);
+
 int kx132_get_attr__output_data_rate(const struct device *dev, struct sensor_value *val);
 
 int kx132_get_attr__buf_read_sample_as_attribute(const struct device *dev, struct sensor_value *val);
 
+
+// - GROUP - routines which write values to sensor registers:
 
 int kx132_update_reg__sample_threshold_buf_cntl1(const struct device *dev, const uint8_t new_sample_threshold);
 
