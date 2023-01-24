@@ -261,6 +261,9 @@ int kx132_get_attr__output_data_rate(const struct device *dev, struct sensor_val
 
 int kx132_get_attr__buf_read_sample_as_attribute(const struct device *dev, struct sensor_value *val);
 
+
+int kx132_update_reg__sample_threshold_buf_cntl1(const struct device *dev, const uint8_t new_sample_threshold);
+
 int kx132_update_reg__buf_clear(const struct device *dev);
 
 
