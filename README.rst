@@ -63,4 +63,11 @@ Commits of Note
 Refs and footnotes
 *********************
 
-_ stub section _
+Kionix sensor documemts:
+
+*  TN027-Power-On-Procedure.pdf                       . . . I2C sensor / peripheral address possibilities
+*  AN092-Getting-Started.pdf                          . . . multi-register config sequences
+*  KX132-1211-Technical-Reference-Manual-Rev-5.0.pdf  . . . register map, config and status register details
+
+
+
