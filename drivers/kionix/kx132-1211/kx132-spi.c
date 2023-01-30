@@ -36,11 +36,13 @@ static int kx132_spi_read(const struct device *dev, uint8_t reg, uint8_t *data, 
 	const struct kx132_device_config *config = dev->config;
 
 #if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
+#ifdef DEV__KX_DRIVER_DEV_1120__LOW_LEVEL_SPI_READ
 // #warning "--- DEV 1120 --- compiling kx132_spi_read() function . . ."
     char lbuf[240];
     snprintf(lbuf, sizeof(lbuf), "- KX132 driver - SPI read called with reg %u, requesting %u bytes . . .\n",
       reg, len);
     printk("%s", lbuf);
+#endif // DEV__KX_DRIVER_DEV_1120__LOW_LEVEL_SPI_READ
 #endif
 
 	uint8_t buffer_tx[2] = { reg | KX132_SPI_READM, 0 };
@@ -101,12 +103,12 @@ static int kx132_spi_write(const struct device *dev, uint8_t reg, uint8_t *data,
 		.count = 2
 	};
 
-
+#ifdef DEV__KX_DRIVER_DEV_1202__LOW_LEVEL_SPI_WRITE
     char lbuf[240];
     snprintf(lbuf, sizeof(lbuf), "- DEV 1202 - SPI write writing reg 0x%02x with %u (asked to write %u bytes)\n",
        buffer_tx[0], data[0], len);
     printk("%s", lbuf);
-
+#endif
 
 	if (spi_write_dt(&config->spi, &tx)) {
 		return -EIO;

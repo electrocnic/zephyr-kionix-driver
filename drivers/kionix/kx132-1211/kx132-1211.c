@@ -10,16 +10,14 @@
 
 #define DT_DRV_COMPAT kionix_kx132_1211
 
+#include <stdio.h>
 #include <math.h>
 
 #include <zephyr/device.h>          // 2022-11-10 was <device.h>
 #include <zephyr/drivers/i2c.h>     // 2022-11-10 was <drivers/i2c.h>
 #include <zephyr/drivers/sensor.h>  // 2022-11-10 was <drivers/sensor.h>
-
 #include <zephyr/sys/util_macro.h>    // <-- not sure whether this header required by driver - TMH
-
 #include <zephyr/devicetree.h>
-
 #include <zephyr/logging/log.h>     // 2022-11-10 was <logging/log.h>
 
 LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_MODULE_DECLARE() due to this line
@@ -35,28 +33,18 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
 #include "kx132-triggers.h"        // to provide sensor interrupt port reinitialization code
 
 
-#include <stdio.h>
-
-
 
 //----------------------------------------------------------------------
-// Note:  struct sensor_value is defined in Zephyr's sensor.h header
-// file.  In Nordic ncs v1.6.1 SDK this file found in
-// nsc/v1.6.1/zephyr/include/drivers
-//
-// Kionix KX132-1211 register definitions found in KX132-1211-Technical-Reference-Manual-Rev-3.0.pdf.
+// - SECTION - defines
 //----------------------------------------------------------------------
+
+//#define DEV_TRACE_ATTR_SET_RSTATUS_VALUE
 
 
 
 //----------------------------------------------------------------------
 // - SECTION - Kionix sensor specific configuration routines
 //----------------------------------------------------------------------
-
-#if 0
-#endif
-
-
 
 /*
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -76,6 +64,7 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
  */
 
+#if 0
 static int kx132_configure_output_data_rate(const struct device *dev, const struct sensor_value *val)
 {
     struct kx132_device_data *data = dev->data;
@@ -93,18 +82,21 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 
     int rstatus = ROUTINE_OK;
 
-
-    if ((val->val2 < KX132_ODR__0P781_HZ) || (val->val2 > KX132_ODR_25600_HZ))
+    if ((val->val2 < KX132_ODR_0P781_HZ) || (val->val2 > KX132_ODR_25600_HZ))
     {
-        rstatus = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
+        return ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
     }
-    else
+
     {
+
+        rstatus |= kx132_write_reg(data->ctx, KX132_ODCNTL, write_buffer, 1);
+
+
         rstatus = kx132_read_reg(data->ctx, KX132_ODCNTL, read_buffer, 1);
 
         if ( rstatus != ROUTINE_OK )
         {
-            // ROUTINE_STATUS__COMM_FAILURE_ON_BUS
+            rstatus = ROUTINE_STATUS__COMM_FAILURE_ON_BUS;
         }
         else
         {
@@ -126,6 +118,7 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 
     return rstatus;
 }
+#endif
 
 
 
@@ -159,6 +152,22 @@ static int kx132_1211_attr_get(const struct device *dev,
 // only provides for sensor_t values to be shared.  That will be
 // kludgy at best to convey strings between app and driver code.
 
+        case SENSOR_ATTR_KIONIX__STATUS_REG_INS2:
+            rstatus = kx132_get_attr__return_interrupt_statae_2(dev, val);
+            break;
+
+        case SENSOR_ATTR_KIONIX__STATUS_REG_ODCNTL:
+            rstatus = kx132_get_attr__output_data_rate(dev, val);
+            break;
+
+        case SENSOR_ATTR_KIONIX__CONFIG_REG_BUF_CNTL1:
+            rstatus = kx132_get_attr__buf_cntl1__sample_threshold_setting(dev, val);
+            break;
+
+        case SENSOR_ATTR_KIONIX__FIFO_REG_BUF_READ:
+            rstatus = kx132_get_attr__buf_read__sample_as_attribute(dev, val);
+            break;
+
         default:
             rstatus = ROUTINE_STATUS__UNDEFINED_SENSOR_ATTRIBUTE;
             break;
@@ -169,6 +178,74 @@ static int kx132_1211_attr_get(const struct device *dev,
 
 
 
+//----------------------------------------------------------------------
+// @brief  Routine to update KX132 sensor attributes, also called
+//        configuration values.  The somewhat misnamed `value` parameter
+//        conveys in its first of two integer members a sensor attribute,
+//        configuration or state change to effect.  The second integer
+//        member optionally conveys a value, when fitting, to which
+//        this routine sets given sensor attribute or configuration
+//        parameter.
+//
+//        Some KX132 config related attributes lie outside Zephyr's
+//        defined sensor attributes.  These KX132 specific attributes
+//        are expressed in Kionix driver enumeration named
+//        'kx132_1211_config_setting_e'.
+//
+//        Note that not all configuration and state changes are simple,
+//        numeric values applied to a KX132 register, but that some
+//        attribute settings involve more complex sensor side action,
+//        self tests and sensor side register updates.  In these cases
+//        the second integer part of @param `value` may not convey any
+//        value from app side code.  The driver itself directs the
+//        sensor to perform self tests or other configuration tasks.
+//
+//
+// @param  *dev, a pointer to a Zephyr form sensor instance, a compound data structure
+//
+// @param  channel, sensor API construct to describe which sensor readings (channels) to which attribute applies
+//
+// @param  attribute, most often a sensor setting or configuration value, which app code calls us to update
+//
+// @param  value, a small Zephyr structure holding two 32-bit integers.
+//         The first conveys the KX132 configuration or state to change,
+//         and the second integer optionally conveys a value to which
+//         this routine sets given attribute, when such value applies.
+//
+// @return rstatus "routine status", one of:
+//
+//         *  unsupported sensor configuration
+//         *  undefined sensor attribute
+//         *  undefined sensor channel
+//         *  routine ok (routine succeeded)
+//
+//
+// Example set up and call, sets up readings with sensor actuated hardware
+// interrupt, and sets an accelerometer output data rate of 3200 Hz:
+//
+//      requested_config.val1 = KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT;
+//      requested_config.val2 = KX132_ODR_3200_HZ;
+//
+//      sensor_api_status = sensor_attr_set(
+//       dev_kx132_1,
+//       SENSOR_CHAN_ALL,
+//       SENSOR_ATTR_PRIV_START,
+//       &requested_config
+//      );
+//
+//
+// Notes:
+//
+//   REF https://docs.zephyrproject.org/2.6.0/reference/peripherals/sensor.html#c.sensor_attribute
+//     case SENSOR_ATTR_CONFIGURATION:  <- this enumerator available in Zephyr RTOS 2.7.99 but not 2.6.0 - TMH
+//
+//   +  For compatibility with Zephyr 2.6.0, Zephyr sensor channel
+//      enum member `SENSOR_CHAN_ALL` is paired with the more recently
+//      available and more fitting sensor attribute enum member
+//      `SENSOR_ATTR_CONFIGURATION` in a nested switch construct of
+//      this routine.
+//----------------------------------------------------------------------
+
 // REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_channel.SENSOR_CHAN_ALL
 
 static int kx132_1211_attr_set(const struct device *dev,
@@ -176,67 +253,92 @@ static int kx132_1211_attr_set(const struct device *dev,
                                enum sensor_attribute attr,
                                const struct sensor_value *val)
 {
-    int rstatus = ROUTINE_OK;
-
-    int sensor_config_requested = val->val1;
+    uint32_t rstatus = ROUTINE_OK;
+    uint32_t sensor_config_requested = val->val1;
 
     switch (attr)
     {
 
-// Note:  Zephyr standard sensor attribute case values will be
-//  added here, at top of SWITCH construct.  None do far implemented as
-//  of 2022-11-28 - TMH
+// Note:  Zephyr standard sensor attribute enumeration values will be
+//  added here, at top of SWITCH construct.  None so far implemented as
+//  of 2022-11-28.  See `zephyr/include/zephyr/drivers/sensor.h` for
+//  full enumeration of Zephyr defined sensor attributes.  - TMH
 
-// REF https://docs.zephyrproject.org/2.6.0/reference/peripherals/sensor.html#c.sensor_attribute
-//        case SENSOR_ATTR_CONFIGURATION:  <- this enumerator available in Zephyr RTOS 2.7.99 but not 2.6.0 - TMH
         case SENSOR_ATTR_PRIV_START:
         {
             switch (chan)
             {
                 case SENSOR_CHAN_ALL:
+                case SENSOR_ATTR_CONFIGURATION:
                 {
                     switch (sensor_config_requested)
                     {
-// When a sensor attribute to set is a configuration value, and it
-// applies to some or all readings channels not just one, then calling
-// code should call this routine with above two Zephyr enumerated
-// case values, and a final value in paramter 'val' which falls in
-// the local Kionix driver enumeration named 'kx132_1211_config_setting_e'.
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                        case KX132_PERMFORM_SOFTWARE_RESET:
+// A fetch like routine, updates sensor data shadow registers 'who_am_i' and 'cotr':
+                            rstatus = kx132_software_reset(dev);
+                            break;
+
+// Single register update:
+                        case KX132_ENTER_STANDBY_MODE:
+                            kx132_enter_standby_mode(dev);
+                            break;
+
+// Single register update:
+                        case KX132_DISABLE_SAMPLE_BUFFER:
+                            kx132_disable_sample_buffer(dev);
+                            break;
+
+                        case KX132_CLEAR_SAMPLE_BUFFER:
+                            kx132_update_reg__buf_clear(dev);
+                            break;
+
                         case KX132_ENABLE_ASYNC_READINGS:
-                        {
                             kx132_enable_asynchronous_readings(dev);
                             break;
-                        }
 
                         case KX132_SET_OUTPUT_DATA_RATE:
-                        {
-                            kx132_configure_output_data_rate(dev, val);
+                            kx132_update_reg__odcntl__output_data_rate(dev,
+                              (const enum kx132_1211_output_data_rates_e)val->val2);
                             break;
-                        }
 
-                        case KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT:
-                        {
-                            kx132_enable_synchronous_reading_with_hw_interrupt(dev);
+                        case KX132_SET_WMI_SAMPLE_THRESHOLD:
+                            kx132_update_reg__sample_threshold_buf_cntl1(dev,
+                              (const uint8_t)val->val2);
                             break;
-                        }
+
+// Shadow register updates:
+                        case KX132_SET_SHADOW_REG__WMI_SAMPLE_THRESHOLD:
+                            kx132_update_shadow_reg__sample_threshold(dev,
+                              (const uint8_t)val->val2);
+                            break;
+
+//----------------------------------------------------------------------
+// Multi-register updates, configuration routines:
+//----------------------------------------------------------------------
+
+// NEED 2023-01-13 to review whether needed parameters are missing here`
+                        case KX132_ENABLE_SYNC_READINGS_WITH_HW_INTERRUPT:
+                            rstatus = kx132_enable_synchronous_reading_with_hw_interrupt(dev);
+                            break;
 
 #ifdef CONFIG_KX132_TRIGGER
                         case KX132_REINITIALIZE_DRDY_GPIO_PORT:
-                        {
-                            kx132_reinitialize_interrupt_port(dev, DEFAULT_INTERAL_OPTION_OF_ZERO);
+                            rstatus = kx132_reinitialize_interrupt_port(dev, DEFAULT_INTERAL_OPTION_OF_ZERO);
                             break;
-                        }
 #endif
+                        case KX132_ENABLE_WATERMARK_INTERRUPT:
+                            rstatus = kx132_enable_watermark_interrupt(dev);
+                            break;
+
 
                         default: // ...action to take when requested config not supported
-                        {
                             rstatus = ROUTINE_STATUS__UNSUPPORTED_SENSOR_CONFIGURATION;
                             break;
-                        }
 
                     } // close scope of switch(val)
                 }
+                    break;
 
                 default: // ...action to take with unrecognized sensor channel
                 {
@@ -246,6 +348,7 @@ static int kx132_1211_attr_set(const struct device *dev,
 
             } // close scope of switch(chan)
         }
+            break;
 
         default: // ...default action to take with unrecognized sensor attribute
         {
@@ -254,13 +357,21 @@ static int kx132_1211_attr_set(const struct device *dev,
         }
     } // close scope of switch(attr)
 
+#ifdef DEV_TRACE_ATTR_SET_RSTATUS_VALUE
+    printk("- kx132-1211.c - kx132_1211_attr_set() rstatus holds %u, returning . . .\n\n", rstatus);
+#endif
     return rstatus;
-}
+
+} // end routine kx132_1211_attr_set()
 
 
 
 static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel channel)
 {
+// NEED 2023-01-19 to fully implement helpful return status value 'rstatus', this
+// entails defining helpful rstatus values for each routine called
+// from SWITCH construct of this routine.
+
     int rstatus = 0;
 
     switch (channel)
@@ -289,12 +400,21 @@ static int kx132_1211_sample_fetch(const struct device *dev, enum sensor_channel
             kx132_fetch_acceleration_xyz_axis(dev);
             break;
 
+        case SENSOR_CHAN_KIONIX_INTERRUPT_LATCH_RELEASE:
+            kx132_fetch_interrupt_latch_release(dev);
+            break;
+
+        case SENSOR_CHAN_KIONIX_BUF_READ:
+            kx132_fetch_readings_from_buf_read(dev);
+            break;
+
         default:
             rstatus = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
     }
 
     return rstatus;
-}
+
+} // end routine kx132_1211_sample_fetch()
 
 
 
@@ -383,12 +503,36 @@ static int kx132_1211_channel_get(const struct device *dev,
             val->val2 = ( ( data->accel_axis_z[1] <<  8 ) | ( data->accel_axis_z[0] <<  0 ) );
             break;
 
+// NOTE, KX132 sample buffer readings not to be confused with values
+// read from XOUT_L, XOUT_H, YOUT_L, YOUT_H, etc:
+        case SENSOR_CHAN_KIONIX_BUF_READ:
+            val->val1 = ((data->shadow_reg_buf_read[0] <<  0) | (data->shadow_reg_buf_read[1] <<  8) | // x | xlsb, xmsb
+                         (data->shadow_reg_buf_read[2] << 16) | (data->shadow_reg_buf_read[3] << 24)   // y | ylsb, ymsb
+                        );
+            val->val2 = ((data->shadow_reg_buf_read[4] <<  0) | (data->shadow_reg_buf_read[5] <<  8)   // z | zlsb, zmsb
+                        );
+            break;
+
+
+
+        case SENSOR_CHAN_KIONIX_INTERRUPT_LATCH_RELEASE:
+            val->val1 = data->shadow_reg_int_rel;
+            val->val2 = 0;
+            break;
+
+        case SENSOR_CHAN_KIONIX_INS2:
+            val->val1 = data->shadow_reg_ins2;
+            val->val2 = 0;
+            break;
+
+
         default:
             routine_status = ROUTINE_STATUS__UNDEFINED_SENSOR_CHANNEL;
     }
 
     return routine_status;
-}
+
+} // end routine kx132_1211_channel_get()
 
 
 
@@ -434,9 +578,13 @@ static int kx132_1211_init(const struct device *dev)
     struct kx132_device_data *data = dev->data;
 // - DEV 1128 -
 
+    uint32_t rstatus = ROUTINE_OK;
+
+
     kx132_init_interface(dev);
 
 // Optionally check chip ID here:
+    rstatus = kx132_software_reset(dev);
 
 // Optionally set a block data update mode, if applicable, here:
 
@@ -475,11 +623,11 @@ static int kx132_1211_init(const struct device *dev)
 #warning "KX132 driver compiled with dedicated thread support"
 #endif
 
-// - DEV 1130 -
+// - DEV 1130 BEGIN -
 printk("- DEV 1028 - devicetree API finds drdy-gpios compatible node with path '%s'\n", xstr(DRDY_GPIO_DEVICETREE_PATH));
+// - DEV 1130 END -
 
-
-    return 0;
+    return rstatus;
 }
 
 
@@ -491,7 +639,8 @@ printk("- DEV 1028 - devicetree API finds drdy-gpios compatible node with path '
 //  terms detailed here:
 // https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html
 
-static const struct sensor_driver_api kx132_driver_api = {
+static const struct sensor_driver_api kx132_driver_api =
+{
     .attr_get = &kx132_1211_attr_get,
     .attr_set = &kx132_1211_attr_set,
 #if CONFIG_KX132_TRIGGER
