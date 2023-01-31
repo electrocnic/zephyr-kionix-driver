@@ -420,7 +420,7 @@ int kx132_init_interrupt(const struct device *dev)
 #endif
 
 // DEBUG 1124 BEGIN
-    printk("- MARK 2 - kx132 triggers driver, ");
+    printk("- DMARK 2 - kx132 triggers driver, ");
     printk("- sensor device name is '%s'\n", dev->name);
 
 #if 0
@@ -461,10 +461,10 @@ int kx132_init_interrupt(const struct device *dev)
 
 //        { printk("\n"); }
 
-    printk("- MARK 3 -\n");
+    printk("- DMARK 3 -\n");
     if ( kx132_data->int_gpio.port->state != NULL )
         { printk("- INFO - data->int_gpio.port->state not null,\n"); }
-    printk("- MARK 4 -\n");
+    printk("- DMARK 4 -\n");
 
     if ( strlen(kx132_data->int_gpio.port->name) < 3 )
     {
@@ -478,7 +478,7 @@ int kx132_init_interrupt(const struct device *dev)
 
     printk("- INFO - data->int_gpio.port->state->initialized holds %u,\n", (uint8_t)kx132_data->int_gpio.port->state->initialized);
     printk("- INFO - data->int_gpio.port->state->init_res holds %u,\n", kx132_data->int_gpio.port->state->init_res);
-    printk("- MARK 5 -\n");
+    printk("- DMARK 5 -\n");
 
 
 // DEBUG 1124 END
@@ -487,7 +487,7 @@ int kx132_init_interrupt(const struct device *dev)
 // # REF https://github.com/zephyrproject-rtos/zephyr/blob/main/include/zephyr/drivers/gpio.h#L271
     if (!device_is_ready(kx132_data->int_gpio.port))
     {
-        printk("- MARK 6 - kx132 triggers, GPIO interrupt port not ready!\n");
+        printk("- DMARK 6 - kx132 triggers, GPIO interrupt port not ready!\n");
         LOG_ERR("%s: device %s is not ready", dev->name, cfg->int_gpio.port->name);
         return -ENODEV;
     }
@@ -502,11 +502,11 @@ int kx132_init_interrupt(const struct device *dev)
 //      V              |
 //     dev -> data -> dev
 
-    printk("- MARK 7 - kx132 triggers, pointing sensor->data->dev back to 'sensor',\n");
+    printk("- DMARK 7 - kx132 triggers, pointing sensor->data->dev back to 'sensor',\n");
     kx132_data->dev = dev;
 
 #if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
-    printk("- MARK 8 - kx132 setting up dedicated thread which involves semaphore . . .\n");
+    printk("- DMARK 8 - kx132 setting up dedicated thread which involves semaphore . . .\n");
     k_sem_init(&kx132_data->gpio_sem, 0, K_SEM_MAX_LIMIT);
 
     k_thread_create(&kx132_data->thread, kx132_data->thread_stack,
@@ -515,7 +515,7 @@ int kx132_init_interrupt(const struct device *dev)
                     0, NULL, K_PRIO_COOP(CONFIG_KX132_THREAD_PRIORITY),
                     0, K_NO_WAIT);
 #elif defined(CONFIG_KX132_TRIGGER_GLOBAL_THREAD)
-    printk("- MARK 8 - kx132 setting up global thread, assigning sensor->data->work.handler 'kx132_work_cb',\n");
+    printk("- DMARK 8 - kx132 setting up global thread, assigning sensor->data->work.handler 'kx132_work_cb',\n");
     kx132_data->work.handler = kx132_work_cb;
 #endif /* CONFIG_KX132_TRIGGER_OWN_THREAD */
 

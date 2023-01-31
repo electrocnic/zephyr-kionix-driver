@@ -615,7 +615,7 @@ static int kx132_1211_init(const struct device *dev)
         }
         else
         {
-            printk("- MARK 1 b - kx132-1211.c finds cfg->int_gpio.port null!\n");
+            printk("- DMARK 1 b - kx132-1211.c finds cfg->int_gpio.port null!\n");
         }
 #endif // CONFIG_KX132_TRIGGER
 
