@@ -63,7 +63,7 @@ static int kx132_spi_read(const struct device *dev, uint8_t reg, uint8_t *data, 
 #ifdef DEV__KX_DRIVER_DEV_1120__LOW_LEVEL_SPI_READ
 // #warning "--- DEV 1120 --- compiling kx132_spi_read() function . . ."
     char lbuf[240];
-    snprintf(lbuf, sizeof(lbuf), "- KX132 driver - SPI read called with reg %u, requesting %u bytes . . .\n",
+    snprintf(lbuf, sizeof(lbuf), "- KX132 driver - via SPI called to read reg 0x%02X, requesting %u bytes . . .\n",
       reg, len);
     printk("%s", lbuf);
 #endif // DEV__KX_DRIVER_DEV_1120__LOW_LEVEL_SPI_READ
