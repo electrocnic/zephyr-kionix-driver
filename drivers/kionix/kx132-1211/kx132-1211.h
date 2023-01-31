@@ -66,7 +66,7 @@
 
 // "Data ready" interrupt port status possibilites:
 
-enum kx132_1211_drdy_port_status_e
+enum kx132_1211_drdy_port_status
 {
     DRDY_PORT_NOT_INITIALIZED,
     DRDY_CFG_INT_GPIO_FOUND_NULL,

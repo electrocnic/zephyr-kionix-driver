@@ -45,7 +45,7 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 // Following define is very handy to confirm multi-register config sequences:
 #define DEV__KX_DRIVER_DEV_1202__LOW_LEVEL_SPI_WRITE
 
-//#define DEV__KX_DRIVER_DEV_1120__LOW_LEVEL_SPI_READ
+#define DEV__KX_DRIVER_DEV_1120__LOW_LEVEL_SPI_READ
 
 
 

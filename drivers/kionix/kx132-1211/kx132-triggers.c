@@ -407,7 +407,7 @@ int kx132_init_interrupt(const struct device *dev)
 #endif
 
 // DEBUG 1124 BEGIN
-    printk("- kx132-triggers.c - DMARK 2 - kx132 triggers driver, ");
+    printk("- kx132-triggers.c - DMARK 2 - kx132 triggers driver,\n");
     printk("- kx132-triggers.c - sensor device name is '%s'\n", dev->name);
 
 
