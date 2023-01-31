@@ -432,29 +432,29 @@ int kx132_init_interrupt(const struct device *dev)
         return ROUTINE_STATUS__CFG_INT_GPIO_NULL;
     }
     else
-        { printk("- INFO - cfg->int_gpio structure not null,\n"); }
+        { printk("- DINFO - cfg->int_gpio structure not null,\n"); }
 
 //    if ( cfg.int_gpio == NULL )
 //        { printk("- WARNING - sensor config.int_gpio data structure found null!\n"); }
 //    else
-//        { printk("- INFO - sensor config.int_gpio data structure not null,\n"); }
+//        { printk("- DINFO - sensor config.int_gpio data structure not null,\n"); }
 #endif // 0
 
     if ( kx132_data->int_gpio.port == NULL )
         { printk("- WARNING - sensor data->int_gpio.port data structure found null!\n"); }
     else
-        { printk("- INFO - sensor data->int_gpio.port data structure not null,\n"); }
+        { printk("- DINFO - sensor data->int_gpio.port data structure not null,\n"); }
 
-    printk("- INFO - data->int_gpio.port->name holds '%s' and int_gpio pin set to pin no %u\n",
+    printk("- DINFO - data->int_gpio.port->name holds '%s' and int_gpio pin set to pin no %u\n",
       kx132_data->int_gpio.port->name, kx132_data->int_gpio.pin);
-    printk("- INFO - two to the power of 'pin' holds %lu\n",
+    printk("- DINFO - two to the power of 'pin' holds %lu\n",
       BIT(kx132_data->int_gpio.pin));
 
 // QUESTION:  Are we able to successfully call `device_is_ready()` from here?  ANSWER:  yes
     if ( device_is_ready(dev) )
-        { printk("- INFO - Zephyr says KX132-1211 sensor is ready,\n"); }
+        { printk("- DINFO - Zephyr says KX132-1211 sensor is ready,\n"); }
     else
-        { printk("- INFO - Zephyr says KX132-1211 sensor not ready!\n"); }
+        { printk("- DINFO - Zephyr says KX132-1211 sensor not ready!\n"); }
 
 // 'port' is of type Zephyr device, whose struct entails? . . . :
 //
@@ -463,7 +463,7 @@ int kx132_init_interrupt(const struct device *dev)
 
     printk("- DMARK 3 -\n");
     if ( kx132_data->int_gpio.port->state != NULL )
-        { printk("- INFO - data->int_gpio.port->state not null,\n"); }
+        { printk("- DINFO - data->int_gpio.port->state not null,\n"); }
     printk("- DMARK 4 -\n");
 
     if ( strlen(kx132_data->int_gpio.port->name) < 3 )
@@ -476,8 +476,8 @@ int kx132_init_interrupt(const struct device *dev)
 //  allow this driver to introspect and possibly retry gpio_dt_spec member type
 //  assignment later in or after boot times . . .
 
-    printk("- INFO - data->int_gpio.port->state->initialized holds %u,\n", (uint8_t)kx132_data->int_gpio.port->state->initialized);
-    printk("- INFO - data->int_gpio.port->state->init_res holds %u,\n", kx132_data->int_gpio.port->state->init_res);
+    printk("- DINFO - data->int_gpio.port->state->initialized holds %u,\n", (uint8_t)kx132_data->int_gpio.port->state->initialized);
+    printk("- DINFO - data->int_gpio.port->state->init_res holds %u,\n", kx132_data->int_gpio.port->state->init_res);
     printk("- DMARK 5 -\n");
 
 
