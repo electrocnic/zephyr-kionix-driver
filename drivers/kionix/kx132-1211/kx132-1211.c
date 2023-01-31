@@ -660,13 +660,6 @@ static const struct sensor_driver_api kx132_driver_api =
 
 #define KX132_I2C(inst) (.i2c = I2C_DT_SPEC_INST_GET(inst),)
 
-
-
-#ifdef CONFIG_KX132_TRIGGER
-#warning "- DEV 1125 - assigning Zephyr DT macro value to .int_gpio of kx132_device_config structure,"
-#endif
-
-
 #define KX132_DEFINE(inst)                                                                    \
 \
 /* make sure KX132 node exists */ \
