@@ -53,12 +53,12 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
  *  @param   Zephyr sensor value
  *
  *  @note    sensor_value.val1 data members holds a value found in
- *           KX132-1211 enumeration named 'kx132_1211_config_setting_e'.
+ *           KX132-1211 enumeration named 'kx132_1211_config_setting'.
  *           This datum is tested to select which sensor attribute
  *           calling code wants to update.
  *
  *           sensor_value.val2 data members holds a value found in
- *           KX132-1211 enumeration named 'kx132_1211_output_data_rates_e'.
+ *           KX132-1211 enumeration named 'kx132_1211_output_data_rates'.
  *           This datum represents the Output Data Rate setting to
  *           apply here to the KX132-1211 sensor.
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -190,7 +190,7 @@ static int kx132_1211_attr_get(const struct device *dev,
 //        Some KX132 config related attributes lie outside Zephyr's
 //        defined sensor attributes.  These KX132 specific attributes
 //        are expressed in Kionix driver enumeration named
-//        'kx132_1211_config_setting_e'.
+//        'kx132_1211_config_setting'.
 //
 //        Note that not all configuration and state changes are simple,
 //        numeric values applied to a KX132 register, but that some
@@ -299,7 +299,7 @@ static int kx132_1211_attr_set(const struct device *dev,
 
                         case KX132_SET_OUTPUT_DATA_RATE:
                             kx132_update_reg__odcntl__output_data_rate(dev,
-                              (const enum kx132_1211_output_data_rates_e)val->val2);
+                              (const enum kx132_1211_output_data_rates)val->val2);
                             break;
 
                         case KX132_SET_WMI_SAMPLE_THRESHOLD:

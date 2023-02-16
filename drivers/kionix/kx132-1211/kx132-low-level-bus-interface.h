@@ -4,8 +4,8 @@
  * @license Apache 2.0 licensed.
  */
 
-#ifndef KX132_REGISTER_INTERFACE_H
-#define KX132_REGISTER_INTERFACE_H
+#ifndef KX132_LOW_LEVEL_BUS_INTERFACE_H
+#define KX132_LOW_LEVEL_BUS_INTERFACE_H
 
 
 
@@ -49,4 +49,4 @@ typedef struct
 
 
 
-#endif // KX132_REGISTER_INTERFACE_H
+#endif // KX132_LOW_LEVEL_BUS_INTERFACE_H

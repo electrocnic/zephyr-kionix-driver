@@ -404,7 +404,7 @@ int kx132_disable_sample_buffer(const struct device *dev)
  */
 
 int kx132_update_reg__odcntl__output_data_rate(const struct device *dev,
-                                          const enum kx132_1211_output_data_rates_e new_odr)
+                                          const enum kx132_1211_output_data_rates new_odr)
 // NEED to review KX132 datasheet(s) to see whether there are multiple
 // output data rates independtly settable by end users, in registers
 // beyond KX132_ODCNTL - TMH
@@ -922,7 +922,7 @@ int kx132_fetch_readings_from_buf_read(const struct device *dev)
     uint8_t reg_val_to_read[KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT];
     uint8_t *read_buffer = reg_val_to_read;
     uint16_t needed_sample_byte_count = 0;
-//    enum kx132_readings_resolution_e reading_resolution = KX132_READING_RES_HI_16_BIT;
+//    enum kx132_readings_resolution reading_resolution = KX132_READING_RES_HI_16_BIT;
 
     int rstatus = 0;
 

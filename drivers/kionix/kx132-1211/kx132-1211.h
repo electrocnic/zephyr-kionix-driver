@@ -24,7 +24,7 @@
 // firmware project device tree source result in correct, needed driver
 // compilation of the chosen bus on which KX132 sensor resides.
 
-#include "kx132-register-interface.h" 
+#include "kx132-low-level-bus-interface.h" 
 
 
 
@@ -428,7 +428,7 @@ enum sensor_attributes_kionix_specific {
 // REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_attribute
 // REF from Kionix AN092-Getting-Stated.pdf
 
-enum kx132_1211_config_setting_e
+enum kx132_1211_config_setting
 {
     KX132_CONFIGURATION_SETTING_FIRST,
 

@@ -14,7 +14,7 @@
 //----------------------------------------------------------------------
 
 // This looks like an indirect Zephyr RTOS dependency . . . TMH:
-#include "kx132-register-interface.h" // to provide kionix_ctx_t to function prototypes
+#include "kx132-low-level-bus-interface.h" // to provide kionix_ctx_t to function prototypes
 
 
 
@@ -30,7 +30,7 @@
 // ODCNTL (0x21) control register, pages 25..26 of 75. 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-enum kx132_1211_output_data_rates_e
+enum kx132_1211_output_data_rates
 {
     KX132_ODR_0P781_HZ,
     KX132_ODR_1P563_HZ,
@@ -53,7 +53,7 @@ enum kx132_1211_output_data_rates_e
     KX132_ODR_25600_HZ,
 };
 
-enum kx132_readings_resolution_e
+enum kx132_readings_resolution
 {
     KX132_READING_RES_LO_8_BIT = 0,
     KX132_READING_RES_HI_16_BIT = 1,
@@ -276,7 +276,7 @@ int kx132_update_reg__buf_clear(const struct device *dev);
 
 int kx132_update_reg__odcntl__output_data_rate(
                                                const struct device *dev,
-                                               enum kx132_1211_output_data_rates_e new_odr
+                                               enum kx132_1211_output_data_rates new_odr
                                               );
 
 int kx132_update_shadow_reg__sample_threshold(const struct device *dev, const uint8_t new_sample_threshold);

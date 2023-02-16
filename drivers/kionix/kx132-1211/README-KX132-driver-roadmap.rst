@@ -28,7 +28,7 @@ kx132-1211.c          . . . implements Zephyr sensor APIS
                             and instantiates sensor structure instances for each KX132
                             found in project device tree.
 
-kx132-register-interface.h
+kx132-low-level-bus-interface.h
                       . . . function pointer type defines for low level register read and write functions
 
 kx132-i2c.[ch]        . . . low level I2C register read and write routines
