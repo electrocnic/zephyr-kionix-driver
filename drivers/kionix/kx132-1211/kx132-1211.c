@@ -1,10 +1,7 @@
 /**
  * @project Kionix Sensor Drivers
- *
  * @file kx132-1211.c
- *
  * @author Ted Havelka
- *
  * @license Apache 2.0 licensed.
  */
 
