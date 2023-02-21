@@ -748,8 +748,7 @@ int kx132_get_attr__acc_reading_in_standard_units(const struct device *dev, stru
     reading.as_float = reading_in_g(raw_acc_reading, resolution, range, desired_units);
 
     // 0.046200979501 . . . should appear as 0x3d3d3d3d when printed as hex format integer
-//    converted_reading = 0.046200979501;
-    reading.as_float = 0.046200979501;
+    // reading.as_float = 0.046200979501;
 
     value->val1 = reading.as_int;
 
