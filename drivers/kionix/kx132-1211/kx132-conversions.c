@@ -5,15 +5,17 @@
   * @license Apache 2.0 licensed.
   */
 
+#include <stdio.h>                 // to provide printk()
+
 #include "kx132-conversions.h"
 
-float reading_in_g(const uint32_t reading_in_dec_counts,
+float reading_in_g(const unsigned int reading_in_dec_counts,
                    const enum kx132_acceleration_resolutions resolution,
                    const enum kx132_acceleration_ranges range,
                    const enum acceleration_units_of_measure desired_units)
 {
-    int32_t decimal_count_max = 0;
-    int32_t decimal_count_min = 0;
+    int decimal_count_max = 0;
+    int decimal_count_min = 0;
     float units_of_g_range_max = 0.0;
     float units_of_g_range_min = 0.0;
     float reading = 0.0;
@@ -67,7 +69,7 @@ float reading_in_g(const uint32_t reading_in_dec_counts,
 // --------------------
 // decimal counts range
 
-    reading = ( (int16_t)reading_in_dec_counts * ( (units_of_g_range_max - units_of_g_range_min) /
+    reading = ( (short int)reading_in_dec_counts * ( (units_of_g_range_max - units_of_g_range_min) /
                 ((float)decimal_count_max - (float)decimal_count_min)
               ) );
 
