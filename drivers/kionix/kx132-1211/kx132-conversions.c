@@ -17,8 +17,8 @@ float reading_in_g(const unsigned int reading_in_dec_counts,
                    const enum kx132_acceleration_ranges range,
                    const enum acceleration_units_of_measure desired_units)
 {
-    int decimal_count_max = 0;
-    int decimal_count_min = 0;
+    float raw_reading_count_max = 0;
+    float raw_reading_count_min = 0;
     float units_of_g_range_max = 0.0;
     float units_of_g_range_min = 0.0;
     float reading = 0.0;
@@ -30,8 +30,8 @@ printk("\n---\n--- KX132 driver:  got raw acceleration reading of %u, range enum
     {
 // NEED to consider bounds check on reading to keep within unsigned 0x0000 to 0xFFFF, 16-bit range of values.
 
-        decimal_count_max = KX132_RANGE_RES_HIGH_DECIMAL_COUNTS_MAX;
-        decimal_count_min = KX132_RANGE_RES_HIGH_DECIMAL_COUNTS_MIN;
+        raw_reading_count_max = KX132_RANGE_RES_HIGH_DECIMAL_COUNTS_MAX;
+        raw_reading_count_min = KX132_RANGE_RES_HIGH_DECIMAL_COUNTS_MIN;
 
         switch (range)
         {
@@ -77,15 +77,15 @@ printk("\n---\n--- KX132 driver:  got raw acceleration reading of %u, range enum
 
     reading = ( (float)reading_in_dec_counts *
                 ( (units_of_g_range_max - units_of_g_range_min) /
-                  (decimal_count_max - decimal_count_min)
+                  (raw_reading_count_max - raw_reading_count_min)
                 )
               );
 
     printk("(1) range max minus range min = %3.3f\n", (units_of_g_range_max - units_of_g_range_min));
-    printk("(2) decimal count max = %6.1f\n", decimal_count_max);
-    printk("(3) decimal count min = %6.1f\n", decimal_count_min);
-    printk("(4) decimal count = %6.1f\n", (decimal_count_max - decimal_count_min));
-    printk("quotient of (1) over (4) = %3.3f\n", ((units_of_g_range_max - units_of_g_range_min) / (decimal_count_max - decimal_count_min)));
+    printk("(2) decimal count max = %6.1f\n", raw_reading_count_max);
+    printk("(3) decimal count min = %6.1f\n", raw_reading_count_min);
+    printk("(4) decimal count = %6.1f\n", (raw_reading_count_max - raw_reading_count_min));
+    printk("quotient of (1) over (4) = %3.3f\n", ((units_of_g_range_max - units_of_g_range_min) / (raw_reading_count_max - raw_reading_count_min)));
 
     if ( desired_units == ACCELERATION_IN_M_PER_S_SQUARED )
     {
