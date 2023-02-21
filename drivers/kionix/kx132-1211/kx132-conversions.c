@@ -20,7 +20,7 @@ float reading_in_g(const unsigned int reading_in_dec_counts,
     float units_of_g_range_min = 0.0;
     float reading = 0.0;
 
-printk("---\n--- KX132 driver:  got raw acceleration reading of %u ---\n---\n");
+printk("\n---\n--- KX132 driver:  got raw acceleration reading of %u ---\n---\n", reading_in_dec_counts);
 
 // For 16-bit, high resolution readings:
     {
