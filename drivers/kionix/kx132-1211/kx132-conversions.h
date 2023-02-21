@@ -1,3 +1,6 @@
+#ifndef KX132_CONVERSIONS_H
+#define KX132_CONVERSIONS_H
+
  /**
   * @project Kionix Sensor Drivers
   * @file kx132-conversions.h
@@ -71,5 +74,4 @@ float reading_in_g(const uint32_t reading_in_dec_counts,
                    const enum acceleration_units_of_measure desired_units);
 
 
-
-
+#endif // KX132_CONVERSIONS_H
