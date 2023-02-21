@@ -737,7 +737,7 @@ int kx132_get_attr__acc_reading_in_standard_units(const struct device *dev, stru
     {
         float as_float;
         unsigned int as_int;
-    }
+    };
 
     unsigned int raw_acc_reading                     = (value->val1 & 0x0000FFFF);
     enum kx132_acceleration_resolutions resolution   = ((value->val1 & 0x00030000) >> 16);  // two resolutions
