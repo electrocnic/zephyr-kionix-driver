@@ -68,7 +68,7 @@ enum acceleration_units_of_measure
 
 
 
-float reading_in_g(const uint32_t reading_in_dec_counts,
+float reading_in_g(const unsigned int reading_in_dec_counts,
                    const enum kx132_acceleration_resolutions resolution,
                    const enum kx132_acceleration_ranges range,
                    const enum acceleration_units_of_measure desired_units);

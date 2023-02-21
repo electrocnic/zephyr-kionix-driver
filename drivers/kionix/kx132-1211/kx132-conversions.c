@@ -50,7 +50,7 @@ float reading_in_g(const unsigned int reading_in_dec_counts,
                 break;
 
             default:
-                printk("- WARNING - unsupported KX132 ");
+//                printk("- WARNING - unsupported KX132 ");
                 return reading;
         }
     }
