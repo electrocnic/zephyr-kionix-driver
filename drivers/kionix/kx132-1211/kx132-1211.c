@@ -126,7 +126,7 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 static int kx132_1211_attr_get(const struct device *dev,
                                enum sensor_channel chan,
                                enum sensor_attribute attr,
-                               struct sensor_value *val)
+                               struct sensor_value *value)
 {
     int rstatus = ROUTINE_OK;
 
@@ -150,19 +150,24 @@ static int kx132_1211_attr_get(const struct device *dev,
 // kludgy at best to convey strings between app and driver code.
 
         case SENSOR_ATTR_KIONIX__STATUS_REG_INS2:
-            rstatus = kx132_get_attr__return_interrupt_statae_2(dev, val);
+            rstatus = kx132_get_attr__return_interrupt_statae_2(dev, value);
             break;
 
         case SENSOR_ATTR_KIONIX__STATUS_REG_ODCNTL:
-            rstatus = kx132_get_attr__output_data_rate(dev, val);
+            rstatus = kx132_get_attr__output_data_rate(dev, value);
             break;
 
         case SENSOR_ATTR_KIONIX__CONFIG_REG_BUF_CNTL1:
-            rstatus = kx132_get_attr__buf_cntl1__sample_threshold_setting(dev, val);
+            rstatus = kx132_get_attr__buf_cntl1__sample_threshold_setting(dev, value);
             break;
 
         case SENSOR_ATTR_KIONIX__FIFO_REG_BUF_READ:
-            rstatus = kx132_get_attr__buf_read__sample_as_attribute(dev, val);
+            rstatus = kx132_get_attr__buf_read__sample_as_attribute(dev, value);
+            break;
+
+
+        case SENSOR_ATTR_KIONIX__ACC_READING_IN_STANDARD_UNITS:
+            rstatus = kx132_get_attr__acc_reading_in_standard_units(dev, value);
             break;
 
         default:

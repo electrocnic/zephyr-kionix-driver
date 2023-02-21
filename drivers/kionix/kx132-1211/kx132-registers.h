@@ -274,7 +274,7 @@ int kx132_get_attr__buf_read__sample_as_attribute(const struct device *dev, stru
  *        range value, e.g. +2.0g, +4.0g, etc, and returns an
  *        acceleration value in units of g.
  */
-int kx132_get_attr__acc_reading_in_g(const struct device *dev, struct sensor_value *val);
+int kx132_get_attr__acc_reading_in_standard_units(const struct device *dev, struct sensor_value *val);
 
 
 
