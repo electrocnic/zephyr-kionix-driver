@@ -55,8 +55,8 @@ enum kx132_acceleration_resolutions
 
 enum acceleration_units_of_measure
 {
-    ACCELERATION_IN_G,
-    ACCELERATION_IN_M_PER_S_SQUARED
+    ACCELERATION_IN_M_PER_S_SQUARED,
+    ACCELERATION_IN_INCHES_PER_S_SQUARED
 };
 
 // https://en.wikipedia.org/wiki/Gravitational_acceleration

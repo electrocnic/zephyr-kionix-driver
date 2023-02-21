@@ -14,6 +14,8 @@
 
 #include "kx132-registers.h"       // to provide register addresses via symbols
 
+#include "kx132-conversions.h"
+
 // Following include here to provide kionix_ctx_t sensor context data
 // structure definition.  This structure entails function pointers
 // to act as assignable wrappers to register read, and register write
