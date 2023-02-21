@@ -23,7 +23,7 @@ float reading_in_g(const unsigned int reading_in_dec_counts,
     float units_of_g_range_min = 0.0;
     float reading = 0.0;
 
-printk("\n---\n--- KX132 driver:  got raw acceleration reading of %u, range enum value %u ---\n---\n",
+printk("\n---\n--- KX132 driver:  got raw acceleration reading of %u, range enum value %u ---\n",
   reading_in_dec_counts, range);
 
 // For 16-bit, high resolution readings:
@@ -80,6 +80,10 @@ printk("\n---\n--- KX132 driver:  got raw acceleration reading of %u, range enum
                   (decimal_count_max - decimal_count_min)
                 )
               );
+
+    printk("range max minus range min = %3.3f\n", (units_of_g_range_max - units_of_g_range_min));
+    printk("decimal count = %6.1f\n", (decimal_count_max - decimal_count_min));
+    printk("quotient of these = %3.3f\n", ((units_of_g_range_max - units_of_g_range_min) / (decimal_count_max - decimal_count_min)));
 
     if ( desired_units == ACCELERATION_IN_M_PER_S_SQUARED )
     {
