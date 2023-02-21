@@ -81,9 +81,11 @@ printk("\n---\n--- KX132 driver:  got raw acceleration reading of %u, range enum
                 )
               );
 
-    printk("range max minus range min = %3.3f\n", (units_of_g_range_max - units_of_g_range_min));
-    printk("decimal count = %6.1f\n", (decimal_count_max - decimal_count_min));
-    printk("quotient of these = %3.3f\n", ((units_of_g_range_max - units_of_g_range_min) / (decimal_count_max - decimal_count_min)));
+    printk("(1) range max minus range min = %3.3f\n", (units_of_g_range_max - units_of_g_range_min));
+    printk("(2) decimal count max = %6.1f\n", decimal_count_max);
+    printk("(3) decimal count min = %6.1f\n", decimal_count_min);
+    printk("(4) decimal count = %6.1f\n", (decimal_count_max - decimal_count_min));
+    printk("quotient of (1) over (4) = %3.3f\n", ((units_of_g_range_max - units_of_g_range_min) / (decimal_count_max - decimal_count_min)));
 
     if ( desired_units == ACCELERATION_IN_M_PER_S_SQUARED )
     {
