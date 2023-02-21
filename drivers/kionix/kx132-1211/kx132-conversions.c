@@ -7,7 +7,9 @@
 
 #include <stdio.h>                 // to provide printk()
 
+#include "kx132-registers.h"
 #include "kx132-conversions.h"
+
 
 float reading_in_g(const unsigned int reading_in_dec_counts,
                    const enum kx132_acceleration_resolutions resolution,
@@ -20,7 +22,8 @@ float reading_in_g(const unsigned int reading_in_dec_counts,
     float units_of_g_range_min = 0.0;
     float reading = 0.0;
 
-printk("\n---\n--- KX132 driver:  got raw acceleration reading of %u ---\n---\n", reading_in_dec_counts);
+printk("\n---\n--- KX132 driver:  got raw acceleration reading of %u, range enum value %u ---\n---\n",
+  reading_in_dec_counts, range);
 
 // For 16-bit, high resolution readings:
     {
@@ -71,9 +74,11 @@ printk("\n---\n--- KX132 driver:  got raw acceleration reading of %u ---\n---\n"
 // --------------------
 // decimal counts range
 
-    reading = ( (short int)reading_in_dec_counts * ( (units_of_g_range_max - units_of_g_range_min) /
-                ((float)decimal_count_max - (float)decimal_count_min)
-              ) );
+    reading = ( (float)reading_in_dec_counts *
+                ( (units_of_g_range_max - units_of_g_range_min) /
+                  (decimal_count_max - decimal_count_min)
+                )
+              );
 
     if ( desired_units == ACCELERATION_IN_M_PER_S_SQUARED )
     {

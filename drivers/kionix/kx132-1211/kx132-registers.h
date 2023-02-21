@@ -53,10 +53,20 @@ enum kx132_1211_output_data_rates
     KX132_ODR_25600_HZ,
 };
 
-enum kx132_readings_resolution
+enum kx132_acceleration_ranges
 {
-    KX132_READING_RES_LO_8_BIT = 0,
-    KX132_READING_RES_HI_16_BIT = 1,
+    KX132_ACCEL_RANGES_BEGIN,
+    KX132_RANGE_PLUS_MINUS_2G,
+    KX132_RANGE_PLUS_MINUS_4G,
+    KX132_RANGE_PLUS_MINUS_8G,
+    KX132_RANGE_PLUS_MINUS_16G,
+    KX132_ACCEL_RANGES_END
+};
+
+enum kx132_acceleration_resolutions
+{
+    KX132_ACCEL_RESOLUTION_HIGH = 1,
+    KX132_ACCEL_RESOLUTION_LOW
 };
 
 
