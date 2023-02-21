@@ -7,8 +7,8 @@
 
 #include <stdio.h>                 // to provide printk()
 
+#include "kx132-1211.h"
 #include "kx132-conversions.h"
-
 #include "kx132-registers.h"
 
 
