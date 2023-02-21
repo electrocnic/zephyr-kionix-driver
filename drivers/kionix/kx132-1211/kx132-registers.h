@@ -14,7 +14,7 @@
 //----------------------------------------------------------------------
 
 // This looks like an indirect Zephyr RTOS dependency . . . TMH:
-#include "kx132-register-interface.h" // to provide kionix_ctx_t to function prototypes
+#include "kx132-low-level-bus-interface.h" // to provide kionix_ctx_t to function prototypes
 
 
 
@@ -30,7 +30,7 @@
 // ODCNTL (0x21) control register, pages 25..26 of 75. 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-enum kx132_1211_output_data_rates_e
+enum kx132_1211_output_data_rates
 {
     KX132_ODR_0P781_HZ,
     KX132_ODR_1P563_HZ,
@@ -53,10 +53,20 @@ enum kx132_1211_output_data_rates_e
     KX132_ODR_25600_HZ,
 };
 
-enum kx132_readings_resolution_e
+enum kx132_acceleration_ranges
 {
-    KX132_READING_RES_LO_8_BIT = 0,
-    KX132_READING_RES_HI_16_BIT = 1,
+    KX132_ACCEL_RANGES_BEGIN,
+    KX132_RANGE_PLUS_MINUS_2G,
+    KX132_RANGE_PLUS_MINUS_4G,
+    KX132_RANGE_PLUS_MINUS_8G,
+    KX132_RANGE_PLUS_MINUS_16G,
+    KX132_ACCEL_RANGES_END
+};
+
+enum kx132_acceleration_resolutions
+{
+    KX132_ACCEL_RESOLUTION_HIGH = 1,
+    KX132_ACCEL_RESOLUTION_LOW
 };
 
 
@@ -267,6 +277,16 @@ int kx132_get_attr__buf_cntl1__sample_threshold_setting(const struct device *dev
 
 int kx132_get_attr__buf_read__sample_as_attribute(const struct device *dev, struct sensor_value *val);
 
+// Not technically a attribute getters, but returns which return a value immediately:
+
+/**
+ * @brief Routine which takes a raw accelerometer reading, and full
+ *        range value, e.g. +2.0g, +4.0g, etc, and returns an
+ *        acceleration value in units of g.
+ */
+int kx132_get_attr__acc_reading_in_standard_units(const struct device *dev, struct sensor_value *val);
+
+
 
 // - GROUP - routines which write values to sensor registers:
 
@@ -276,7 +296,7 @@ int kx132_update_reg__buf_clear(const struct device *dev);
 
 int kx132_update_reg__odcntl__output_data_rate(
                                                const struct device *dev,
-                                               enum kx132_1211_output_data_rates_e new_odr
+                                               enum kx132_1211_output_data_rates new_odr
                                               );
 
 int kx132_update_shadow_reg__sample_threshold(const struct device *dev, const uint8_t new_sample_threshold);

@@ -1,35 +1,59 @@
-/*
- *  Kionix KX132 Zephyr driver
+/**
+ * @project Kionix KX132 Zephyr driver
  *
- *  SPDX-License-Identifier: Apache-2.0
+ * @license SPDX-License-Identifier: Apache-2.0
  *
- *  Based on:
+ * @note Based on:
  *    ST Microelectronics IIS2DH 3-axis accelerometer driver
  *    Copyright (c) 2020 STMicroelectronics
  *    SPDX-License-Identifier: Apache-2.0
  *    Datasheet:  https://www.st.com/resource/en/datasheet/iis2dh.pdf
  */
 
-#define DT_DRV_COMPAT kionix_kx132_1211
+//#define DT_DRV_COMPAT kionix_kx132_1211
+
+//----------------------------------------------------------------------
+// - SECTION - includes
+//----------------------------------------------------------------------
 
 #include <string.h>
 #include "kx132-1211.h"
 #include <zephyr/logging/log.h>
+LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 // For development only:
 #include <stdio.h>
 
 
 
-#if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
+//----------------------------------------------------------------------
+// - SECTION - defines
+//----------------------------------------------------------------------
+
+#define DT_DRV_COMPAT kionix_kx132_1211
 
 //#define KX132_SPI_READM   (3 << 6) /* 0xC0  . . . set bit 7 to read, set bit 6 to auto-increment peripheral register addr */
 #define KX132_SPI_READM   (2 << 6) /* 0x80  . . . set bit 7 to read, unset bit 6 to hold peripheral register addr steady*/
 #define KX132_SPI_WRITEM  (1 << 6) /* 0x40  . . . set bit 6 to auto-increment peripheral register addr */
 
-LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 
+//----------------------------------------------------------------------
+// - SECTION - defines development
+//----------------------------------------------------------------------
+
+// Following define is very handy to confirm multi-register config sequences:
+//#define DEV__KX_DRIVER_DEV_1202__LOW_LEVEL_SPI_WRITE
+
+//#define DEV__KX_DRIVER_DEV_1120__LOW_LEVEL_SPI_READ
+
+
+
+//----------------------------------------------------------------------
+// - SECTION - routines
+//----------------------------------------------------------------------
+
+#if DT_ANY_INST_ON_BUS_STATUS_OKAY(spi)
 
 static int kx132_spi_read(const struct device *dev, uint8_t reg, uint8_t *data, uint16_t len)
 {
@@ -39,7 +63,7 @@ static int kx132_spi_read(const struct device *dev, uint8_t reg, uint8_t *data, 
 #ifdef DEV__KX_DRIVER_DEV_1120__LOW_LEVEL_SPI_READ
 // #warning "--- DEV 1120 --- compiling kx132_spi_read() function . . ."
     char lbuf[240];
-    snprintf(lbuf, sizeof(lbuf), "- KX132 driver - SPI read called with reg %u, requesting %u bytes . . .\n",
+    snprintf(lbuf, sizeof(lbuf), "- KX132 driver - via SPI called to read reg 0x%02X, requesting %u bytes . . .\n",
       reg, len);
     printk("%s", lbuf);
 #endif // DEV__KX_DRIVER_DEV_1120__LOW_LEVEL_SPI_READ

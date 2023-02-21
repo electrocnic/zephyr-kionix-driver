@@ -14,6 +14,8 @@
 
 #include "kx132-registers.h"       // to provide register addresses via symbols
 
+#include "kx132-conversions.h"
+
 // Following include here to provide kionix_ctx_t sensor context data
 // structure definition.  This structure entails function pointers
 // to act as assignable wrappers to register read, and register write
@@ -24,7 +26,7 @@
 // firmware project device tree source result in correct, needed driver
 // compilation of the chosen bus on which KX132 sensor resides.
 
-#include "kx132-register-interface.h" 
+#include "kx132-low-level-bus-interface.h" 
 
 
 
@@ -66,7 +68,7 @@
 
 // "Data ready" interrupt port status possibilites:
 
-enum kx132_1211_drdy_port_status_e
+enum kx132_1211_drdy_port_status
 {
     DRDY_PORT_NOT_INITIALIZED,
     DRDY_CFG_INT_GPIO_FOUND_NULL,
@@ -80,15 +82,9 @@ enum kx132_1211_drdy_port_status_e
 
 
 
-
 //----------------------------------------------------------------------
-// - SECTION - development
+// - SECTION - defines development
 //----------------------------------------------------------------------
-
-// Following define is very handy to confirm multi-register config sequences:
-//#define DEV__KX_DRIVER_DEV_1202__LOW_LEVEL_SPI_WRITE
-
-//#define DEV__KX_DRIVER_DEV_1120__LOW_LEVEL_SPI_READ
 
 //#define DEV_ANNOUNCE_TRIGGER_CODE_COMPILATION
 
@@ -425,6 +421,7 @@ enum sensor_attributes_kionix_specific {
     SENSOR_ATTR_KIONIX__STATUS_REG_ODCNTL,
     SENSOR_ATTR_KIONIX__FIFO_REG_BUF_READ,
     SENSOR_ATTR_KIONIX__CONFIG_REG_BUF_CNTL1,
+    SENSOR_ATTR_KIONIX__ACC_READING_IN_STANDARD_UNITS,
 
     SENSOR_ATTR_KIONIX__END
 };
@@ -434,7 +431,7 @@ enum sensor_attributes_kionix_specific {
 // REF https://docs.zephyrproject.org/latest/reference/peripherals/sensor.html#c.sensor_attribute
 // REF from Kionix AN092-Getting-Stated.pdf
 
-enum kx132_1211_config_setting_e
+enum kx132_1211_config_setting
 {
     KX132_CONFIGURATION_SETTING_FIRST,
 

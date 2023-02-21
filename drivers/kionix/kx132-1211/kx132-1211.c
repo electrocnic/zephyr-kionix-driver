@@ -1,10 +1,7 @@
 /**
  * @project Kionix Sensor Drivers
- *
  * @file kx132-1211.c
- *
  * @author Ted Havelka
- *
  * @license Apache 2.0 licensed.
  */
 
@@ -53,12 +50,12 @@ LOG_MODULE_REGISTER(KX132, CONFIG_SENSOR_LOG_LEVEL); // <-- NEED to review LOG_M
  *  @param   Zephyr sensor value
  *
  *  @note    sensor_value.val1 data members holds a value found in
- *           KX132-1211 enumeration named 'kx132_1211_config_setting_e'.
+ *           KX132-1211 enumeration named 'kx132_1211_config_setting'.
  *           This datum is tested to select which sensor attribute
  *           calling code wants to update.
  *
  *           sensor_value.val2 data members holds a value found in
- *           KX132-1211 enumeration named 'kx132_1211_output_data_rates_e'.
+ *           KX132-1211 enumeration named 'kx132_1211_output_data_rates'.
  *           This datum represents the Output Data Rate setting to
  *           apply here to the KX132-1211 sensor.
  * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -129,7 +126,7 @@ static int kx132_configure_output_data_rate(const struct device *dev, const stru
 static int kx132_1211_attr_get(const struct device *dev,
                                enum sensor_channel chan,
                                enum sensor_attribute attr,
-                               struct sensor_value *val)
+                               struct sensor_value *value)
 {
     int rstatus = ROUTINE_OK;
 
@@ -153,19 +150,24 @@ static int kx132_1211_attr_get(const struct device *dev,
 // kludgy at best to convey strings between app and driver code.
 
         case SENSOR_ATTR_KIONIX__STATUS_REG_INS2:
-            rstatus = kx132_get_attr__return_interrupt_statae_2(dev, val);
+            rstatus = kx132_get_attr__return_interrupt_statae_2(dev, value);
             break;
 
         case SENSOR_ATTR_KIONIX__STATUS_REG_ODCNTL:
-            rstatus = kx132_get_attr__output_data_rate(dev, val);
+            rstatus = kx132_get_attr__output_data_rate(dev, value);
             break;
 
         case SENSOR_ATTR_KIONIX__CONFIG_REG_BUF_CNTL1:
-            rstatus = kx132_get_attr__buf_cntl1__sample_threshold_setting(dev, val);
+            rstatus = kx132_get_attr__buf_cntl1__sample_threshold_setting(dev, value);
             break;
 
         case SENSOR_ATTR_KIONIX__FIFO_REG_BUF_READ:
-            rstatus = kx132_get_attr__buf_read__sample_as_attribute(dev, val);
+            rstatus = kx132_get_attr__buf_read__sample_as_attribute(dev, value);
+            break;
+
+
+        case SENSOR_ATTR_KIONIX__ACC_READING_IN_STANDARD_UNITS:
+            rstatus = kx132_get_attr__acc_reading_in_standard_units(dev, value);
             break;
 
         default:
@@ -190,7 +192,7 @@ static int kx132_1211_attr_get(const struct device *dev,
 //        Some KX132 config related attributes lie outside Zephyr's
 //        defined sensor attributes.  These KX132 specific attributes
 //        are expressed in Kionix driver enumeration named
-//        'kx132_1211_config_setting_e'.
+//        'kx132_1211_config_setting'.
 //
 //        Note that not all configuration and state changes are simple,
 //        numeric values applied to a KX132 register, but that some
@@ -299,7 +301,7 @@ static int kx132_1211_attr_set(const struct device *dev,
 
                         case KX132_SET_OUTPUT_DATA_RATE:
                             kx132_update_reg__odcntl__output_data_rate(dev,
-                              (const enum kx132_1211_output_data_rates_e)val->val2);
+                              (const enum kx132_1211_output_data_rates)val->val2);
                             break;
 
                         case KX132_SET_WMI_SAMPLE_THRESHOLD:
@@ -557,7 +559,7 @@ static int kx132_init_interface(const struct device *dev)
                 return rstatus;
         }
 #else
-#error "BUS MACRO NOT DEFINED IN DTS"
+#warning "BUS MACRO NOT DEFINED IN DTS - only limited part of KX132 driver API will be available"
 #endif
 
         return 0;
@@ -615,7 +617,7 @@ static int kx132_1211_init(const struct device *dev)
         }
         else
         {
-            printk("- MARK 1 b - kx132-1211.c finds cfg->int_gpio.port null!\n");
+            printk("- DMARK 1 b - kx132-1211.c finds cfg->int_gpio.port null!\n");
         }
 #endif // CONFIG_KX132_TRIGGER
 
@@ -659,13 +661,6 @@ static const struct sensor_driver_api kx132_driver_api =
                  0, SPI_OP_MODE_MASTER | SPI_MODE_CPOL | SPI_MODE_CPHA | SPI_WORD_SET(8), 0),)
 
 #define KX132_I2C(inst) (.i2c = I2C_DT_SPEC_INST_GET(inst),)
-
-
-
-#ifdef CONFIG_KX132_TRIGGER
-#warning "- DEV 1125 - assigning Zephyr DT macro value to .int_gpio of kx132_device_config structure,"
-#endif
-
 
 #define KX132_DEFINE(inst)                                                                    \
 \

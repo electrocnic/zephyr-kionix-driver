@@ -7,50 +7,23 @@
  *
  * @license Apache 2.0 licensed.
  *
- * NOTE this code copied and adapted from STMicro iis2dh_trigger.c, in Zephyr RTOS 3.2.0.
+ * NOTE this code adapted from STMicro iis2dh_trigger.c, in Zephyr RTOS 3.2.0.
  */
 
 
 
-// Original active config for GPIO interrupt, taken from IIS2DH driver:
-#define GPIO_INT__KX132_SETTING   GPIO_INT_EDGE_TO_ACTIVE
-//#define GPIO_INT__KX132_SETTING   GPIO_INT_EDGE_RISING
-
-#define DEV_1201_INTERRUPT_STRING "A5A5A5A5\n"
-
-
-
 //----------------------------------------------------------------------
-// C library includes:
+// - SECTION - includes
 //----------------------------------------------------------------------
 
 // 2022-11-24 - stdio.h for debugging only:
 #include <stdio.h>                 // to provide printk()
 #include <string.h>                // to provide strlen()
 
-
-//----------------------------------------------------------------------
-// Zephyr RTOS includes:
-//----------------------------------------------------------------------
-
 #include <zephyr/device.h>
-
-// #ifndef DEVICE_DT_GET
-// #warning "AHH! - Somehow didn't pick up DEVICE_DT_GET definition from `zephyr/device.h' header"
-// #else
-// #warning "YEAH! - got DEVICE_DT_GET definition . . . now are we applying it right? . . ." 
-// #endif
-
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/logging/log.h> 
-
 LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
-
-
-
-//----------------------------------------------------------------------
-// include stanzas for this Kionix sensor driver:
-//----------------------------------------------------------------------
 
 #include "kx132-1211.h"            // to provide structs kx132_device_config, and kx132_device_data
 #include "kx132-registers.h"       // to provide KX132_INC1 and similar
@@ -58,6 +31,22 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 #include "kx132-triggers.h"        // to provide prototyps to public API functions
 
 
+
+//----------------------------------------------------------------------
+// - SECTION - defines
+//----------------------------------------------------------------------
+
+// Original active config for GPIO interrupt, taken from IIS2DH driver:
+#define GPIO_INT__KX132_SETTING   GPIO_INT_EDGE_TO_ACTIVE
+//#define GPIO_INT__KX132_SETTING   GPIO_INT_EDGE_RISING
+
+#define DEV_1201_INTERRUPT_STRING "A5A5A5A5\n"
+
+#define DEV__KX132_TRIGGERS__MESSAGES_MARK_ENABLED
+#define DEV__KX132_TRIGGERS__MESSAGES_INFO_ENABLED
+#define DEV__KX132_TRIGGERS__GPIO_PORT_NULL_CHECK
+#define DEV__KX132_TRIGGERS__DEVICE_READY_CHECK
+#define DEV__KX132_TRIGGERS__SHOW_PORT_INIT_STATAE
 
 /**
  * KX132 enable interrupt - enable sensor's INT1 pin to generate interrupt
@@ -67,11 +56,9 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
  *        found to be value, or not NULL at compile time.
  */
 
-
 #if CONFIG_KX132_TRIGGER_NONE
 // skip compilation of trigger related routines
 #else
-
 
 
 
@@ -416,55 +403,51 @@ int kx132_init_interrupt(const struct device *dev)
     uint32_t rstatus;
 
 #ifdef DEV_ANNOUNCE_TRIGGER_CODE_COMPILATION
-#warning "- KX132 triggers - compiling routine kx132_init_interrupt()"
+#warning "- kx132-triggers.c - compiling routine kx132_init_interrupt()"
 #endif
 
 // DEBUG 1124 BEGIN
-    printk("- MARK 2 - kx132 triggers driver, ");
-    printk("- sensor device name is '%s'\n", dev->name);
+    printk("- kx132-triggers.c - DMARK 2 - kx132 triggers driver,\n");
+    printk("- kx132-triggers.c - sensor device name is '%s'\n", dev->name);
 
-#if 0
-    if ( cfg->int_gpio == NULL )
+
+
+//MESSAGES_INFO_ENABLED
+
+#ifdef DEV__KX132_TRIGGERS__GPIO_PORT_NULL_CHECK
+    if ( kx132_data->int_gpio.port == NULL )
     {
-        printk("- WARNING - kx132's cfg->int_gpio pointer found null!\n");
-        printk("- WARNING - kx132's cfg->int_gpio pointer found null!\n");
-        kx132_data->drdy_port_status = DRDY_CFG_INT_GPIO_FOUND_NULL;
-        return ROUTINE_STATUS__CFG_INT_GPIO_NULL;
+        printk("- kx132-triggers.c - WARNING - sensor data->int_gpio.port data structure found null!\n");
     }
     else
-        { printk("- INFO - cfg->int_gpio structure not null,\n"); }
+    {
+        printk("- kx132-triggers.c - DINFO - sensor data->int_gpio.port data structure not null,\n");
+    }
+#endif
 
-//    if ( cfg.int_gpio == NULL )
-//        { printk("- WARNING - sensor config.int_gpio data structure found null!\n"); }
-//    else
-//        { printk("- INFO - sensor config.int_gpio data structure not null,\n"); }
-#endif // 0
-
-    if ( kx132_data->int_gpio.port == NULL )
-        { printk("- WARNING - sensor data->int_gpio.port data structure found null!\n"); }
-    else
-        { printk("- INFO - sensor data->int_gpio.port data structure not null,\n"); }
-
-    printk("- INFO - data->int_gpio.port->name holds '%s' and int_gpio pin set to pin no %u\n",
+    printk("- kx132-triggers.c - DINFO - data->int_gpio.port->name holds '%s' and int_gpio pin set to pin no %u\n",
       kx132_data->int_gpio.port->name, kx132_data->int_gpio.pin);
-    printk("- INFO - two to the power of 'pin' holds %lu\n",
+    printk("- kx132-triggers.c - DINFO - two to the power of 'pin' holds %lu\n",
       BIT(kx132_data->int_gpio.pin));
 
+
 // QUESTION:  Are we able to successfully call `device_is_ready()` from here?  ANSWER:  yes
+#ifdef DEV__KX132_TRIGGERS__DEVICE_READY_CHECK
     if ( device_is_ready(dev) )
-        { printk("- INFO - Zephyr says KX132-1211 sensor is ready,\n"); }
+    {
+        printk("- kx132-triggers.c - DINFO - Zephyr says KX132-1211 sensor is ready,\n");
+    }
     else
-        { printk("- INFO - Zephyr says KX132-1211 sensor not ready!\n"); }
+    { 
+        printk("- kx132-triggers.c - DINFO - Zephyr says KX132-1211 sensor not ready!\n");
+    }
+#endif
 
-// 'port' is of type Zephyr device, whose struct entails? . . . :
-//
 
-//        { printk("\n"); }
-
-    printk("- MARK 3 -\n");
     if ( kx132_data->int_gpio.port->state != NULL )
-        { printk("- INFO - data->int_gpio.port->state not null,\n"); }
-    printk("- MARK 4 -\n");
+    {
+        printk("- kx132-triggers.c - DINFO - data->int_gpio.port->state not null,\n");
+    }
 
     if ( strlen(kx132_data->int_gpio.port->name) < 3 )
     {
@@ -472,13 +455,15 @@ int kx132_init_interrupt(const struct device *dev)
         kx132_data->drdy_port_status = DRDY_PORT_MAL_INITIALIZED;
         return ROUTINE_STATUS__GPIO_DRDY_INTERRUPT_LOOKS_MAL_ASSIGNED;
     }
-// DEV NOTE 2022-11-28:  mark 4 is the last mark we see, let's see if a test of port.name length
-//  allow this driver to introspect and possibly retry gpio_dt_spec member type
-//  assignment later in or after boot times . . .
 
-    printk("- INFO - data->int_gpio.port->state->initialized holds %u,\n", (uint8_t)kx132_data->int_gpio.port->state->initialized);
-    printk("- INFO - data->int_gpio.port->state->init_res holds %u,\n", kx132_data->int_gpio.port->state->init_res);
-    printk("- MARK 5 -\n");
+
+#ifdef DEV__KX132_TRIGGERS__SHOW_PORT_INIT_STATAE
+    printk("- kx132-triggers.c - DINFO - data->int_gpio.port->state->initialized holds %u,\n",
+      (uint8_t)kx132_data->int_gpio.port->state->initialized);
+    printk("- kx132-triggers.c - DINFO - data->int_gpio.port->state->init_res holds %u,\n",
+      kx132_data->int_gpio.port->state->init_res);
+    printk("- kx132-triggers.c - DMARK 5 -\n");
+#endif
 
 
 // DEBUG 1124 END
@@ -487,7 +472,7 @@ int kx132_init_interrupt(const struct device *dev)
 // # REF https://github.com/zephyrproject-rtos/zephyr/blob/main/include/zephyr/drivers/gpio.h#L271
     if (!device_is_ready(kx132_data->int_gpio.port))
     {
-        printk("- MARK 6 - kx132 triggers, GPIO interrupt port not ready!\n");
+        printk("- kx132-triggers.c - DMARK 6 - kx132 triggers, GPIO interrupt port not ready!\n");
         LOG_ERR("%s: device %s is not ready", dev->name, cfg->int_gpio.port->name);
         return -ENODEV;
     }
@@ -502,11 +487,11 @@ int kx132_init_interrupt(const struct device *dev)
 //      V              |
 //     dev -> data -> dev
 
-    printk("- MARK 7 - kx132 triggers, pointing sensor->data->dev back to 'sensor',\n");
+    printk("- kx132-triggers.c - DMARK 7 - kx132 triggers, pointing sensor->data->dev back to 'sensor',\n");
     kx132_data->dev = dev;
 
 #if defined(CONFIG_KX132_TRIGGER_OWN_THREAD)
-    printk("- MARK 8 - kx132 setting up dedicated thread which involves semaphore . . .\n");
+    printk("- kx132-triggers.c - DMARK 8 - kx132 setting up dedicated thread which involves semaphore . . .\n");
     k_sem_init(&kx132_data->gpio_sem, 0, K_SEM_MAX_LIMIT);
 
     k_thread_create(&kx132_data->thread, kx132_data->thread_stack,
@@ -515,7 +500,7 @@ int kx132_init_interrupt(const struct device *dev)
                     0, NULL, K_PRIO_COOP(CONFIG_KX132_THREAD_PRIORITY),
                     0, K_NO_WAIT);
 #elif defined(CONFIG_KX132_TRIGGER_GLOBAL_THREAD)
-    printk("- MARK 8 - kx132 setting up global thread, assigning sensor->data->work.handler 'kx132_work_cb',\n");
+    printk("- DMARK 8 - kx132 setting up global thread, assigning sensor->data->work.handler 'kx132_work_cb',\n");
     kx132_data->work.handler = kx132_work_cb;
 #endif /* CONFIG_KX132_TRIGGER_OWN_THREAD */
 

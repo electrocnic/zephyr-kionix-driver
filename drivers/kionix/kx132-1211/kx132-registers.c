@@ -47,6 +47,8 @@ LOG_MODULE_DECLARE(KX132, CONFIG_SENSOR_LOG_LEVEL);
 
 #include "kx132-registers.h"       //
 
+#include "kx132-conversions.h"
+
 
 
 //----------------------------------------------------------------------
@@ -404,7 +406,7 @@ int kx132_disable_sample_buffer(const struct device *dev)
  */
 
 int kx132_update_reg__odcntl__output_data_rate(const struct device *dev,
-                                          const enum kx132_1211_output_data_rates_e new_odr)
+                                          const enum kx132_1211_output_data_rates new_odr)
 // NEED to review KX132 datasheet(s) to see whether there are multiple
 // output data rates independtly settable by end users, in registers
 // beyond KX132_ODCNTL - TMH
@@ -643,7 +645,7 @@ int kx132_get_attr__output_data_rate(const struct device *dev, struct sensor_val
 
 // IN PROGRESS - routine to return BUF_CNTL1 sample threshold value:
 
-int kx132_get_attr__buf_cntl1__sample_threshold_setting(const struct device *dev, struct sensor_value *val)
+int kx132_get_attr__buf_cntl1__sample_threshold_setting(const struct device *dev, struct sensor_value *value)
 {
     struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0};  uint8_t *read_buffer = reg_val_to_read;
@@ -651,8 +653,8 @@ int kx132_get_attr__buf_cntl1__sample_threshold_setting(const struct device *dev
 
     rstatus = kx132_read_reg(data->ctx, KX132_BUF_CNTL1, read_buffer, SIZE_KX132_REGISTER_VALUE);
     data->shadow_reg_buf_cntl1 = read_buffer[0];
-    val->val1 = data->shadow_reg_buf_cntl1;
-    val->val2 = 0;
+    value->val1 = data->shadow_reg_buf_cntl1;
+    value->val2 = 0;
 
     return rstatus;
 }
@@ -676,7 +678,7 @@ int kx132_get_attr__buf_cntl1__sample_threshold_setting(const struct device *dev
  *        application code.
  */
 
-int kx132_get_attr__buf_read__sample_as_attribute(const struct device *dev, struct sensor_value *val)
+int kx132_get_attr__buf_read__sample_as_attribute(const struct device *dev, struct sensor_value *value)
 {
     struct kx132_device_data *data = dev->data;
     uint8_t reg_val_to_read[] = {0, 0, 0, 0, 0, 0};
@@ -691,21 +693,78 @@ int kx132_get_attr__buf_read__sample_as_attribute(const struct device *dev, stru
         return rstatus;
     }
 
-    val->val1 = (
-                 ( read_buffer[0] <<  0 ) +  // XOUT_L
-                 ( read_buffer[1] <<  8 ) +  // XOUT_H
-                 ( read_buffer[2] << 16 ) +  // YOUT_L
-                 ( read_buffer[3] << 24 )    // YOUT_H
-                );
-    val->val2 = (
-                 ( read_buffer[4] <<  0 ) +  // ZOUT_L
-                 ( read_buffer[5] <<  8 )    // ZOUT_H
-                );
+    value->val1 = (
+                   ( read_buffer[0] <<  0 ) +  // XOUT_L
+                   ( read_buffer[1] <<  8 ) +  // XOUT_H
+                   ( read_buffer[2] << 16 ) +  // YOUT_L
+                   ( read_buffer[3] << 24 )    // YOUT_H
+                  );
+    value->val2 = (
+                   ( read_buffer[4] <<  0 ) +  // ZOUT_L
+                   ( read_buffer[5] <<  8 )    // ZOUT_H
+                  );
 
     return rstatus;
 }
 
 
+
+/**
+ *----------------------------------------------------------------------
+ * @brief Routine to convert KX132 raw acceleration readings to readings
+ *        in standard units of measure.
+ *
+ * @param raw reading - in sensor_t value.val1, bits 0..15
+ *
+ * @param KX132 reading resolution - in sensor_t value.val1, bit 16
+ *
+ * @param KX132 sampling range - in sensor_t value.val2, bits 0..2
+ *
+ * @param desired standard units - in sensor_t value.val2, bits 16..31
+ *
+ * @note units of g or m/s^2 only standard units supported 2023-02-20
+ *
+ * @return converted acceleration value in value.val1, in IEEE-754 floating point format
+ *
+ * ( returned acceleration value may be 16-bit floating point depending
+ *   on CMSIS or other advanced math library choice. )
+ *----------------------------------------------------------------------
+ */
+
+int kx132_get_attr__acc_reading_in_standard_units(const struct device *dev, struct sensor_value *value)
+{
+    union converted_reading_union_t
+    {
+        float as_float;
+        unsigned int as_int;
+    };
+
+    unsigned int raw_acc_reading                     = (value->val1 & 0x0000FFFF);
+    enum kx132_acceleration_resolutions resolution   = ((value->val1 & 0x00030000) >> 16);  // two resolutions
+    enum kx132_acceleration_ranges range             = (value->val2 & 0x00000007);          // four ranges in KX132
+    enum acceleration_units_of_measure desired_units = ((value->val2 & 0x00FF0000) >> 16);  // TBD count of conversion types
+
+    union converted_reading_union_t reading;
+    reading.as_float = reading_in_g(raw_acc_reading, resolution, range, desired_units);
+
+    // 0.046200979501 . . . should appear as 0x3d3d3d3d when printed as hex format integer
+    // reading.as_float = 0.046200979501;
+printk("- KX132 driver - registers.c got back converted reading value %3.6f g\n", reading.as_float);
+
+    value->val1 = reading.as_int;
+
+    return 0;
+}
+
+
+
+//----------------------------------------------------------------------
+// - SECTION - fetching routines
+//----------------------------------------------------------------------
+
+// Per Zephyr sensor API convetion these routines read sensor data and
+// store this data in driver variables, but these routines do not
+// themsevles return sensor data to application code.
 
 int kx132_fetch_acceleration_x_axis(const struct device *dev)
 {
@@ -922,7 +981,7 @@ int kx132_fetch_readings_from_buf_read(const struct device *dev)
     uint8_t reg_val_to_read[KX132_READINGS_TRIPLET_HI_RES_BYTE_COUNT];
     uint8_t *read_buffer = reg_val_to_read;
     uint16_t needed_sample_byte_count = 0;
-//    enum kx132_readings_resolution_e reading_resolution = KX132_READING_RES_HI_16_BIT;
+//    enum kx132_readings_resolution reading_resolution = KX132_READING_RES_HI_16_BIT;
 
     int rstatus = 0;
 
@@ -970,38 +1029,6 @@ int kx132_fetch_readings_from_buf_read(const struct device *dev)
     return rstatus;
 
 } // end routine kx132_fetch_readings_from_buf_read()
-
-
-
-
-//----------------------------------------------------------------------
-// - SECTION - notes
-//----------------------------------------------------------------------
-
-#if 0
-    if ( rstatus != 0 )
-    {
-        LOG_WRN("- ERROR - unable to write CNTL register, got bus error:  %i", rstatus);
-        return rstatus;
-    }
-#endif
-
-
-#if 0
-
-// Diag 1 here - 2022-12-05
-#if 0
-char lbuf[240];
-snprintf(lbuf, sizeof(lbuf), "- DEV 1120 - in KX132 driver, manufacturer ID '%c %c %c %c'\n",
-  read_buffer[0],
-  read_buffer[1],
-  read_buffer[2],
-  read_buffer[3]
-  );
-printk("%s", lbuf);
-#endif
-
-#endif
 
 
 
