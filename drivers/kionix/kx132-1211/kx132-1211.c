@@ -559,7 +559,7 @@ static int kx132_init_interface(const struct device *dev)
                 return rstatus;
         }
 #else
-#error "BUS MACRO NOT DEFINED IN DTS"
+#warning "BUS MACRO NOT DEFINED IN DTS - only limited part of KX132 driver API will be available"
 #endif
 
         return 0;
