@@ -749,6 +749,7 @@ int kx132_get_attr__acc_reading_in_standard_units(const struct device *dev, stru
 
     // 0.046200979501 . . . should appear as 0x3d3d3d3d when printed as hex format integer
     // reading.as_float = 0.046200979501;
+printk("- KX132 driver - registers.c got back converted reading value %3.6f g\n", reading.as_float);
 
     value->val1 = reading.as_int;
 
