@@ -7,8 +7,9 @@
 
 #include <stdio.h>                 // to provide printk()
 
-#include "kx132-registers.h"
 #include "kx132-conversions.h"
+
+#include "kx132-registers.h"
 
 
 float reading_in_g(const unsigned int reading_in_dec_counts,
