@@ -734,9 +734,9 @@ int kx132_get_attr__buf_read__sample_as_attribute(const struct device *dev, stru
 int kx132_get_attr__acc_reading_in_standard_units(const struct device *dev, struct sensor_value *value)
 {
     unsigned int raw_acc_reading                     = (value->val1 & 0x0000FFFF);
-    enum kx132_acceleration_resolutions resolution   = (value->val1 & 0x00030000);  // two resolutions
-    enum kx132_acceleration_ranges range             = (value->val2 & 0x00000007);  // four ranges in KX132
-    enum acceleration_units_of_measure desired_units = (value->val2 & 0x00FF0000);  // TBD count of conversion types
+    enum kx132_acceleration_resolutions resolution   = ((value->val1 & 0x00030000) >> 16);  // two resolutions
+    enum kx132_acceleration_ranges range             = (value->val2 & 0x00000007);          // four ranges in KX132
+    enum acceleration_units_of_measure desired_units = ((value->val2 & 0x00FF0000) >> 16);  // TBD count of conversion types
 
     float converted_reading = reading_in_g(raw_acc_reading, resolution, range, desired_units);
 
