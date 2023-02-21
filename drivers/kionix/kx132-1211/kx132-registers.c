@@ -733,7 +733,7 @@ int kx132_get_attr__buf_read__sample_as_attribute(const struct device *dev, stru
 
 int kx132_get_attr__acc_reading_in_standard_units(const struct device *dev, struct sensor_value *value)
 {
-    union converted_reading
+    union converted_reading_union_t
     {
         float as_float;
         unsigned int as_int;
@@ -744,7 +744,8 @@ int kx132_get_attr__acc_reading_in_standard_units(const struct device *dev, stru
     enum kx132_acceleration_ranges range             = (value->val2 & 0x00000007);          // four ranges in KX132
     enum acceleration_units_of_measure desired_units = ((value->val2 & 0x00FF0000) >> 16);  // TBD count of conversion types
 
-    union converted_reading reading.as_float = reading_in_g(raw_acc_reading, resolution, range, desired_units);
+    union converted_reading_union_t reading;
+    reading.as_float = reading_in_g(raw_acc_reading, resolution, range, desired_units);
 
     // 0.046200979501 . . . should appear as 0x3d3d3d3d when printed as hex format integer
 //    converted_reading = 0.046200979501;
