@@ -89,12 +89,12 @@ float reading_in_g(const unsigned int reading_in_dec_counts,
 
     switch (desired_units)
     {
-        case: KX132_READING_CONV__ACCELERATION_IN_G
+        case KX132_READING_CONV__ACCELERATION_IN_G:
             break;
-        case: KX132_READING_CONV__ACCELERATION_IN_M_PER_S_SQUARED
+        case KX132_READING_CONV__ACCELERATION_IN_M_PER_S_SQUARED:
             reading *= ACCELERATION_OF_GRAVITY_AT_EARTH_MEAN_SURFACE;
             break;
-        case: KX132_READING_CONV__ACCELERATION_IN_INCHES_PER_S_SQUARED
+        case KX132_READING_CONV__ACCELERATION_IN_INCHES_PER_S_SQUARED:
             reading *= ACCELERATION_OF_GRAVITY_AT_EARTH_MEAN_SURFACE_IN_INCHES_PER_SEC_SQUARED;
             break;
 
