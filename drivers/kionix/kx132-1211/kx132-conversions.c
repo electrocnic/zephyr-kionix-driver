@@ -87,11 +87,6 @@ float reading_in_g(const unsigned int reading_in_dec_counts,
     printk("quotient of (1) over (4) = %3.8f\n", ((units_of_g_range_max - units_of_g_range_min) / (raw_reading_count_max - raw_reading_count_min)));
 #endif
 
-    if ( desired_units == ACCELERATION_IN_M_PER_S_SQUARED )
-    {
-        reading *= ACCELERATION_OF_GRAVITY_AT_EARTH_MEAN_SURFACE;
-    }
-
     switch (desired_units)
     {
         case: KX132_READING_CONV__ACCELERATION_IN_G
