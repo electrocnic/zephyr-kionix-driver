@@ -37,15 +37,19 @@
 
 enum acceleration_units_of_measure
 {
-    ACCELERATION_IN_M_PER_S_SQUARED,
-    ACCELERATION_IN_INCHES_PER_S_SQUARED
+    KX132_READING_CONV__ACCELERATION_IN_G,
+    KX132_READING_CONV__ACCELERATION_IN_M_PER_S_SQUARED,
+    KX132_READING_CONV__ACCELERATION_IN_INCHES_PER_S_SQUARED
 };
 
 // https://en.wikipedia.org/wiki/Gravitational_acceleration
 // https://en.wikipedia.org/wiki/Standard_gravity
 #define ACCELERATION_OF_GRAVITY_AT_EARTH_MEAN_SURFACE 9.8067
 
-
+// 39.37007874 inches per meter
+// 386.0905511795/s^2 equals 1 g.
+// 386.08858267717 per http://conversion.org/acceleration/standard-gravity/inches-per-second-squared
+#define ACCELERATION_OF_GRAVITY_AT_EARTH_MEAN_SURFACE_IN_INCHES_PER_SEC_SQUARED 386.08858267717
 
 float reading_in_g(const unsigned int reading_in_dec_counts,
                    const enum kx132_acceleration_resolutions resolution,
